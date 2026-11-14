@@ -1,0 +1,4 @@
+[submodule "third_party/KITE"]
+	path = third_party/KITE
+	url = https://github.com/helloqxwang/KITE.git
+	ignore = untracked

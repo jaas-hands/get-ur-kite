@@ -1,0 +1,18 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+build/
+dist/
+
+# Run artefacts: rollouts, scores, videos, checkpoints, Hydra and W&B dirs
+outputs/
+wandb/
+MUJOCO_LOG.TXT
+*.npz
+*.pt
+*.mp4
+
+# Editors
+.vscode/
+.idea/

@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "getkite"
+version = "0.1.0"
+description = "GETyourKITE: a graph-conditioned (GET) kinematic decoder for KITE, with staged task scores"
+requires-python = ">=3.10"
+dependencies = [
+    "mujoco==3.8.0",  # same as KITE's env and CEBenchmark: contacts and scores depend on the version
+    "numpy",
+]
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
