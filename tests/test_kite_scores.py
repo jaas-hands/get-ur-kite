@@ -123,18 +123,31 @@ def test_objects_placing_stages_and_success(sim):
         place(model, data, "task_object", xyz)
         scores.append(score.update(data)["score"])
     assert scores == sorted(scores)
-    assert scores[0] == pytest.approx(0.3 * 0.5, abs=0.02)
+    assert scores[0] == pytest.approx(0.4 * 0.5, abs=0.02)
+    assert scores[3] == 1.0  # success as soon as the footprint is over the bin: KITE's rule
     r = score.result()
     assert r["kite_success"] and r["success"] and r["score"] == 1.0
     assert all(t is not None for t in r["stage_done_s"].values())
+    assert r["flags"]["placed"]
 
 
-def test_objects_placing_held_above_bin_is_kite_success_only(sim):
+def test_objects_placing_held_above_bin_is_success_but_not_placed(sim):
     model, data = sim
     score = objects_placing.make_score(model, data, SCENE, StandInTask())
     for xyz in [(0.0, 0.0, HALF + 0.05), (BIN_XY[0], 0.0, HALF + 0.12)]:
         place(model, data, "task_object", xyz)
         score.update(data)
     r = score.result()
-    assert r["kite_success"] and not r["success"]
-    assert 0.7 <= r["score"] < 1.0  # lift and carry done, lowering not yet
+    assert r["kite_success"] and r["success"] and r["score"] == 1.0
+    assert not r["flags"]["placed"]  # never lowered into the bin: reported, not part of success
+
+
+def test_objects_placing_success_equals_kite_rule_on_a_failed_carry(sim):
+    model, data = sim
+    score = objects_placing.make_score(model, data, SCENE, StandInTask())
+    for xyz in [(0.0, 0.0, HALF + 0.05), (0.2, 0.0, HALF + 0.05), (0.2, 0.0, HALF)]:  # lifted, carried short, put down
+        place(model, data, "task_object", xyz)
+        score.update(data)
+    r = score.result()
+    assert not r["kite_success"] and not r["success"]
+    assert 0.4 < r["score"] < 1.0  # partial credit for lift and part of the carry

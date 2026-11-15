@@ -14,7 +14,7 @@ Read from the bottle and its button only (via ``task.observe``), the same for an
 
 from __future__ import annotations
 
-from getkite.scoring import ContactWatch, SpeedReference, Stage, TaskScore, clip01, contact_failures, contact_quality
+from getkite.scoring import ContactWatch, SpeedReference, Stage, TaskScore, clip01, contact_quality
 from getkite.tasks.common import KITE_CONTACTS, EpisodeScore
 
 SPEC = TaskScore(
@@ -23,7 +23,7 @@ SPEC = TaskScore(
         Stage("press", 0.6, lambda f: f["press"], gate=lambda f: f["lifted_ever"]),
     ),
     success=lambda f: f["lifted_ever"] and f["pressed_ever"],
-    failures=contact_failures(),
+    # No failures: contact failures are flags (see common.FLAGS), so success stays KITE's rule.
     quality=contact_quality(),
     speed=SpeedReference(par_s=3.0, budget_s=6.0),  # not calibrated yet
     aggregate="peak",

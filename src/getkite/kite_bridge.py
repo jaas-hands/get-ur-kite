@@ -14,11 +14,14 @@ this process is scored, unchanged:
     with ScoringSession() as session:
         ...run a KITE rollout...
     session.results()    # one dict per episode
+
+``run_kite_script`` runs one of KITE's Hydra scripts in this process, so a session sees it.
 """
 
 from __future__ import annotations
 
 import os
+import runpy
 import sys
 from pathlib import Path
 
@@ -47,6 +50,7 @@ class ScoringSession:
 
     def __init__(self):
         self.scores = []
+        self.active = None  # (env, EpisodeScore | None) of the step in progress or the last one
         self._current = {}  # id(env) -> EpisodeScore | None; a missing key means "start one at the next step"
         self._cls = None
         self._orig = None
@@ -72,6 +76,7 @@ class ScoringSession:
                 session._current[id(env)] = score
                 if score is not None:
                     session.scores.append(score)
+            session.active = (env, session._current[id(env)])
             out = orig_step(env, *args, **kwargs)
             score = session._current[id(env)]
             if score is not None:
@@ -95,3 +100,24 @@ class ScoringSession:
 
     def results(self) -> list[dict]:
         return [s.result() for s in self.scores]
+
+
+def run_kite_script(script: str, args: list[str]) -> int:
+    """Run a KITE script (path relative to the KITE root) with Hydra ``args``, in this process.
+
+    The working directory is the KITE root while it runs, for KITE's relative paths. Returns
+    the script's exit code; Hydra exits through ``SystemExit`` even on success.
+    """
+    root = add_kite_to_path()
+    path = root / script
+    cwd, argv = os.getcwd(), sys.argv
+    os.chdir(root)
+    sys.argv = [str(path), *args]
+    try:
+        runpy.run_path(str(path), run_name="__main__")
+        return 0
+    except SystemExit as exc:
+        return 0 if exc.code in (None, 0) else (exc.code if isinstance(exc.code, int) else 1)
+    finally:
+        os.chdir(cwd)
+        sys.argv = argv

@@ -1,17 +1,19 @@
 """Score for KITE's Objects Placing task (``ObjectSuitePickPlaceTask``): a YCB object into a bin.
 
-KITE's own success rule (``task.is_success``) fires as soon as the object's footprint is
-inside the bin's, with ``placement_margin`` to spare, at any height: an object held in
-the air above the bin counts. It is reported as ``kite_success``. The staged score asks
-for the object to be lowered into the bin as well. Letting go is not required: KITE's
-episodes (120 policy frames, 6 s) end with the object still in the hand. Stages (each
-implies the ones before it):
+Success is KITE's own rule (``task.is_success``), so success rates match KITE's: the
+object's footprint is inside the bin's, with ``placement_margin`` to spare. Height does
+not matter, so an object held in the air above the bin counts. Stages (each implies the
+ones before it):
 
 1. lift   - the object's lowest point rises towards ``task.lift_delta`` above its rest height
-2. carry  - the object's footprint moves from where it started towards inside the bin
-3. lower  - over the bin, its lowest point comes down to within ``task.bottom_tolerance``
-            of the bin floor: success (``bottom_tolerance`` is defined by KITE's task but
-            not used by its success rule)
+2. carry  - the object's footprint moves from where it started towards inside the bin;
+            reaching it is success
+
+Reported next to the score, not in it: ``placed``, whether the object was at some point
+also lowered into the bin (its lowest point within ``task.bottom_tolerance`` of the bin
+floor; KITE defines that tolerance but its success rule does not use it). KITE's
+episodes (120 policy frames, 6 s) end with the object still in the hand, so letting go
+is not asked for at all.
 
 Everything is read from the object and the bin, so the score is the same for any hand.
 
@@ -24,20 +26,16 @@ from __future__ import annotations
 
 import numpy as np
 
-from getkite.scoring import ContactWatch, LowestPoint, SpeedReference, Stage, TaskScore, clip01, contact_failures, contact_quality, linear
+from getkite.scoring import ContactWatch, LowestPoint, SpeedReference, Stage, TaskScore, clip01, contact_quality
 from getkite.tasks.common import KITE_CONTACTS, EpisodeScore
-
-# -- tunables -------------------------------------------------------------------------
-LOWER_FROM = 0.10  # m above the bin floor at which the lower stage starts to count
 
 SPEC = TaskScore(
     stages=(
-        Stage("lift", 0.3, lambda f: f["lift"] / f["lift_target"]),
-        Stage("carry", 0.4, lambda f: f["carry"], gate=lambda f: f["lift"] >= f["lift_target"] or f["over_bin"]),
-        Stage("lower", 0.3, lambda f: linear(f["height"], LOWER_FROM, f["bottom_tolerance"]), gate=lambda f: f["over_bin"]),
+        Stage("lift", 0.4, lambda f: f["lift"] / f["lift_target"]),
+        Stage("carry", 0.6, lambda f: f["carry"], gate=lambda f: f["lift"] >= f["lift_target"] or f["over_bin"]),
     ),
-    success=lambda f: f["placed"],
-    failures=contact_failures(),
+    success=lambda f: f["kite_success"],
+    # No failures: contact failures are flags (see common.FLAGS), so success stays KITE's rule.
     quality=contact_quality(),
     # Not calibrated yet: a KITE episode is 120 policy frames of 0.05 s, so 6 s is the time limit.
     speed=SpeedReference(par_s=3.0, budget_s=6.0),

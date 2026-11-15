@@ -16,7 +16,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from getkite.scoring import ContactWatch, QualityTerm, SpeedReference, Stage, TaskScore, contact_failures, contact_quality
+from getkite.scoring import ContactWatch, QualityTerm, SpeedReference, Stage, TaskScore, contact_quality
 from getkite.tasks.common import KITE_CONTACTS, EpisodeScore
 
 WRONG_KEYS = (0.2, 5)  # quality lost, and the number of wrong key presses that costs all of it
@@ -33,7 +33,7 @@ SPEC = TaskScore(
         Stage("chord", 0.4, lambda f: f["down_now"] / 3.0, gate=lambda f: f["all_down_ever"]),
     ),
     success=lambda f: f["kite_success"],
-    failures=contact_failures(),
+    # No failures: contact failures are flags (see common.FLAGS), so success stays KITE's rule.
     quality=(QualityTerm("wrong keys", WRONG_KEYS[0], lambda f: f["wrong_keys"], WRONG_KEYS[1], total=True), *contact_quality()),
     speed=SpeedReference(par_s=3.0, budget_s=6.0),  # not calibrated yet
     aggregate="peak",

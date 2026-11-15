@@ -17,18 +17,24 @@ KITE_CONTACTS = dict(agent_limit=float("inf"))
 # Features whose episode maximum ``EpisodeScore.result`` reports under ``max``.
 DIAGNOSTICS = ("agent_penetration", "penetration", "net_force")
 
+# Boolean features ``EpisodeScore.result`` reports under ``flags``: whether each was ever true.
+# ``forced_through`` and ``excessive_force`` are CEBenchmark's contact failures. For KITE tasks
+# they are flags, not failures: a failure would block success, and success must stay KITE's
+# own rule so that our success rates are KITE's.
+FLAGS = ("placed", "forced_through", "excessive_force")
+
 
 class EpisodeScore:
-    """One episode's ``ScoreTracker``, plus KITE's own success flag, latched.
+    """One episode's ``ScoreTracker``, plus KITE's own success and other flags, latched.
 
     Every task's feature function returns ``kite_success``: the success rule KITE's rollout
-    scripts use, at this control step. It is latched here and reported as ``kite_success``
-    next to the staged score, so results stay comparable with the KITE paper's success rates
-    while the staged score adds partial credit, failures and quality.
+    scripts use, at this control step. The task specs use it as their success too, so
+    ``success == kite_success`` for every episode, and the staged score adds partial credit
+    (how far a failed episode got), quality and flags on top of KITE's yes/no.
 
         score = EpisodeScore("objects_placing", SPEC, make_features(model, data, scene, task))
         score.update(data)    # every control step
-        score.result()        # {"score": ..., "success": ..., "kite_success": ..., ...}
+        score.result()        # {"score": ..., "success": ..., "kite_success": ..., "flags": ..., ...}
     """
 
     def __init__(self, task: str, spec: TaskScore, features: Callable[[object], dict], meta: dict | None = None):
@@ -37,6 +43,7 @@ class EpisodeScore:
         self.kite_success = False
         self.steps = 0
         self.max = {k: 0.0 for k in DIAGNOSTICS}
+        self.flags = {}
 
         def latched(data):
             f = features(data)
@@ -44,6 +51,9 @@ class EpisodeScore:
             for k in DIAGNOSTICS:
                 if k in f:
                     self.max[k] = max(self.max[k], float(f[k]))
+            for k in FLAGS:
+                if k in f:
+                    self.flags[k] = self.flags.get(k, False) or bool(f[k])
             return f
 
         self.tracker = ScoreTracker(spec, latched)
@@ -64,4 +74,5 @@ class EpisodeScore:
             "kite_success": self.kite_success,
             **self.tracker.result(),
             "max": dict(self.max),
+            "flags": dict(self.flags),
         }
