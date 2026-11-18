@@ -26,11 +26,15 @@ src/getkite/decoder/
   multifamily.py      records, KITE's start-pose noise, family-balanced sampling
   train_scratch.py    training/evaluation with per-family metrics and provenance
   kite_reference.py   KITE's released decoder scored on the same records (reference numbers)
+  spatial_bridge.py   psi z (+ start wrist) -> contact centroid / contact set ("bridge" / translator)
+  joint_contact_get.py, train_joint.py   J1: frozen psi -> contact-set predictor -> raw-contact GET, trained jointly
 configs/decoder/      LEAP-family configs;  configs/decoder/scratch/: pilot configs
 scripts/decoder/      make_manifest.py (writes the pilot configs), report_c3.py (pilot tables),
                       check_kite_release.py, diagnostics/ (one-off analyses kept for provenance)
-slurm/                train.sbatch, scratch.sbatch, final_eval.sbatch, watchdog.sh, env.sh
+slurm/                train.sbatch, scratch.sbatch, joint.sbatch, final_eval.sbatch, watchdog.sh, env.sh
 tests/decoder/        decoder tests (skip cleanly when KITE or the dataset is missing)
+docs/decoder_audit.md               working log of the multi-family decoder, sections 1-42, with every result
+docs/decoder_crossbody_protocol.md  the Wuji / cross-body evaluation protocol, fixed before the results
 ```
 
 Data generation is not here: LEAP hands and examples come from
@@ -96,6 +100,7 @@ sbatch -J kr-eval-kite_trunk_get_ft slurm/final_eval.sbatch configs/decoder/kite
 # multi-family scratch decoder (pilot)
 python scripts/decoder/make_manifest.py        # picks the LEAP hands, writes configs/decoder/scratch/c{1,2,3}*.json
 sbatch -J kr-c3 slurm/scratch.sbatch configs/decoder/scratch/c3_long50k.json
+sbatch -J kr-j1 slurm/joint.sbatch configs/decoder/scratch/j1_joint50k_hf.json    # J1
 python scripts/decoder/report_c3.py $GETKITE_RUNS/scratch_c3_long50k $GETKITE_RUNS/scratch_c3_raw50k
 
 # without Slurm
@@ -135,6 +140,34 @@ not matched baselines for the multi-family experiment.
 | C3: ~2,000 goals per family, 10k steps | fails: at or slightly worse than no movement on new goals |
 | C3, 50k steps, ψ vs raw contacts (diagnostic reference; same data, starts, backbone, budget) | both fit training goals only partly (ψ 8.7–9.1 mm / ~50 %, raw 8.1–8.6 mm / ~50 %) while error on new goals rises well above no movement (ψ 14.3–19.4 mm, raw 15.7–20.0 mm; held-out LEAP 19.6 / 20.2 mm). Raw contacts do no better than ψ, so ψ is not the bottleneck; the decoder memorises instead of generalising at this data size |
 | KITE's released decoder, C3 validation records | Allegro 4.09 mm / 92 %, Barrett 3.70 mm / 92 % |
+
+After C3 (Nov 15-18; details and every number in `docs/decoder_audit.md`, sections 14-42):
+
+1. **Wrist frame and more data (§15-21).** On a pool with 10x more independent goals, raw contacts in the starting
+   wrist's frame with contact Fourier features no longer memorise (train ≈ validation). Frozen ψ in the same setup stays
+   at no movement: the decoder never learns to use z for the wrist correction.
+2. **ψ + KITE's frozen scene encoder (§22-23)** does not fix it: hand geometry and contacts have to be compared in
+   one frame.
+3. **Bridges (§24-31).** A small network recovers the contact set from ψ's z (world frame, then the exact transform
+   into the start-wrist frame). Feeding its contacts to the frozen raw-contact decoder gives a two-stage ψ system.
+4. **Held-out Wuji hand and cross-body requests (§32-33, protocol in `docs/decoder_crossbody_protocol.md`).** Both fail:
+   on Wuji (unseen by our decoders, seen by ψ) the decoder does not beat no movement; across bodies about 1% succeed.
+5. **Direct decoder with an auxiliary contact head (§34-36)** and an **independent review (§37)**.
+6. **Surface-token fix (§38)**: surface tokens are now chosen in one hand frame (`surface_sampling: hand_frame`) instead
+   of per link, which had concentrated them on the palm. Small gains on source hands; it does not explain Wuji.
+7. **Wuji diagnosis (§39-40)**: the error is in the wrist path (wrist corrections uncorrelated with the needed ones);
+   moving Wuji's base origin changes predictions by up to ~2.3 mm but does not restore it.
+8. **J1 (§41-42)**: one jointly trained decoder, frozen ψ -> contact-set predictor -> raw-contact GET, one checkpoint.
+
+| J1 vs two-stage, fresh goals (contact mm / success) | Allegro | Barrett | LEAP | held-out LEAP |
+| --- | --- | --- | --- | --- |
+| two-stage (frozen translator + raw-contact GET) | 6.34 / 67.4 % | 6.53 / 62.8 % | 8.31 / 40.5 % | 8.89 / 34.4 % |
+| J1 | 6.31 / 66.6 % | 6.31 / 68.4 % | 8.30 / 41.3 % | 8.85 / 31.2 % |
+| no movement | 11.55 | 14.45 | 13.93 | 14.98 |
+| raw-contact decoder given the true contacts | 5.71 | 5.60 | 7.90 | 8.28 |
+
+J1 matches the two-stage system on source hands (Barrett slightly better, the rest within noise), and its internal
+contact stage is as accurate as the standalone translator. Wuji and cross-body remain failures. Single seed throughout.
 
 What the decoder is: only the decoder is trained from scratch; ψ is KITE's, frozen. The C3 failure is for this
 configuration and data size, not a claim about scratch decoders in general.
