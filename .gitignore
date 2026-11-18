@@ -16,3 +16,9 @@ MUJOCO_LOG.TXT
 # Editors
 .vscode/
 .idea/
+
+# Decoder: data and runs live outside the repo (GETKITE_DATA / GETKITE_RUNS, see docs/decoder.md)
+slurm/logs/*
+!slurm/logs/.gitkeep
+slurm/env.local.sh
+slurm/watch_runs.txt

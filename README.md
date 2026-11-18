@@ -21,6 +21,9 @@ KITE's intent encoder and policy kept frozen.
   paper's Oracle-Intent success on Objects Placing (ours: Barrett 67 %, Wuji 67 %,
   Allegro 17 %; paper: 82 / 85 / 85 %). See [docs/scoring.md](docs/scoring.md) for what has
   been ruled out.
+- **Decoder:** GET joint tokens vs a shared-slot baseline on LEAP variants (preliminary, GET slightly
+  ahead: 7.64 vs 7.80 mm on val), and a pilot of one scratch decoder across Allegro, Barrett and LEAP. See
+  [docs/decoder.md](docs/decoder.md).
 - **Not in KITE's release:** trained interaction policies, the bottle meshes, the nut
   simulation, and an XHand decoder.
 
@@ -31,19 +34,30 @@ GETyourKITE/
 ├── src/getkite/
 │   ├── scoring/          staged, embodiment-agnostic scores (ported from CEBenchmark)
 │   ├── tasks/            one score spec per KITE task: objects_placing, keyboard_press, pump_bottle
+│   ├── decoder/          the GET decoder: models, training, evaluation (docs/decoder.md)
 │   ├── kite_bridge.py    finds the KITE checkout; ScoringSession scores KITE rollouts unchanged
 │   └── viz.py            viewer and video displays with CEBenchmark's live score overlay
+├── configs/decoder/      decoder run configs (paths are ${...} placeholders, no machine paths)
 ├── scripts/
 │   ├── demo_task.py      watch KITE episodes with the score on screen (viewer or MP4)
-│   └── rollout_scored.py run any KITE rollout/eval script with scores attached
-├── tests/                unit tests (no KITE checkout needed)
+│   ├── rollout_scored.py run any KITE rollout/eval script with scores attached
+│   └── decoder/          pilot config generator, result tables, one-off diagnostics
+├── slurm/                cluster jobs for decoder training/evaluation and the run watchdog
+├── tests/                unit tests (no KITE checkout needed); tests/decoder/ skips without KITE or data
 ├── docs/scoring.md       what the scores measure, the paper comparison, what KITE's release contains
+├── docs/decoder.md       decoder: layout, where data lives, setup, how to run, results so far
 └── third_party/KITE      KITE code (git submodule, helloqxwang/KITE)
 ```
 
-Planned next to `scoring/` and `tasks/`: `embodiments/` (lesioned and extended hand URDFs),
-`decoder/` (the GET decoder) and `baselines/` (KITE decoder with lesioned joints dropped,
-head-only fine-tuning).
+Training data comes from the sibling repo
+[get-ur-kite-dataset](https://github.com/jaas-hands/get-ur-kite-dataset): data generation changes go there,
+model work goes here. Data, checkpoints and runs are never stored in this repo; they live in folders set by
+`KITE_ROOT`, `GETKITE_DATASET`, `GETKITE_DATA` and `GETKITE_RUNS` (see
+[docs/decoder.md](docs/decoder.md#data-and-runs-live-outside-the-repo)), so they can sit on a larger disk or
+a shared drive.
+
+Planned next to `scoring/`, `tasks/` and `decoder/`: `embodiments/` (lesioned and extended hand URDFs)
+and `baselines/` (KITE decoder with lesioned joints dropped, head-only fine-tuning).
 
 ## Setup
 

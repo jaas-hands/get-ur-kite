@@ -1,0 +1,11 @@
+{
+  "arch": "get",
+  "intent": "kite_psi",
+  "frame": "world",
+  "z_dim": 256,
+  "surface_tokens": false,
+  "tree_bias": false,
+  "kite_ckpt": "SET_ME: <KITE>/checkpoints/decoder/release.pt",
+  "kite_root": "SET_ME: path to the KITE checkout",
+  "out_dir": "${GETKITE_RUNS}/get_kite_psi_graph_off"
+}

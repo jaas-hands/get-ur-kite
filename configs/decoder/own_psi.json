@@ -1,0 +1,5 @@
+{
+  "intent": "own_psi",
+  "frame": "wrist_init",
+  "out_dir": "${GETKITE_RUNS}/own_psi"
+}

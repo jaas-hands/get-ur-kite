@@ -1,0 +1,11 @@
+{
+  "arch": "kite_trunk",
+  "joint_encoder": "get",
+  "frame": "world",
+  "kite_ckpt": "SET_ME: <KITE>/checkpoints/decoder/release.pt",
+  "kite_root": "SET_ME: path to the KITE checkout",
+  "kite_init_head": "allegro_right",
+  "batch_size": 512,
+  "lr": 3e-4,
+  "out_dir": "${GETKITE_RUNS}/kite_trunk_get"
+}

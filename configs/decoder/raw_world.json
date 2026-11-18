@@ -1,0 +1,17 @@
+{
+  "arch": "get",
+  "intent": "raw",
+  "frame": "world",
+  "surface_tokens": false,
+  "out_dir": "${GETKITE_RUNS}/raw_world",
+  "regime": "kite_code",
+  "holdout_frac": 0.1,
+  "eval_splits": [
+    "val",
+    "train@holdout",
+    "test_geometry",
+    "test_joint_count",
+    "test_finger_subset",
+    "test_combined"
+  ]
+}
