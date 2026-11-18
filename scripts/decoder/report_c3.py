@@ -13,7 +13,7 @@ from pathlib import Path
 FAMS = ["allegro", "barrett", "leap"]
 METS = [("contact_mm", "contact mm", 2), ("success", "success", 3), ("wrist_mm", "wrist mm", 2),
         ("wrist_deg", "wrist deg", 2), ("res_loss", "res loss", 3)]
-POOLS = [("train_goals:", "training goals"), ("", "validation goals"), ("leap_heldout:", "held-out LEAP hands")]
+POOLS = [("train_goals:", "training goals (original 2k/family)"), ("train_goals_new:", "training goals (new, 2k/family)"), ("", "validation goals"), ("leap_heldout:", "held-out LEAP hands")]
 
 
 def evals(run):
@@ -43,6 +43,12 @@ def main():
                                                          for v, (_, _, d) in zip(vals, METS)) + " |")
         curve = [(k, ev[k].get("all/model/contact_mm"), ev[k].get("train_goals:all/model/contact_mm"))
                  for k in sorted(ev)]
+        for f in FAMS + ["leap_heldout"]:
+            vk = "leap_heldout:leap" if f == "leap_heldout" else f
+            print(f"{f} contact mm by step (val | train orig | train new): " + ", ".join(
+                f"{k}: {ev[k].get(vk + '/model/contact_mm', float('nan')):.2f}|"
+                f"{ev[k].get('train_goals:' + f + '/model/contact_mm', float('nan')):.2f}|"
+                f"{ev[k].get('train_goals_new:' + f + '/model/contact_mm', float('nan')):.2f}" for k in sorted(ev)))
         print("\nmacro contact mm by step (val, train goals): " +
               ", ".join(f"{k}: {a:.2f}/{b:.2f}" for k, a, b in curve if a is not None and b is not None))
 

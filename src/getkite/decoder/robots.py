@@ -88,7 +88,7 @@ class RobotDesc:
     tpl_link: np.ndarray  # (P,) index into tpl_link_names
     tpl_pos: np.ndarray  # (P, 3) link-local
     tpl_normal: np.ndarray  # (P, 3) link-local
-    surf_idx: np.ndarray | None = None  # (N_SURF,) token centres; None = FPS in the zero pose
+    surf_idx: np.ndarray | None = None  # (N_SURF,) token centres; None = fallback FPS (see robot_arrays surface_sampling)
     source_hash: str = ""
 
     def fingerprint(self) -> str:
@@ -233,7 +233,28 @@ class RobotArrays:
     node_valid: np.ndarray  # (N_BODY,)
 
 
-def robot_arrays(desc: RobotDesc) -> RobotArrays:
+SURFACE_SAMPLING = ("link_local_legacy", "hand_frame")
+
+
+def _hand_frame_template(parent_slot, A, axis, jtype, lower, upper, n_phys, tpl_anchor, pos):
+    """Template points in ONE hand (base) frame at the zero pose (joints clamped to their limits)."""
+    T = [np.eye(4)]
+    for i in range(n_phys):
+        q = float(np.clip(0.0, lower[i], upper[i]))
+        Tq = np.eye(4)
+        if jtype[i] == PRISMATIC:
+            Tq[:3, 3] = axis[i] * q
+        else:
+            k = axis[i] / np.linalg.norm(axis[i])
+            K = np.array([[0, -k[2], k[1]], [k[2], 0, -k[0]], [-k[1], k[0], 0]])
+            Tq[:3, :3] = np.eye(3) + np.sin(q) * K + (1 - np.cos(q)) * K @ K
+        T.append(T[parent_slot[i]] @ A[i] @ Tq)
+    T = np.stack(T)
+    Ta = T[tpl_anchor]
+    return np.einsum("pij,pj->pi", Ta[:, :3, :3], pos) + Ta[:, :3, 3]
+
+
+def robot_arrays(desc: RobotDesc, surface_sampling: str = "link_local_legacy") -> RobotArrays:
     by_child = {j.child: j for j in desc.joints}
     phys = [j for j in desc.joints if j.type != "fixed"]
 
@@ -295,7 +316,17 @@ def robot_arrays(desc: RobotDesc) -> RobotArrays:
     pos = np.einsum("pij,pj->pi", C[li, :3, :3], desc.tpl_pos) + C[li, :3, 3]
     nrm = np.einsum("pij,pj->pi", C[li, :3, :3], desc.tpl_normal)
 
-    surf_idx = desc.surf_idx if desc.surf_idx is not None else _fps(desc.tpl_pos, N_SURF)
+    # Surface-token centres. Dataset-provided FPS (LEAP) wins. Fallback for URDF robots:
+    #   link_local_legacy: FPS on LINK-LOCAL template points (pre-2026-11-17 behaviour, kept so existing checkpoints
+    #                      see their original inputs; it concentrates tokens on the palm -- docs/decoder_audit.md section 37A)
+    #   hand_frame:        FPS on template points in one hand frame at the zero pose (corrected policy)
+    assert surface_sampling in SURFACE_SAMPLING, surface_sampling
+    if desc.surf_idx is not None:
+        surf_idx = desc.surf_idx
+    elif surface_sampling == "hand_frame":
+        surf_idx = _fps(_hand_frame_template(parent_slot, A, axis, jtype, lower, upper, len(phys), tpl_anchor, pos), N_SURF)
+    else:
+        surf_idx = _fps(desc.tpl_pos, N_SURF)
     nbr = np.zeros((N_SURF, N_NBR), np.int64)
     for s, c in enumerate(surf_idx):  # nearest points on the same rigid body: pose-independent pooling
         same = np.flatnonzero(tpl_anchor == tpl_anchor[c])
@@ -314,12 +345,13 @@ def robot_arrays(desc: RobotDesc) -> RobotArrays:
 class RobotBank:
     """All robots of an experiment as stacked padded tensors (leading robot axis) + batched FK."""
 
-    def __init__(self, descs: list, device="cpu", dtype=torch.float32):
+    def __init__(self, descs: list, device="cpu", dtype=torch.float32, surface_sampling: str = "link_local_legacy"):
         self.descs = list(descs)
+        self.surface_sampling = surface_sampling
         self.names = [d.name for d in descs]
         self.family = [d.family for d in descs]
         P = max(len(d.tpl_pos) for d in descs)
-        arrs = [robot_arrays(d) for d in descs]
+        arrs = [robot_arrays(d, surface_sampling) for d in descs]
         self.n_points = torch.tensor([len(d.tpl_pos) for d in descs], device=device)
         for f in fields(RobotArrays):
             xs = [getattr(a, f.name) for a in arrs]

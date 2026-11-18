@@ -129,8 +129,8 @@ def draw_start(bank: RobotBank, rec: Records, gen: torch.Generator | None = None
     return StartGoal(q1, t1, R1, qg, rec.t2, rec.R2)
 
 
-def fixed_start(bank, rec: Records, seed: int) -> StartGoal:
-    return draw_start(bank, rec, torch.Generator().manual_seed(seed))
+def fixed_start(bank, rec: Records, seed: int, **noise) -> StartGoal:
+    return draw_start(bank, rec, torch.Generator().manual_seed(seed), **noise)
 
 
 # ---------------------------------------------------------------------------------------------- sampling

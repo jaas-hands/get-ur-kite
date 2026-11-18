@@ -36,6 +36,7 @@ from .get_scratch import GETScratch, ScratchConfig, target_residuals
 from .multifamily import K_MAX, BalancedSampler, Records, draw_start, fixed_start, load_kite_records, load_leap_records
 from .robots import RobotBank, leap_desc, urdf_desc
 from .rotations import axis_angle_matrix, geodesic_angle
+from .spatial_bridge import SetMatcher, centroid_wrist_label, contact_set_label
 
 DEFAULTS = dict(seed=0, start="resample", train_start_seed=1, val_start_seed=12345, normal_noise_rad=0.1,
                 batch_size=256, lr=3e-4, weight_decay=1e-4, warmup_steps=500, total_steps=5000, grad_clip=1.0,
@@ -74,7 +75,7 @@ def build_bank(cfg, device):
                                    coords=coords, ignore_mimic=r.get("ignore_mimic", True)))
         else:
             descs.append(leap_desc(r["hand_dir"]))
-    return RobotBank(descs, device=device)
+    return RobotBank(descs, device=device, surface_sampling=cfg.get("surface_sampling", "link_local_legacy"))
 
 
 def load_pool(spec_list, bank) -> Records:
@@ -124,6 +125,37 @@ class RawContacts(torch.nn.Module):
     def forward(self, pos, normal, valid):
         return torch.cat([pos.float() * valid[..., None], normal.float() * valid[..., None],
                           valid[..., None].float()], -1).flatten(1)
+
+
+def start_noise(cfg) -> dict:
+    """Start-pose (q1) noise around the goal; defaults = KITE's recipe. The translation-only gate sets rot/joint to 0."""
+    return {"xyz_std": cfg.get("start_xyz_std", 0.005), "rot_std_deg": cfg.get("start_rot_deg", 5.0),
+            "joint_frac": cfg.get("start_joint_frac", 0.05)}
+
+
+def bridge_loss(pred, label, mc):
+    """Mean over xyz of ((pred - label) / res_xyz_m)^2: the translation residual's normalisation."""
+    return (((pred - label) / mc.res_xyz_m) ** 2).mean()
+
+
+def aux_set_metrics(aux, rb, g):
+    """Per-example scores of the aux contact-set head vs the wrist-frame label, using the training matcher's
+    assignment: mean matched position error (mm) and normal angle (deg) over valid targets, count correct.
+    (Replaces a batch-mean pos rms broadcast to every example, which mixed families -- fixed 2026-11-17.)"""
+    ap, an, al = aux
+    gp, gn, gv = contact_set_label(rb.c_pos, rb.c_normal, rb.c_valid, g.R1, g.t1)
+    M = SetMatcher().to(ap.device)
+    with torch.no_grad():
+        a = M.match(M.pair_costs(ap, an, al, gp, gn, gv)[0])  # slot i -> target a[i] (targets padded to S)
+    S = ap.shape[1]
+    pad = lambda x: torch.nn.functional.pad(x, (0, 0, 0, S - x.shape[1])) if x.dim() == 3 else torch.nn.functional.pad(x, (0, S - x.shape[1]))  # noqa: E731
+    gp, gn, gv = pad(gp), pad(gn), pad(gv)
+    tp = gp.gather(1, a[..., None].expand(-1, -1, 3)); tn = gn.gather(1, a[..., None].expand(-1, -1, 3)); mv = gv.gather(1, a).float()
+    d = (ap - tp).norm(dim=-1) * 1000
+    ang = torch.rad2deg(torch.acos((an * tn).sum(-1).clamp(-1, 1)))
+    n = mv.sum(1).clamp_min(1)
+    return {"aux_pos_mm": (d * mv).sum(1) / n, "aux_normal_deg": (ang * mv).sum(1) / n,
+            "aux_count_acc": ((al.sigmoid() > 0.5).sum(1) == rb.c_valid.sum(1)).float()}
 
 
 def residual_loss(out, tr_root, tr_j, coord_valid, family_idx, n_fam):
@@ -177,6 +209,10 @@ def evaluate(model, psi, bank, rec: Records, sg, cfg, families):
         }
         rows["model"]["res_loss"] = ((out["res_root"] - tr_root) ** 2).mean(-1) + \
             (((out["res_coord"] - tr_j) ** 2) * cv).sum(-1) / cv.sum(-1)
+        if "bridge_c" in out:  # bridge centroid error (mm) on this pool; label only scored, never fed
+            rows["model"]["bridge_mm"] = (out["bridge_c"] - centroid_wrist_label(rb.c_pos, rb.c_valid, g.R1, g.t1)).norm(dim=-1) * 1000
+        if "aux_set" in out:  # training-only head, scored per example on this pool (labels never fed)
+            rows["model"].update(aux_set_metrics(out["aux_set"], rb, g))
         rows["noop"]["res_loss"] = (tr_root ** 2).mean(-1) + ((tr_j ** 2) * cv).sum(-1) / cv.sum(-1)
         for who, mets in rows.items():
             for k, v in mets.items():
@@ -232,17 +268,20 @@ def main():
         psi = RawContacts().to(dev)
     else:
         psi = FrozenPsi(cfg["kite_ckpt"], cfg.get("kite_root")).to(dev)
+    if mc.intent_source == "psi_scene":  # KITE's frozen scene encoder is built inside the model
+        mc.kite_ckpt, mc.kite_root = cfg["kite_ckpt"], cfg.get("kite_root") or ""
     model = GETScratch(mc).to(dev)
     n_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
-    val_sg = fixed_start(bank, val, cfg["val_start_seed"])
+    noise = start_noise(cfg)
+    val_sg = fixed_start(bank, val, cfg["val_start_seed"], **noise)
     val_sg = type(val_sg)(**{k: getattr(val_sg, k).to(dev) for k in val_sg.__dataclass_fields__})
     extra_sg = {}
     for k, v in extra.items():
-        g = fixed_start(bank, v, cfg["val_start_seed"])
+        g = fixed_start(bank, v, cfg["val_start_seed"], **noise)
         extra_sg[k] = type(g)(**{f: getattr(g, f).to(dev) for f in g.__dataclass_fields__})
     train_fixed = None
     if cfg["start"] == "fixed":
-        train_fixed = fixed_start(bank, train, cfg["train_start_seed"])
+        train_fixed = fixed_start(bank, train, cfg["train_start_seed"], **noise)
         train_fixed = type(train_fixed)(**{k: getattr(train_fixed, k).to(dev) for k in train_fixed.__dataclass_fields__})
 
     # z standardisation from the training pool (noisy normals as in training)
@@ -275,7 +314,9 @@ def main():
         print(f"resumed from step {step}")
     (out / "config.json").write_text(json.dumps(cfg, indent=1))
     data_files = sorted({s["npz"] for s in cfg["train"] + cfg.get("val", []) + sum(cfg.get("extra_eval", {}).values(), [])})
-    prov = {"n_trainable_params": n_params, "psi_ckpt_sha16": psi.ckpt_sha, "model_repo": git_state(Path(__file__).parents[3]),
+    prov = {"surface_sampling": bank.surface_sampling,
+            "surf_idx_sha16": hashlib.sha256(bank.surf_idx.cpu().numpy().tobytes()).hexdigest()[:16],
+            "n_trainable_params": n_params, "psi_ckpt_sha16": psi.ckpt_sha, "model_repo": git_state(Path(__file__).parents[3]),
             "kite_repo": git_state(cfg.get("kite_root") or ""), "data_sha16": {f: sha16(f) for f in data_files},
             "robots": {d.name: {"family": d.family, "fingerprint": d.fingerprint(), "source_sha16": d.source_hash,
                                 "n_coord": len(d.coords)} for d in bank.descs},
@@ -299,6 +340,7 @@ def main():
                     "best": best, "config": cfg, "model_config": mc.to_dict()} | (extra or {}), tmp)
         os.replace(tmp, path)
 
+    aux_matcher = SetMatcher().to(dev) if mc.aux_set else None
     model.train()
     while step < Tt and not stop["flag"]:
         idx = sampler.sample(cfg["batch_size"]).to(dev)
@@ -306,11 +348,18 @@ def main():
         if train_fixed is not None:
             sg = type(train_fixed)(**{k: getattr(train_fixed, k)[idx] for k in train_fixed.__dataclass_fields__})
         else:
-            sg = draw_start(bank, rb, sgen)
+            sg = draw_start(bank, rb, sgen, **noise)
         z = psi(rb.c_pos, jitter_normals(rb.c_normal, cfg["normal_noise_rad"], sgen), rb.c_valid)
         out_m = model(bank, rb.r, sg.qc1, sg.R1, sg.t1, z)
         tr_root, tr_j = target_residuals(bank, rb.r, sg.qc1, sg.R1, sg.t1, sg.qcg, sg.Rg, sg.tg, mc)
         loss, lr_, lj_ = residual_loss(out_m, tr_root, tr_j, bank.coord_valid[rb.r], fam_index[rb.r], len(families))
+        dec_loss = loss.detach()
+        if mc.bridge:  # auxiliary spatial supervision: label from the training contacts only, never a model input
+            bl = bridge_loss(out_m["bridge_c"], centroid_wrist_label(rb.c_pos, rb.c_valid, sg.R1, sg.t1), mc)
+            loss = loss + cfg["bridge_aux_weight"] * bl
+        if mc.aux_set:  # training-only auxiliary contact-set loss (labels from training contacts; never an input)
+            AL, _ = aux_matcher.set_loss(*out_m["aux_set"], *contact_set_label(rb.c_pos, rb.c_normal, rb.c_valid, sg.R1, sg.t1))
+            loss = loss + cfg["aux_set_weight"] * AL["total"]
         opt.zero_grad(set_to_none=True)
         loss.backward()
         gn = torch.nn.utils.clip_grad_norm_(model.parameters(), cfg["grad_clip"])
@@ -320,7 +369,11 @@ def main():
         if step % cfg["log_every"] == 0:
             dt = time.time() - t_last
             row = {"step": step, "lr": sched.get_last_lr()[0], "train/loss": loss.item(), "train/root": lr_.mean().item(),
-                   "train/joint": lj_.mean().item(), "grad_norm": float(gn), "examples_per_s": n_last / dt,
+                   "train/joint": lj_.mean().item(), **({"train/decoder": dec_loss.item(), "train/bridge": bl.item(),
+                                                          "train/bridge_weighted": cfg["bridge_aux_weight"] * bl.item()} if mc.bridge else {}),
+                   **({"train/decoder": dec_loss.item(), "train/aux_set": AL["total"].item(), "train/aux_pos": AL["pos"].item(),
+                       "train/aux_normal": AL["normal"].item(), "train/aux_exist": AL["exist"].item(),
+                       "train/aux_set_weighted": cfg["aux_set_weight"] * AL["total"].item()} if mc.aux_set else {}), "grad_norm": float(gn), "examples_per_s": n_last / dt,
                    "peak_mem_gb": torch.cuda.max_memory_allocated() / 1e9 if dev.type == "cuda" else 0.0}
             for f in range(len(families)):
                 sel = fam_index[rb.r] == f

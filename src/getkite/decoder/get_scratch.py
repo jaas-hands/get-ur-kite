@@ -62,6 +62,40 @@ class ScratchConfig:
     # (K_MAX, 7) [xyz, normal, valid] cloud and z_mu/z_sd are unused.
     intent_source: str = "psi"
     n_contacts: int = 6
+    contact_fourier: int = -1  # Fourier octaves on raw contact xyz only (-1 = same as pos_fourier)
+    # geometry frame: "world" (KITE's) or "wrist" = the start wrist frame (R0, t0). In "wrist" every geometric
+    # input (contacts, normals, hand FK poses, joint axes, surface points) is expressed as R0^T (x - t0), the root
+    # token becomes the identity pose, and the wrist update is predicted in that frame:
+    #   t = t0 + R0 (dxyz * res_xyz_m),  R = R0 R6d_sym(I6 + d6 * res_rot)     (world: t0 + dxyz, R6d(.) R0)
+    # Joint residuals are unchanged. With raw_contacts the contacts are transformed into the wrist frame. With psi,
+    # psi still sees the original world-frame contacts (KITE-compatible); z is not geometric and is never transformed
+    # or Fourier-encoded, so the decoder must also be given the start wrist's world pose (world_pose_in=True).
+    frame: str = "world"
+    # add the start wrist's world pose [t0 * pos_scale, 6D(R0), Fourier(t0 * pos_scale; pos_fourier),
+    # Fourier(6D(R0); rot_fourier)] to the root token through its own projection (wrist frame only; required for psi)
+    world_pose_in: bool = False
+    # intent_source="psi_scene": z (raw, unstandardised) goes through KITE's released, frozen hand_proj ->
+    # cls_unpacker -> bottleneck_scene_encoder together with KITE's 32 hand tokens (greedy link-local FPS, posed at
+    # q_init in the WORLD frame, exactly as KITE feeds them); the resulting 32 hand + 4 z tokens become the intent
+    # tokens through a new projection. Hand tokens additionally carry their wrist-frame position/normal.
+    kite_ckpt: str = ""
+    kite_root: str = ""
+    kite_hand_points: int = 32
+    # spatial bridge (2026-11-17; psi + wrist + world_pose_in only): a random-init SpatialBridge(z, R0w, t0w) predicts
+    # the target contact centroid in the start-wrist frame (out["bridge_c"], metres; auxiliary-supervised by the
+    # trainer, labels from training data only). Its prediction (wrist-frame position, same encoding as hand surface
+    # points) and hidden features form ONE extra intent token. Gradients from the decoder loss also reach the bridge.
+    bridge: bool = False
+    bridge_hidden: int = 512
+    bridge_layers: int = 4
+    # direct decoder auxiliary contact-set head (2026-11-17): TRAINING-ONLY. Reads the final-layer intent tokens (mean)
+    # + root token and predicts the request's contact set in the start-wrist frame (out["aux_set"]: positions m,
+    # unit normals, existence logits), supervised by the trainer with the set-matching loss. Nothing in the motion
+    # path (root/joint heads, decode) reads it; drop it at deployment.
+    aux_set: bool = False
+    aux_set_slots: int = 6
+    aux_set_hidden: int = 256
+    amp: bool = True  # bf16 autocast in the transformer blocks on CUDA (False = fp32 throughout)
     # KITE residual normaliser (closed form)
     res_xyz_m: float = 0.005
     res_rot_deg: float = 5.0
@@ -150,17 +184,78 @@ class GETScratch(nn.Module):
         self.joint_head = zero_last(mlp(d, d, 1))
         # intent encoder built last, so every backbone parameter gets the same initial values whichever
         # intent source is used (the psi and raw_contacts variants differ only in this module)
-        assert c.intent_source in ("psi", "raw_contacts"), c.intent_source
+        assert c.intent_source in ("psi", "raw_contacts", "psi_scene"), c.intent_source
+        assert c.frame in ("world", "wrist"), c.frame
+        assert not c.world_pose_in or c.frame == "wrist", "world_pose_in only adds information in the wrist frame"
+        assert c.frame == "world" or c.intent_source == "raw_contacts" or c.world_pose_in, \
+            "psi's z is world-frame: a wrist-frame psi decoder needs world_pose_in=True"
+        if c.intent_source in ("psi", "psi_scene"):
+            assert c.contact_fourier <= 0, "contact Fourier features apply to raw contact xyz only, never to z"
         if c.intent_source == "psi":
             self.intent_proj = mlp(c.z_dim, 2 * d, c.n_intent_tokens * d)
+        elif c.intent_source == "psi_scene":
+            from .kite_release import load_release
+            rel = load_release(c.kite_ckpt, c.kite_root or None)
+            kd = rel.meta["d_model"]
+            assert c.z_dim == kd, (c.z_dim, kd)
+            self.kite = nn.ModuleDict({k: rel.modules[k] for k in ("hand_proj", "cls_unpacker", "bottleneck_scene_encoder")})
+            self.kite.eval().requires_grad_(False)
+            self.scene_in = mlp(kd + 1 + 6 + nf, d, d)
         else:
             assert not c.z_in_tokens
-            self.contact_in = mlp(6 + nf, d, d)
+            self.contact_in = mlp(6 + 3 * 2 * self._cf(), d, d)
+        if c.world_pose_in:  # built after everything else: backbone initial values unchanged
+            self.world_pose_proj = mlp(9 + nf + nr, d, d)
+        if c.bridge:  # built last of all: backbone, intent and world-pose initial values unchanged
+            assert c.intent_source == "psi" and c.frame == "wrist" and c.world_pose_in, "bridge: psi + wrist + world_pose_in"
+            from .spatial_bridge import BridgeConfig, SpatialBridge
+            self.bridge = SpatialBridge(BridgeConfig(z_dim=c.z_dim, hidden=c.bridge_hidden, layers=c.bridge_layers,
+                                                     pos_scale=c.pos_scale))
+            self.bridge_tok = mlp(3 + nf + c.bridge_hidden, d, d)
+        if c.aux_set:  # built last: backbone initial values unchanged
+            assert c.intent_source == "psi", "aux_set: the direct psi decoder"
+            h = c.aux_set_hidden
+            self.aux_head = nn.Sequential(nn.Linear(2 * d, h), nn.GELU(), nn.Linear(h, h), nn.GELU(), nn.Linear(h, 7 * c.aux_set_slots))
+
+    def train(self, mode=True):  # KITE's frozen modules never leave eval mode
+        super().train(mode)
+        if hasattr(self, "kite"):
+            self.kite.eval()
+        return self
+
+    def _kite_fps(self, bank):
+        idx = getattr(bank, "_kite_fps_idx", None)
+        if idx is None or idx.shape[1] != self.c.kite_hand_points:
+            from .handbank import kite_local_fps
+            idx = torch.stack([torch.as_tensor(kite_local_fps(d.tpl_pos, self.c.kite_hand_points)) for d in bank.descs])
+            bank._kite_fps_idx = idx = idx.to(bank.lower.device)
+        return idx
+
+    @torch.no_grad()
+    def kite_scene(self, bank, r, Rs, ts, R0w, t0w, z):
+        """KITE's frozen scene encoding. Rs/ts: FK in the model's geometry frame; returns hand_feat (B,N,kd),
+        z_tokens (B,4,kd), hand points/normals in the model frame (B,N,3)."""
+        hp, hn = bank.points(r, Rs, ts, self._kite_fps(bank)[r])
+        if self.c.frame == "wrist":  # back to the world frame for KITE
+            hpw, hnw = hp @ R0w.transpose(1, 2) + t0w[:, None], hn @ R0w.transpose(1, 2)
+        else:
+            hpw, hnw = hp, hn
+        hpw, hnw, z = hpw.float(), hnw.float(), z.float()
+        hf = self.kite["hand_proj"](torch.cat([hpw, hnw], -1))
+        zt = self.kite["cls_unpacker"](z)
+        hf, zt = self.kite["bottleneck_scene_encoder"](hand_feat=hf, hand_xyz=hpw, z_tokens=zt)
+        return hf, zt, hp, hn
+
+    def _cf(self):
+        return self.c.pos_fourier if self.c.contact_fourier < 0 else self.c.contact_fourier
 
     @torch.no_grad()
     def set_z_stats(self, mu, sd):
         self.z_mu.copy_(mu)
         self.z_sd.copy_(sd.clamp_min(1e-3))
+        if self.c.bridge:
+            self.bridge.z_mu.copy_(mu)
+            self.bridge.z_sd.copy_(sd.clamp_min(1e-3))
 
     # ------------------------------------------------------------------ inputs
     def _joint_features(self, bank: RobotBank, r, qp, Rs, ts):
@@ -205,20 +300,29 @@ class GETScratch(nn.Module):
         z (B, z_dim) frozen psi output. Returns normalised residuals and the decoded goal."""
         c, B = self.c, len(r)
         raw = c.intent_source == "raw_contacts"
-        zs = z if raw else (z - self.z_mu) / self.z_sd
+        zs = z if c.intent_source != "psi" else (z - self.z_mu) / self.z_sd
         zc = [zs] if c.z_in_tokens else []
 
         def wz(x):
             return torch.cat([x] + [zz[:, None].expand(-1, x.shape[1], -1) for zz in zc], -1)
 
         qp = bank.expand(r, qc0)
+        R0w, t0w = R0, t0  # the start wrist pose in the world: kept for the contact transform and for decode
+        if c.frame == "wrist":  # every geometric input in the start wrist frame; the root is then the identity
+            R0 = torch.eye(3, device=R0.device, dtype=R0.dtype).expand(B, 3, 3)
+            t0 = torch.zeros_like(t0)
         Rs, ts = bank.fk(r, qp, R0, t0)  # fp32 FK at the start pose
         root = torch.cat([t0 * c.pos_scale, matrix_to_6d(R0), fourier(t0 * c.pos_scale, c.pos_fourier, c.fourier_base),
                           fourier(matrix_to_6d(R0), c.rot_fourier, c.fourier_base)], -1)[:, None]
         jx, jp = self._joint_features(bank, r, qp, Rs, ts)
         jx = torch.cat([jx, fourier(jp * c.pos_scale, c.pos_fourier, c.fourier_base),
                         fourier(matrix_to_6d(Rs[:, 1:]), c.rot_fourier, c.fourier_base)], -1)
-        toks = [self.root_in(wz(root)) + self.type_emb.weight[T_ROOT],
+        root_tok = self.root_in(wz(root)) + self.type_emb.weight[T_ROOT]
+        if c.world_pose_in:
+            wp = torch.cat([t0w * c.pos_scale, matrix_to_6d(R0w)], -1)
+            root_tok = root_tok + self.world_pose_proj(torch.cat(
+                [wp, fourier(wp[:, :3], c.pos_fourier, c.fourier_base), fourier(wp[:, 3:], c.rot_fourier, c.fourier_base)], -1))[:, None]
+        toks = [root_tok,
                 self.joint_in(wz(jx)) + self.type_emb.weight[T_JOINT]]
         if c.surface_tokens:
             cp, cn = bank.points(r, Rs, ts, bank.surf_idx[r])  # (B, S, 3)
@@ -231,17 +335,36 @@ class GETScratch(nn.Module):
             toks.append(self.surf_in(wz(sx)) + self.type_emb.weight[T_SURF])
         if raw:
             cz = z.view(B, c.n_contacts, 7)
-            cpos, iv = cz[..., :3] * c.pos_scale, cz[..., 6] > 0.5
-            it = self.contact_in(torch.cat([cpos, cz[..., 3:6], fourier(cpos, c.pos_fourier, c.fourier_base)], -1))
+            iv = cz[..., 6] > 0.5
+            if c.frame == "wrist":
+                m = iv[..., None].to(cz.dtype)
+                cz = torch.cat([((cz[..., :3] - t0w[:, None]) @ R0w) * m, (cz[..., 3:6] @ R0w) * m, cz[..., 6:]], -1)
+            cpos = cz[..., :3] * c.pos_scale
+            it = self.contact_in(torch.cat([cpos, cz[..., 3:6], fourier(cpos, self._cf(), c.fourier_base)], -1))
             n_int = c.n_contacts
+        elif c.intent_source == "psi_scene":
+            hf, zt, hp, hn = self.kite_scene(bank, r, Rs, ts, R0w, t0w, z)
+            hpos = hp * c.pos_scale
+            hx = torch.cat([hf, torch.zeros_like(hf[..., :1]), hpos, hn, fourier(hpos, c.pos_fourier, c.fourier_base)], -1)
+            zx = torch.cat([zt, torch.ones_like(zt[..., :1]), torch.zeros(B, zt.shape[1], hx.shape[-1] - zt.shape[-1] - 1,
+                                                                          device=zt.device, dtype=zt.dtype)], -1)
+            it = self.scene_in(torch.cat([hx, zx], 1))
+            iv, n_int = None, hx.shape[1] + zx.shape[1]
         else:
             it = self.intent_proj(zs).view(B, c.n_intent_tokens, c.d_model)
             iv, n_int = None, c.n_intent_tokens
+            if c.bridge:  # inputs: z and the start wrist WORLD pose only
+                bf = self.bridge.features(z, R0w, t0w)
+                bc = self.bridge.head(bf) * self.bridge.c.out_scale  # (B, 3) wrist frame, metres
+                bpos = bc * c.pos_scale
+                bt = self.bridge_tok(torch.cat([bpos, fourier(bpos, c.pos_fourier, c.fourier_base), bf], -1))
+                it = torch.cat([it, bt[:, None]], 1)
+                n_int += 1
         toks.append(it + self.type_emb.weight[T_INTENT])
         x = torch.cat(toks, 1)
         n_body = 1 + J_MAX + (N_SURF if c.surface_tokens else 0)
         g = self._graph(bank, r, n_body, n_int, iv)
-        with torch.autocast("cuda", dtype=torch.bfloat16, enabled=x.is_cuda and getattr(self, "amp", True)):
+        with torch.autocast("cuda", dtype=torch.bfloat16, enabled=x.is_cuda and c.amp and getattr(self, "amp", True)):
             for blk in self.blocks:
                 x = blk(x, g)
         x = self.ln_out(x.float())
@@ -250,13 +373,21 @@ class GETScratch(nn.Module):
         res_phys = self.joint_head(x[:, 1:1 + J_MAX]).squeeze(-1)  # (B, J) one per physical joint
         cj = bank.coord_joint[r]
         res_coord = torch.where(cj >= 0, torch.gather(res_phys, 1, cj.clamp_min(0)), 0.0)  # mimic outputs unused
-        return {"res_root": res_root, "res_coord": res_coord} | self.decode(bank, r, qc0, R0, t0, res_root, res_coord)
+        extra = {"bridge_c": bc} if c.bridge else {}
+        if c.aux_set:  # training-only readout of the final tokens; never consumed by the heads above or decode
+            a = self.aux_head(torch.cat([x[:, n_body:n_body + n_int].mean(1), x[:, 0]], -1)).view(B, c.aux_set_slots, 7)
+            extra["aux_set"] = (a[..., :3] * 0.1, torch.nn.functional.normalize(a[..., 3:6], dim=-1), a[..., 6])
+        return {"res_root": res_root, "res_coord": res_coord} | extra | self.decode(bank, r, qc0, R0w, t0w, res_root, res_coord)
 
     def decode(self, bank, r, qc0, R0, t0, res_root, res_coord):
         c = self.c
-        t = t0 + res_root[:, :3] * c.res_xyz_m
         d6 = torch.tensor(I6, device=R0.device, dtype=R0.dtype) + res_root[:, 3:] * math.radians(c.res_rot_deg)
-        R = sixd_to_matrix_symmetric(d6) @ R0
+        if c.frame == "wrist":  # update expressed in the start wrist frame
+            t = t0 + (R0 @ (res_root[:, :3] * c.res_xyz_m)[..., None]).squeeze(-1)
+            R = R0 @ sixd_to_matrix_symmetric(d6)
+        else:
+            t = t0 + res_root[:, :3] * c.res_xyz_m
+            R = sixd_to_matrix_symmetric(d6) @ R0
         crng = bank.coords_of(r, bank.range[r])
         qc = qc0 + res_coord * c.res_joint_frac * crng
         return {"t": t, "R": R, "qc": torch.where(bank.coord_valid[r], qc, 0.0)}
@@ -264,8 +395,13 @@ class GETScratch(nn.Module):
 
 def target_residuals(bank: RobotBank, r, qc0, R0, t0, qcg, Rg, tg, c: ScratchConfig):
     """KITE's normalised residual target for (start -> goal); inverse of GETScratch.decode."""
-    rt = (tg - t0) / c.res_xyz_m
-    rr = (matrix_to_6d(Rg @ R0.transpose(1, 2)) - torch.tensor(I6, device=R0.device, dtype=R0.dtype)) / math.radians(c.res_rot_deg)
+    i6 = torch.tensor(I6, device=R0.device, dtype=R0.dtype)
+    if getattr(c, "frame", "world") == "wrist":  # wrist update in the start wrist frame
+        rt = ((tg - t0)[:, None] @ R0).squeeze(1) / c.res_xyz_m
+        rr = (matrix_to_6d(R0.transpose(1, 2) @ Rg) - i6) / math.radians(c.res_rot_deg)
+    else:
+        rt = (tg - t0) / c.res_xyz_m
+        rr = (matrix_to_6d(Rg @ R0.transpose(1, 2)) - i6) / math.radians(c.res_rot_deg)
     crng = bank.coords_of(r, bank.range[r]).clamp_min(1e-6)
     rj = torch.where(bank.coord_valid[r], (qcg - qc0) / (c.res_joint_frac * crng), 0.0)
     return torch.cat([rt, rr], -1), rj
