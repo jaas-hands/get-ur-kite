@@ -31,6 +31,9 @@ KITE's intent encoder and policy kept frozen.
 - **Not in KITE's release:** trained interaction policies, the bottle meshes, the nut
   simulation, and an XHand decoder.
 
+## Idea for the Experiments and Evaluation
+![Experiment Overview](experiment_proposal.jpg)
+
 ## Layout
 
 ```
