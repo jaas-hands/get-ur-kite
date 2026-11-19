@@ -25,6 +25,9 @@ KITE's intent encoder and policy kept frozen.
   paper's Oracle-Intent success on Objects Placing (ours: Barrett 67 %, Wuji 67 %,
   Allegro 17 %; paper: 82 / 85 / 85 %). See [docs/scoring.md](docs/scoring.md) for what has
   been ruled out.
+- **Decoder:** GET joint tokens vs a shared-slot baseline on LEAP variants (preliminary, GET slightly
+  ahead: 7.64 vs 7.80 mm on val), and a pilot of one scratch decoder across Allegro, Barrett and LEAP. See
+  [docs/decoder.md](docs/decoder.md).
 - **Not in KITE's release:** trained interaction policies, the bottle meshes, the nut
   simulation, and an XHand decoder.
 
@@ -36,22 +39,33 @@ GETyourKITE/
 │   ├── scoring/          staged, embodiment-agnostic scores (ported from CEBenchmark)
 │   ├── tasks/            one score spec per KITE task: objects_placing, keyboard_press, pump_bottle
 │   ├── leap/             LEAP family: hand bank + batched FK, KITE's frozen ψ, training batches, MJCF export
+│   ├── decoder/          the GET decoder: models, training, evaluation (docs/decoder.md)
 │   ├── kite_bridge.py    finds the KITE checkout; ScoringSession scores KITE rollouts unchanged
 │   └── viz.py            viewer and video displays with CEBenchmark's live score overlay
+├── configs/decoder/      decoder run configs (paths are ${...} placeholders, no machine paths)
 ├── scripts/
 │   ├── setup_env.sh      creates the getyourkite conda environment
 │   ├── demo_task.py      watch KITE episodes with the score on screen (viewer or MP4)
 │   ├── rollout_scored.py run any KITE rollout/eval script with scores attached
-│   └── make_leap_mjcf.py floating, actuated MJCF (KITE's format) for any LEAP hand of the dataset
+│   ├── make_leap_mjcf.py floating, actuated MJCF (KITE's format) for any LEAP hand of the dataset
+│   └── decoder/          pilot config generator, result tables, one-off diagnostics
+├── slurm/                cluster jobs for decoder training/evaluation and the run watchdog
 ├── assets/leap/          the nominal LEAP hand as a floating MJCF
-├── tests/                unit tests (each skips when its data is missing)
+├── tests/                unit tests (each skips when its data is missing); tests/decoder/ for the decoder
 ├── docs/
 │   ├── scoring.md        what the scores measure, the paper comparison, what KITE's release contains
+│   ├── decoder.md        decoder: layout, where data lives, how to run, results so far
 │   └── training_plan.md  plan for the LEAP head and the GETyourKITE decoder
 ├── third_party/KITE                  KITE code (git submodule, helloqxwang/KITE)
 ├── third_party/get-ur-kite-dataset   LEAP hand family and training data (git submodule)
 ├── environment.yml, requirements.txt the getyourkite environment
 ```
+
+Data generation changes go to [get-ur-kite-dataset](https://github.com/jaas-hands/get-ur-kite-dataset),
+model work goes here. Large data, checkpoints and runs are never stored in this repo; the decoder finds them
+through `KITE_ROOT`, `GETKITE_DATASET`, `GETKITE_DATA` and `GETKITE_RUNS` (see
+[docs/decoder.md](docs/decoder.md#data-and-runs-live-outside-the-repo)). In the `getyourkite` environment
+`GETKITE_DATASET` defaults to the submodule's `data/`.
 
 ## Setup
 
@@ -63,7 +77,7 @@ cd GETyourKITE
 bash scripts/setup_env.sh --data         # the getyourkite env, KITE's assets and the LEAP dataset
 conda activate getyourkite
 export MUJOCO_GL=egl OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1
-python -m pytest                         # 19 tests, ~5 s
+python -m pytest                         # 96 tests, ~20 s
 ```
 
 One environment holds everything: KITE's exact pinned packages (`third_party/KITE/requirements.txt`,

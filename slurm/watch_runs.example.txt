@@ -1,0 +1,7 @@
+# Runs kept alive by slurm/watchdog.sh. Copy to slurm/watch_runs.txt (gitignored) and list one run per line:
+#   <run_name> <config path relative to the repo root> [extra key=value ...]
+# The Slurm job name is kr-<run_name>; a run is finished when $GETKITE_RUNS/<run_name>/DONE exists.
+# Touch $GETKITE_RUNS/<run_name>/FINAL_EVAL_WANTED to get a full evaluation of best.pt once it is DONE.
+# Remove a line to stop watching it.
+kite_trunk_get_ft configs/decoder/kite_trunk_get_ft.json
+kite_trunk_slot_ft configs/decoder/kite_trunk_slot_ft.json

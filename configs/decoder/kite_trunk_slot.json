@@ -1,0 +1,28 @@
+{
+  "arch": "kite_trunk",
+  "joint_encoder": "slot",
+  "tree_bias": false,
+  "frame": "world",
+  "kite_ckpt": "SET_ME: <KITE>/checkpoints/decoder/release.pt",
+  "kite_root": "SET_ME: path to the KITE checkout",
+  "kite_init_head": "allegro_right",
+  "batch_size": 512,
+  "lr": 0.0003,
+  "out_dir": "${GETKITE_RUNS}/kite_trunk_slot",
+  "regime": "kite_code",
+  "holdout_frac": 0.1,
+  "eval_splits": [
+    "val",
+    "train@holdout",
+    "test_geometry",
+    "test_joint_count",
+    "test_finger_subset",
+    "test_combined"
+  ],
+  "kite_freeze": [
+    "unpacker",
+    "hand_proj",
+    "scene",
+    "action"
+  ]
+}

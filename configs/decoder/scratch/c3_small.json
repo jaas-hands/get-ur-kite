@@ -1,0 +1,357 @@
+{
+ "kite_root": "${KITE_ROOT}",
+ "kite_ckpt": "${KITE_ROOT}/checkpoints/decoder/release.pt",
+ "robots": [
+  {
+   "kind": "kite",
+   "robot": "allegro_right",
+   "family": "allegro",
+   "urdf": "${KITE_ROOT}/assets/ohra_urdf_robot/allegro/allegro_hand_right_extended.urdf",
+   "template": "${KITE_ROOT}/assets/ohra_urdf_robot/allegro/surface_template_graph_n4096_ddcc74fe8fec.pt",
+   "coords_npz": "${GETKITE_DATA}/multifamily_pilot/allegro_right_train.npz",
+   "ignore_mimic": true
+  },
+  {
+   "kind": "kite",
+   "robot": "barrett",
+   "family": "barrett",
+   "urdf": "${KITE_ROOT}/assets/dro_urdf_robot/barrett/model_extended.urdf",
+   "template": "${KITE_ROOT}/assets/dro_urdf_robot/barrett/surface_template_graph_n4096_3e0ba32e061c.pt",
+   "coords_npz": "${GETKITE_DATA}/multifamily_pilot/barrett_train.npz",
+   "ignore_mimic": true
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/hands/I0-M2-R2-T0_g0"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/hands/I0-M2-R3-T0_g2"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/hands/I0-M2-R4-T3_g6"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/hands/I0-M3-R4-T2_g3"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/hands/I0-M4-R3-T4_g0"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/hands/I2-M0-R0-T3_g5"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/hands/I2-M3-R2-T0_g5"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/hands/I2-M4-R2-T4_g5"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/hands/I4-M0-R0-T2_g1"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/hands/I4-M3-R0-T0_g0"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/hands/I4-M3-R0-T3_g6"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/hands/I4-M4-R0-T3_g0"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/hands/I0-M2-R2-T3_g0"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/hands/I0-M4-R3-T2_g0"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/hands/I2-M3-R2-T2_g0"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/hands/I2-M3-R3-T2_g4"
+  }
+ ],
+ "model": {
+  "d_model": 128,
+  "n_layers": 4,
+  "n_heads": 4,
+  "mlp_ratio": 4
+ },
+ "out_dir": "${GETKITE_RUNS}/scratch_c3_small",
+ "start": "resample",
+ "normal_noise_rad": 0.1,
+ "train": [
+  {
+   "kind": "kite",
+   "robot": "allegro_right",
+   "npz": "${GETKITE_DATA}/multifamily_pilot/allegro_right_train.npz"
+  },
+  {
+   "kind": "kite",
+   "robot": "barrett",
+   "npz": "${GETKITE_DATA}/multifamily_pilot/barrett_train.npz"
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M2-R2-T0_g0.npz",
+   "rows": [
+    0,
+    167
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M2-R3-T0_g2.npz",
+   "rows": [
+    0,
+    167
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M2-R4-T3_g6.npz",
+   "rows": [
+    0,
+    167
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M3-R4-T2_g3.npz",
+   "rows": [
+    0,
+    167
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M4-R3-T4_g0.npz",
+   "rows": [
+    0,
+    167
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M0-R0-T3_g5.npz",
+   "rows": [
+    0,
+    167
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M3-R2-T0_g5.npz",
+   "rows": [
+    0,
+    167
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M4-R2-T4_g5.npz",
+   "rows": [
+    0,
+    167
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M0-R0-T2_g1.npz",
+   "rows": [
+    0,
+    167
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M3-R0-T0_g0.npz",
+   "rows": [
+    0,
+    167
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M3-R0-T3_g6.npz",
+   "rows": [
+    0,
+    167
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M4-R0-T3_g0.npz",
+   "rows": [
+    0,
+    167
+   ]
+  }
+ ],
+ "val": [
+  {
+   "kind": "kite",
+   "robot": "allegro_right",
+   "npz": "${GETKITE_DATA}/multifamily_pilot/allegro_right_val.npz"
+  },
+  {
+   "kind": "kite",
+   "robot": "barrett",
+   "npz": "${GETKITE_DATA}/multifamily_pilot/barrett_val.npz"
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M2-R2-T0_g0.npz",
+   "rows": [
+    900,
+    942
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M2-R3-T0_g2.npz",
+   "rows": [
+    900,
+    942
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M2-R4-T3_g6.npz",
+   "rows": [
+    900,
+    942
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M3-R4-T2_g3.npz",
+   "rows": [
+    900,
+    942
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M4-R3-T4_g0.npz",
+   "rows": [
+    900,
+    942
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M0-R0-T3_g5.npz",
+   "rows": [
+    900,
+    942
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M3-R2-T0_g5.npz",
+   "rows": [
+    900,
+    942
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M4-R2-T4_g5.npz",
+   "rows": [
+    900,
+    942
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M0-R0-T2_g1.npz",
+   "rows": [
+    900,
+    942
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M3-R0-T0_g0.npz",
+   "rows": [
+    900,
+    942
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M3-R0-T3_g6.npz",
+   "rows": [
+    900,
+    942
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M4-R0-T3_g0.npz",
+   "rows": [
+    900,
+    942
+   ]
+  }
+ ],
+ "extra_eval": {
+  "leap_heldout": [
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/val/I0-M2-R2-T3_g0.npz",
+    "rows": [
+     0,
+     125
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/val/I0-M4-R3-T2_g0.npz",
+    "rows": [
+     0,
+     125
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/val/I2-M3-R2-T2_g0.npz",
+    "rows": [
+     0,
+     125
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/val/I2-M3-R3-T2_g4.npz",
+    "rows": [
+     0,
+     125
+    ]
+   }
+  ]
+ },
+ "batch_size": 256,
+ "lr": 0.0003,
+ "warmup_steps": 500,
+ "total_steps": 10000,
+ "eval_every": 1000,
+ "log_every": 100,
+ "ckpt_every": 500,
+ "weight_decay": 0.0001
+}

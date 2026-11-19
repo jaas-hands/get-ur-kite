@@ -14,6 +14,10 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = ["pytest"]
+# getkite.decoder (training the GET decoder). kite-data is the sibling repo jaas-hands/get-ur-kite-dataset:
+#   pip install -e ../get-ur-kite-dataset && pip install -e ".[decoder]"
+decoder = ["torch>=2.1", "scipy", "kite-data"]
+log = ["wandb"]
 
 [tool.setuptools.packages.find]
 where = ["src"]

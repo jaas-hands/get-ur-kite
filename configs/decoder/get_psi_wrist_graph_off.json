@@ -1,0 +1,13 @@
+{
+  "arch": "get",
+  "intent": "kite_psi",
+  "joint_encoder": "get",
+  "tree_bias": false,
+  "frame": "wrist_init",
+  "z_dim": 256,
+  "surface_tokens": true,
+  "out_dir": "${GETKITE_RUNS}/get_psi_wrist_graph_off",
+  "regime": "kite_code",
+  "holdout_frac": 0.1,
+  "eval_splits": ["val", "train@holdout", "test_geometry", "test_joint_count", "test_finger_subset", "test_combined"]
+}
