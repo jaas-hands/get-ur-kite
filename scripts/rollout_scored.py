@@ -28,7 +28,7 @@ from getkite.kite_bridge import ScoringSession, run_kite_script  # noqa: E402
 from getkite.report import plain, summarize  # noqa: E402
 
 
-def main() -> None:
+def main() -> int:
     argv = sys.argv[1:]
     split = argv.index("--") if "--" in argv else len(argv)
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -41,6 +41,7 @@ def main() -> None:
 
     out = args.out.resolve() if args.out else None
     session = ScoringSession()
+    code = 1
     try:
         with session:
             code = run_kite_script(args.script, kite_args)
@@ -52,9 +53,10 @@ def main() -> None:
         print(summarize(results))
         if out is not None:
             out.parent.mkdir(parents=True, exist_ok=True)
-            out.write_text(json.dumps({"script": args.script, "args": kite_args, "episodes": results}, indent=1))
+            out.write_text(json.dumps({"script": args.script, "args": kite_args, "exit_code": code, "episodes": results}, indent=1))
             print(f"saved scores: {out}")
+    return code
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

@@ -11,11 +11,11 @@ become tokens described by the URDF, with attention biased by the kinematic tree
 is that one set of weights drives unseen and lesioned variants of a hand zero-shot, with
 KITE's intent encoder and policy kept frozen.
 
-## Status (Nov 18, 2026)
+## Status
 
 - **LEAP data:** the LEAP hand family ([get-ur-kite-dataset](third_party/get-ur-kite-dataset))
   is a submodule; `getkite.leap` turns it into decoder training batches, with KITE's frozen
-  intent encoder ψ. Next: the LEAP head and the GET decoder ([docs/training_plan.md](docs/training_plan.md)).
+  intent encoder ψ. Decoder training and results are described in [docs/decoder.md](docs/decoder.md).
 
 - **Scoring:** CEBenchmark's staged scores run on KITE's rollouts; success is KITE's own
   success rule, so success rates match KITE's.
@@ -26,8 +26,12 @@ KITE's intent encoder and policy kept frozen.
   Allegro 17 %; paper: 82 / 85 / 85 %). See [docs/scoring.md](docs/scoring.md) for what has
   been ruled out.
 - **Decoder:** GET joint tokens vs a shared-slot baseline on LEAP variants (preliminary, GET slightly
-  ahead: 7.64 vs 7.80 mm on val), and a pilot of one scratch decoder across Allegro, Barrett and LEAP. See
+  ahead: 7.64 vs 7.80 mm on the full validation split), and a pilot of one scratch decoder across Allegro, Barrett and LEAP. See
   [docs/decoder.md](docs/decoder.md).
+- **Mac evaluation:** CPU setup, four checked demo episodes, score reports and local video links
+  are in [docs/MAC_EVALUATION.md](docs/MAC_EVALUATION.md).
+- **Baseline plan:** [docs/GETZERO_BASELINE.md](docs/GETZERO_BASELINE.md) explains what we can
+  reuse from GET-Zero and how to make a matched graph-on/off comparison.
 - **Not in KITE's release:** trained interaction policies, the bottle meshes, the nut
   simulation, and an XHand decoder.
 
@@ -71,6 +75,9 @@ through `KITE_ROOT`, `GETKITE_DATASET`, `GETKITE_DATA` and `GETKITE_RUNS` (see
 `GETKITE_DATASET` defaults to the submodule's `data/`.
 
 ## Setup
+
+For CPU evaluation on Apple Silicon, see [Task evaluation on Mac](docs/MAC_EVALUATION.md).
+The setup below is for the Linux/CUDA environment.
 
 Needs Linux, an NVIDIA GPU, CUDA Toolkit 12.8 (`/usr/local/cuda-12.8`, or set `CUDA_HOME`) and conda.
 
@@ -182,7 +189,7 @@ Options: `--task {placing,keyboard}`, `--hand {barrett,allegro,wuji}`, `--object
 mug, sugar, mustard), `--episodes N`, `--start K` (skip K matching episodes), `--indices`
 (episode indices: placing 0–99, keyboard 0–19), `--speed`, `--panels`, `--record`, `--video-speed`, `--video-fps`,
 `--video-size`, `--out`, `--verbose`. Anything after `--` is passed to KITE's rollout script as a Hydra
-override. The script picks the OpenGL backend itself (GLFW for the window, EGL for videos);
+override. The script picks the OpenGL backend itself (GLFW on macOS and for the window, EGL for Linux videos);
 on WSL the window needs WSLg (Windows 11), on a remote machine use `--record`.
 
 Success is KITE's own success rule. Expect failed episodes: on this machine Oracle-Intent
@@ -223,3 +230,12 @@ mean, how CEBenchmark's scoring was adapted to KITE, and the first numbers.
   see [assets/leap/README.md](assets/leap/README.md).
 - `src/getkite/scoring/`: copied from CEBenchmark (`cebench/tasks/_base`, commit `ffad82e`),
   only the import paths changed. Keep the two in sync.
+
+## Next steps
+
+- Agree on the main decoder, held-out hands and comparison settings before running
+  the full evaluation.
+- Connect the selected checkpoint to the task runner and use the same episodes
+  and starting states for every model.
+- Keep contact results, task scores and rollout videos together, with the success
+  definition stated for each experiment.

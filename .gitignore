@@ -16,6 +16,7 @@ MUJOCO_LOG.TXT
 # Editors
 .vscode/
 .idea/
+.venv-mac/
 
 # Decoder: data and runs live outside the repo (GETKITE_DATA / GETKITE_RUNS, see docs/decoder.md)
 slurm/logs/*

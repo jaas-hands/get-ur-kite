@@ -36,3 +36,21 @@ def test_overlay_is_drawn_into_the_frame():
     top_right = (slice(0, 80), slice(200, 320))
     assert np.abs(frame[top_right].astype(int) - plain[top_right].astype(int)).sum() > 0  # the panel is there
     view.close()
+
+
+def test_viewer_close_skips_mjpython_native_thread():
+    import threading
+    from unittest.mock import Mock
+
+    from getkite.viz import ViewerDisplay
+
+    display = object.__new__(ViewerDisplay)
+    viewer = Mock()
+    worker = Mock(spec=threading.Thread)
+    # Avoid registering a real dummy thread in the test runner's thread registry.
+    native = object.__new__(threading._DummyThread)
+    display.viewer, display._threads = viewer, [native, worker]
+    display._close_viewer()
+    viewer.close.assert_called_once()
+    worker.join.assert_called_once_with(timeout=5.0)
+    assert display.viewer is None and display._threads == []

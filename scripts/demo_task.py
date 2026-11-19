@@ -37,6 +37,7 @@ from __future__ import annotations
 
 import argparse
 import contextlib
+import json
 import os
 import sys
 from pathlib import Path
@@ -169,7 +170,7 @@ def episode_indices(args, config_name: str) -> list[int]:
 def main() -> None:
     args, extra = parse_args()
     # The viewer needs an on-screen OpenGL context (GLFW); videos render offscreen (EGL).
-    os.environ["MUJOCO_GL"] = "egl" if args.record else "glfw"
+    os.environ["MUJOCO_GL"] = "glfw" if sys.platform == "darwin" or not args.record else "egl"
     os.environ.setdefault("OMP_NUM_THREADS", "1")
 
     from getkite.kite_bridge import ScoringSession, add_kite_to_path, run_kite_script
@@ -222,6 +223,15 @@ def main() -> None:
             display.close()
 
     results = plain(session.results())
+    for result, source_index in zip(results, indices):
+        result["source_episode"] = source_index
+    out.mkdir(parents=True, exist_ok=True)
+    scores_path = out / f"scores_{args.task}_{args.hand}.json"
+    scores_path.write_text(json.dumps({
+        "script": "experiment/rollout_gt_contacts.py", "args": kite_args,
+        "exit_code": code, "requested_indices": indices, "episodes": results,
+    }, indent=2) + "\n")
+    print(f"Scores: {scores_path}")
     if args.verbose:
         print("\n== staged scores ==\n" + summarize(results))
     elif results:
@@ -237,6 +247,8 @@ def main() -> None:
     # in arbitrary order, which can crash the process after a successful run.
     sys.stdout.flush()
     sys.stderr.flush()
+    if sys.platform == "darwin":
+        raise SystemExit(code)  # let Python release its multiprocessing resources on macOS
     os._exit(int(code))
 
 

@@ -219,9 +219,13 @@ class ViewerDisplay(Display):
         """
         if self.viewer is None:
             return
+        import threading
+
         self.viewer.close()
         for thread in self._threads:
-            thread.join(timeout=5.0)
+            # mjpython exposes native threads as dummy threads; Python cannot join them.
+            if not isinstance(thread, threading._DummyThread):
+                thread.join(timeout=5.0)
         self.viewer, self._threads = None, []
 
     def _launch(self, env) -> None:
