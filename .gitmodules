@@ -2,3 +2,7 @@
 	path = third_party/KITE
 	url = https://github.com/helloqxwang/KITE.git
 	ignore = untracked
+[submodule "third_party/get-ur-kite-dataset"]
+	path = third_party/get-ur-kite-dataset
+	url = ../get-ur-kite-dataset.git
+	ignore = untracked

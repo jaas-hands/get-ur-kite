@@ -1,0 +1,20 @@
+# Exact pinned versions for the getyourkite environment. Install with --no-deps
+# (scripts/setup_env.sh does), so every dependency has to be listed.
+
+# KITE's runtime: torch 2.9.1+cu128, MuJoCo 3.8.0, mjlab, pytorch-kinematics, trimesh, python-fcl, ...
+-r third_party/KITE/requirements.txt
+
+# get-ur-kite-dataset: the rest of its dependencies are already in KITE's list
+fast_simplification==0.2.0
+embreex==4.4.0.post1
+
+# Tests (getkite and get-ur-kite-dataset)
+pytest==9.2.0
+iniconfig==2.3.1
+pluggy==1.7.0
+tomli==2.5.0
+
+# Not installable from PyPI, built by scripts/setup_env.sh:
+#   pytorch3d   from third_party/KITE/third_party/pytorch3d (CUDA extension)
+#   getkite     this repo, editable
+#   kite-data   third_party/get-ur-kite-dataset, editable

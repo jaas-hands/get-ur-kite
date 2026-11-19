@@ -11,7 +11,11 @@ become tokens described by the URDF, with attention biased by the kinematic tree
 is that one set of weights drives unseen and lesioned variants of a hand zero-shot, with
 KITE's intent encoder and policy kept frozen.
 
-## Status (Nov 14, 2026)
+## Status (Nov 18, 2026)
+
+- **LEAP data:** the LEAP hand family ([get-ur-kite-dataset](third_party/get-ur-kite-dataset))
+  is a submodule; `getkite.leap` turns it into decoder training batches, with KITE's frozen
+  intent encoder ψ. Next: the LEAP head and the GET decoder ([docs/training_plan.md](docs/training_plan.md)).
 
 - **Scoring:** CEBenchmark's staged scores run on KITE's rollouts; success is KITE's own
   success rule, so success rates match KITE's.
@@ -31,34 +35,71 @@ GETyourKITE/
 ├── src/getkite/
 │   ├── scoring/          staged, embodiment-agnostic scores (ported from CEBenchmark)
 │   ├── tasks/            one score spec per KITE task: objects_placing, keyboard_press, pump_bottle
+│   ├── leap/             LEAP family: hand bank + batched FK, KITE's frozen ψ, training batches, MJCF export
 │   ├── kite_bridge.py    finds the KITE checkout; ScoringSession scores KITE rollouts unchanged
 │   └── viz.py            viewer and video displays with CEBenchmark's live score overlay
 ├── scripts/
+│   ├── setup_env.sh      creates the getyourkite conda environment
 │   ├── demo_task.py      watch KITE episodes with the score on screen (viewer or MP4)
-│   └── rollout_scored.py run any KITE rollout/eval script with scores attached
-├── tests/                unit tests (no KITE checkout needed)
-├── docs/scoring.md       what the scores measure, the paper comparison, what KITE's release contains
-└── third_party/KITE      KITE code (git submodule, helloqxwang/KITE)
+│   ├── rollout_scored.py run any KITE rollout/eval script with scores attached
+│   └── make_leap_mjcf.py floating, actuated MJCF (KITE's format) for any LEAP hand of the dataset
+├── assets/leap/          the nominal LEAP hand as a floating MJCF
+├── tests/                unit tests (each skips when its data is missing)
+├── docs/
+│   ├── scoring.md        what the scores measure, the paper comparison, what KITE's release contains
+│   └── training_plan.md  plan for the LEAP head and the GETyourKITE decoder
+├── third_party/KITE                  KITE code (git submodule, helloqxwang/KITE)
+├── third_party/get-ur-kite-dataset   LEAP hand family and training data (git submodule)
+├── environment.yml, requirements.txt the getyourkite environment
 ```
-
-Planned next to `scoring/` and `tasks/`: `embodiments/` (lesioned and extended hand URDFs),
-`decoder/` (the GET decoder) and `baselines/` (KITE decoder with lesioned joints dropped,
-head-only fine-tuning).
 
 ## Setup
 
+Needs Linux, an NVIDIA GPU, CUDA Toolkit 12.8 (`/usr/local/cuda-12.8`, or set `CUDA_HOME`) and conda.
+
 ```bash
-git clone --recursive <this repo>      # or: git submodule update --init
-cd GETyourKITE/third_party/KITE
-# Follow KITE's README: conda env `kite`, pytorch3d, then the asset downloads
-conda activate kite
-python download_assets.py
-cd ../..
-python -m pip install --no-deps -e .    # getkite into the kite env (it only needs mujoco and numpy)
+git clone --recursive <this repo>        # or, in an existing clone: git submodule update --init
+cd GETyourKITE
+bash scripts/setup_env.sh --data         # the getyourkite env, KITE's assets and the LEAP dataset
+conda activate getyourkite
 export MUJOCO_GL=egl OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1
+python -m pytest                         # 19 tests, ~5 s
 ```
 
-Tests: `python -m pip install pytest && python -m pytest`.
+One environment holds everything: KITE's exact pinned packages (`third_party/KITE/requirements.txt`,
+torch 2.9.1+cu128, MuJoCo 3.8.0), pytorch3d built from KITE's copy, the dataset's extra
+packages, and `getkite` and `kite_data` installed in editable mode. `setup_env.sh` takes about
+4 minutes with a warm pip cache; `--data` adds KITE's asset download (~520 MB) and the dataset
+build (~1 GB, a few minutes on 16 cores). Without `--data`, run those later:
+
+```bash
+(cd third_party/KITE && python download_assets.py)
+(cd third_party/get-ur-kite-dataset && ./scripts/fetch_assets.sh && python -m kite_data.build_hands \
+   && python -m kite_data.splits && python -m kite_data.generate)
+```
+
+The older `kite` environment from KITE's README still works for the scoring and viewer scripts.
+
+## LEAP training data
+
+[get-ur-kite-dataset](third_party/get-ur-kite-dataset) generates the LEAP hand family (243
+finger layouts × 7 geometries, hand-level train / val / test splits) and examples with KITE's
+decoder recipe. `getkite.leap` makes decoder batches from it, on the GPU:
+
+```python
+from getkite.leap.data import LeapSplit
+from getkite.leap.intent import IntentEncoder
+
+split = LeapSplit.load("train", device="cuda")          # 1M examples, ~1 GB
+psi = IntentEncoder.load(device="cuda")                 # KITE's frozen intent encoder
+for batch in split.batches(1024, psi=psi, normal_noise=0.1):
+    batch["z"], batch["hand_points"], batch["joint_features"], batch["spd"], batch["joints_goal"]
+```
+
+The batch keys are listed in [src/getkite/leap/data.py](src/getkite/leap/data.py). Checked by
+`tests/test_leap.py`: forward kinematics at the label reproduces the dataset's contacts (5e-8 m),
+ψ reproduces the latents KITE stored for its own episodes (4e-5 relative error), and the
+floating MJCF in [assets/leap](assets/leap/README.md) matches the kinematics.
 
 ## Watching a task
 
@@ -160,5 +201,8 @@ mean, how CEBenchmark's scoring was adapted to KITE, and the first numbers.
 ## Provenance
 
 - `third_party/KITE`: [helloqxwang/KITE](https://github.com/helloqxwang/KITE), used unmodified.
+- `third_party/get-ur-kite-dataset`: the team's LEAP dataset repo, used unmodified.
+- `assets/leap/`: generated from the dataset; collision geometry from MuJoCo Menagerie (MIT),
+  see [assets/leap/README.md](assets/leap/README.md).
 - `src/getkite/scoring/`: copied from CEBenchmark (`cebench/tasks/_base`, commit `ffad82e`),
   only the import paths changed. Keep the two in sync.
