@@ -95,6 +95,12 @@ build (~1 GB, a few minutes on 16 cores). Without `--data`, run those later:
    && python -m kite_data.splits && python -m kite_data.generate)
 ```
 
+**On a cluster** (no GPU needed on the node that builds): load CUDA 12.8 (e.g. `module load cuda/12.8`),
+then `bash scripts/setup_env.sh --kite-assets` (KITE's assets and LEAP's files for KITE, no dataset
+build). pytorch3d is compiled for every GPU generation from the 2080 Ti / T4 to Blackwell
+(`TORCH_CUDA_ARCH_LIST`), so one environment runs on all node types. Then point `slurm/env.local.sh`'s
+`GETKITE_PY` at `$(conda info --base)/envs/getyourkite/bin/python`.
+
 The older `kite` environment from KITE's README still works for the scoring and viewer scripts.
 
 ## LEAP training data
