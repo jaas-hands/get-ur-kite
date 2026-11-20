@@ -52,6 +52,8 @@ echo "== getkite and kite-data (editable)"
 if [ "$WITH_DATA" = 1 ]; then
   echo "== KITE assets"
   (cd third_party/KITE && "$PY" -m pip install -q -r requirements-download.txt && "$PY" download_assets.py)
+  echo "== LEAP in KITE's assets (DRO-Grasp URDF; surface template ~5 min, ~10 GB RAM)"
+  "$PY" scripts/install_kite_leap.py
   echo "== LEAP dataset"
   (cd third_party/get-ur-kite-dataset && ./scripts/fetch_assets.sh \
     && "$PY" -m kite_data.build_hands && "$PY" -m kite_data.splits && "$PY" -m kite_data.generate)

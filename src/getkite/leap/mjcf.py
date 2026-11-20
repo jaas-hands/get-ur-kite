@@ -36,8 +36,13 @@ SLIDE_RANGE = "-2 2"
 HINGE_RANGE = "-6.28 6.28"
 
 
-def floating_leap_xml(hand_xml: Path | str, model_name: str | None = None) -> str:
-    """The floating, actuated MJCF (as text) for one dataset hand's ``hand.xml``."""
+def floating_leap_xml(hand_xml: Path | str, model_name: str | None = None, palm_offset=None) -> str:
+    """The floating, actuated MJCF (as text) for one dataset hand's ``hand.xml``.
+
+    ``palm_offset`` (4, 4), if given, places the palm at that pose below the virtual chain instead of at
+    its end. With ``getkite.kite_head.palm_offset()`` (DRO's ``base_joint``) the virtual joints then take
+    exactly KITE's LEAP configuration (``robot_model`` / decoder output), which KITE's simulator needs.
+    """
     root = ET.parse(hand_xml).getroot()
     if model_name:
         root.set("model", model_name)
@@ -60,6 +65,15 @@ def floating_leap_xml(hand_xml: Path | str, model_name: str | None = None) -> st
         ET.SubElement(parent, "inertial", pos="0 0 0", mass="0.001", diaginertia="1e-6 1e-6 1e-6")
         ET.SubElement(parent, "joint", name=joint, type=jtype, axis=axis, pos="0 0 0", limited="true",
                       range=SLIDE_RANGE if jtype == "slide" else HINGE_RANGE, **BASE_JOINT)
+    if palm_offset is not None:
+        from scipy.spatial.transform import Rotation
+
+        T = np.asarray(palm_offset, float)
+        x, y, z, w = Rotation.from_matrix(T[:3, :3]).as_quat()
+        palm.set("pos", " ".join(f"{v:.9g}" for v in T[:3, 3]))
+        palm.set("quat", " ".join(f"{v:.9g}" for v in (w, x, y, z)))
+        palm.attrib.pop("euler", None)
+        palm.attrib.pop("axisangle", None)
     parent.append(palm)
     ET.SubElement(palm, "site", name="right_palm", pos="0 0 0", size="0.005", rgba="1 1 1 0")
 
@@ -87,11 +101,18 @@ def floating_leap_xml(hand_xml: Path | str, model_name: str | None = None) -> st
     return ET.tostring(root, encoding="unicode")
 
 
-def write_floating_leap(hand_id: str, out_dir: Path, root: Path | None = None) -> Path:
+def write_floating_leap(hand_id: str, out_dir: Path, root: Path | None = None, kite_frame: bool = False) -> Path:
+    """Write ``<hand_id>_floating.xml`` (palm at the chain's end, the dataset's wrist frame) or, with
+    ``kite_frame``, ``<hand_id>_kite_floating.xml`` (palm below the chain by DRO's offset, KITE's frame)."""
     src = (Path(root) if root is not None else hands_dir()) / hand_id / "hand.xml"
-    out = Path(out_dir) / f"{hand_id}_floating.xml"
+    offset, suffix = None, "floating"
+    if kite_frame:
+        from getkite.kite_head import palm_offset
+
+        offset, suffix = palm_offset().numpy(), "kite_floating"
+    out = Path(out_dir) / f"{hand_id}_{suffix}.xml"
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(floating_leap_xml(src, model_name=f"leap_{hand_id}_floating") + "\n")
+    out.write_text(floating_leap_xml(src, model_name=f"leap_{hand_id}_{suffix}", palm_offset=offset) + "\n")
     return out
 
 

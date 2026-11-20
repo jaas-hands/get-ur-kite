@@ -23,11 +23,13 @@ def main() -> None:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("hand_ids", nargs="+")
     p.add_argument("--out", type=Path, default=REPO_ROOT / "assets" / "leap")
+    p.add_argument("--kite-frame", action="store_true",
+                   help="palm below the virtual chain by DRO's offset: joints take KITE's LEAP configuration")
     args = p.parse_args()
     import mujoco
 
     for hid in args.hand_ids:
-        path = write_floating_leap(hid, args.out)
+        path = write_floating_leap(hid, args.out, kite_frame=args.kite_frame)
         m = mujoco.MjModel.from_xml_path(str(path))
         print(f"{path}: {m.njnt} joints, {m.nu} actuators, {m.ngeom} geoms")
 

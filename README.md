@@ -113,6 +113,11 @@ for batch in split.batches(1024, psi=psi, normal_noise=0.1):
     batch["z"], batch["hand_points"], batch["joint_features"], batch["spd"], batch["joints_goal"]
 ```
 
+**LEAP in KITE** (for the baselines): `python scripts/install_kite_leap.py` puts LEAP's URDF and
+meshes (from DRO-Grasp, MIT) where KITE's robot registry already expects `leaphand_right`, and
+`scripts/train_leap_head.py` trains KITE's decoder head for it on KITE's frozen trunk
+(`slurm/leap_head.sbatch` on the cluster). Plan and gates: [docs/training_plan.md](docs/training_plan.md#1-the-leap-head-and-the-kite-baselines-owner-simon).
+
 The batch keys are listed in [src/getkite/leap/data.py](src/getkite/leap/data.py). Checked by
 `tests/test_leap.py`: forward kinematics at the label reproduces the dataset's contacts (5e-8 m),
 ψ reproduces the latents KITE stored for its own episodes (4e-5 relative error), and the
