@@ -85,6 +85,11 @@ else
 fi
 PY="$CONDA_BASE/envs/$ENV_NAME/bin/python"
 
+echo "== source-only packages (no wheels on PyPI; chumpy's setup.py imports pip, so no build isolation)"
+SDIST_PINS=$(grep -E "^(chumpy|antlr4-python3-runtime|asciitree|iopath)==" third_party/KITE/requirements.txt)
+# shellcheck disable=SC2086
+"$PY" -m pip install -q --no-deps --no-build-isolation $SDIST_PINS
+
 echo "== pinned packages"
 "$PY" -m pip install -q --no-deps -r requirements.txt
 
