@@ -96,3 +96,34 @@ def test_kite_frame_mjcf_matches_kite_chain(tmp_path):
             A = frames[link].get_matrix()[0].numpy()
             assert np.abs(A[:3, 3] - d.xpos[b]).max() < 2e-4, body
             assert np.abs(A[:3, :3] - d.xmat[b].reshape(3, 3)).max() < 2e-3, body
+
+
+def test_baseline_joint_rows():
+    from getkite.kite_baselines import hand_desc, joint_rows
+    from getkite.leap.paths import hands_dir
+
+    if not (hands_dir() / "I4-M0-R4-T4_g0" / "hand.json").is_file():
+        pytest.skip("dataset not generated")
+    assert joint_rows(hand_desc(HID), "slice") == list(range(16))
+    assert joint_rows(hand_desc(HID), "shift") == list(range(16))
+    mid = hand_desc("I4-M0-R4-T4_g0")  # middle finger removed
+    assert joint_rows(mid, "slice") == [0, 1, 2, 3, 8, 9, 10, 11, 12, 13, 14, 15]
+    assert joint_rows(mid, "shift") == [0, 1, 2, 3, 4, 5, 6, 7, 12, 13, 14, 15]  # ring takes middle's rows
+    tr = hand_desc("I0-M0-R4-T4_g0")  # thumb + ring
+    assert joint_rows(tr, "shift") == [0, 1, 2, 3, 12, 13, 14, 15]  # ring takes index's rows
+
+
+def test_nominal_variant_tokens_are_kites():
+    from getkite.kite_baselines import kite_template, variant_tokens
+    from getkite.kite_head import _in_kite
+
+    try:
+        t = kite_template()
+    except FileNotFoundError:
+        pytest.skip("LEAP surface template not built")
+    tok = variant_tokens(HID, template=t)
+    with _in_kite():
+        from robot_model.robot_model import _farthest_point_sample_indices_local
+    idx = _farthest_point_sample_indices_local(t["pos"], 32)
+    assert torch.equal(tok["pos"], t["pos"][idx])
+    assert tok["link_names"] == [t["link_names"][i] for i in t["link"][idx].tolist()]

@@ -97,8 +97,10 @@ class LeapSplit:
 
     @classmethod
     def load(cls, split: str, device="cpu", regime: str = "kite", hands: list[str] | None = None,
-             full_template: bool = False, max_examples: int | None = None, seed: int = 0) -> "LeapSplit":
-        arrays, hand_ids = load_examples(split, regime=regime, hands=hands)
+             full_template: bool = False, max_examples: int | None = None, seed: int = 0,
+             root: Path | None = None) -> "LeapSplit":
+        """``root``: a folder of ``<hand_id>.npz`` files to read instead of the dataset's split folder."""
+        arrays, hand_ids = load_examples(split, regime=regime, root=root, hands=hands)
         if max_examples is not None and max_examples < len(arrays["k"]):
             keep = np.sort(np.random.default_rng(seed).choice(len(arrays["k"]), max_examples, replace=False))
             arrays = {k: v[keep] for k, v in arrays.items()}

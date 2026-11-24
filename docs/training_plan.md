@@ -62,7 +62,7 @@ Allegro fallback skips gates G1–G4 and starts at the baselines.
 | G1 | Does KITE load LEAP (URDF, surface template, 22 DoF)? | **passed** Nov 19 | – |
 | G2 | Do KITE's data generator and training script run on LEAP, with the trunk frozen? | **passed** Nov 19 (pilot) | – |
 | G3 | Is the LEAP head as good on LEAP as KITE's Allegro head is on Allegro (KITE's own test metrics)? | pilots: frozen trunk no (1.4× vs 8×), trunk trained promising (3.7×, still improving); cluster run Nov 20–21 | if the full trunk-trained run stays far off by Nov 22: Allegro |
-| G4 | Does the head work on the team dataset's nominal hand as on KITE's own test data? | Nov 22 | train B0 on the dataset's nominal-hand examples instead; no switch needed |
+| G4 | Does the head work on the team dataset's nominal hand as on KITE's own test data? | **failed** Nov 24 (5.2× vs 1.4×); B0-ds trained on dataset data instead | train B0 on the dataset's nominal-hand examples instead; no switch needed |
 | G5 | Does LEAP grasp/press in KITE's simulator with Oracle intents? | Nov 25 | closed loop on Allegro; the open-loop matrix stays on LEAP |
 
 **Decision date for the team: Nov 22** (G3, G4). G5 only affects the closed-loop part.
@@ -113,6 +113,57 @@ Allegro fallback skips gates G1–G4 and starts at the baselines.
 - **Hand tokens:** on the dataset's nominal hand the head needs KITE's own template points (12.2 mm);
   the dataset's points make it worse than no movement (15.4 mm). For B1/B2 the tokens of a variant hand
   should be KITE's template moved by the variant's FK (its links are kept), not the dataset's template.
+- **Laptop runs, Nov 24** (cluster down; 300k examples, 60 epochs, corrected regions):
+  - `b0-trunk` (trunk trained, ψ frozen, Allegro init): KITE's LEAP test set `contact_point_mse`
+    2.25e-5 against a no-movement floor of 1.17e-4, **5.2× better** (Allegro's released head: 8× on its
+    own test set). Flat over the last 15 epochs; 2.7 h, 9.1 GB RAM.
+  - **G4 fails:** the same head on the team dataset's nominal hand is only **1.4×** better than no movement
+    (11.4 mm / 25 % success against 14.5 mm / 8 %). The adapter is not the cause: run on KITE's own test
+    examples, our inference path gives 2.35e-5 (trainer: 2.25e-5). So KITE's and the dataset's LEAP data
+    differ in ways that matter (contacts on DRO's visual meshes vs. Menagerie's collision geometry, ~3 mm;
+    KITE's contact/start-pose sampler vs. the dataset's).
+  - Per the plan, **B0-ds**: the head continued on 300k nominal-hand examples generated with the dataset's
+    own code (`scripts/train_kite_head_dataset.py`, KITE's loss and normal noise). B0-ds is the B0 for the
+    matrix; B1, B2 and B3 start from it, so all baselines and GET use the same data recipe.
+  - New tools: `getkite.kite_baselines` (clamped, B1, B2; KITE-style hand tokens for any variant from
+    KITE's template + the dataset's link deformations, identical to KITE's for the nominal hand),
+    `scripts/eval_kite_baselines.py` (matrix over the test splits), `scripts/finetune_kite_head.py` (B3),
+    `scripts/kite_test_floor.py`.
+- **B0-ds result (Nov 24).** Supervising only KITE's masked joints let the other joints drift (0.016 rad):
+  loss fell while the contact error rose (`b0-ds-masked`). Supervising all joints (the label keeps the
+  others at their start value) fixed it. 10 epochs on 300k dataset examples of the nominal hand, 27 min:
+
+  | Head, on 1,000 of the dataset's nominal-hand examples | Contact | Success | Normal |
+  |---|---|---|---|
+  | no movement | 14.47 mm | 7.6 % | 9.1° |
+  | b0-frozen (KITE's data, trunk frozen) | 14.39 mm | 5.8 % | 8.8° |
+  | b0-trunk (KITE's data, trunk trained) | 11.44 mm | 25.3 % | 5.9° |
+  | b0-ds-masked (dataset data, KITE's mask) | 10.07 mm | 25.2 % | 5.9° |
+  | **B0-ds** (dataset data, all joints) | **7.36 mm** | **49.3 %** | **4.9°** |
+
+  B0-ds is the B0 of the matrix: on the nominal hand as good as the GET decoder on the test splits.
+- **Zero-shot baselines from B0-ds** (`b0-ds.baselines.json`, all hands, 200 examples each; contact / success):
+
+  | Split | No movement | Clamped | B1 sliced | B2 reassigned | GET (Anushka, docs/decoder.md) |
+  |---|---|---|---|---|---|
+  | test_finger_subset (36) | 14.74 / 7.3 % | n/a | 13.50 / 11.8 % | 13.63 / 11.1 % | 7.54 / 49.7 % |
+  | test_joint_count (378) | 14.29 / 7.6 % | 12.84 / 16.1 % (189 hands) | 13.52 / 13.5 % | 13.51 / 13.5 % | 7.48 / 50.6 % |
+  | test_geometry (40) | 14.22 / 7.6 % | 13.30 / 12.6 % (12 hands) | 13.82 / 11.6 % | 13.99 / 10.9 % | 7.53 / 50.0 % |
+  | test_combined (216) | 14.74 / 6.9 % | n/a | 13.56 / 13.1 % | 13.85 / 11.5 % | 7.67 / 48.4 % |
+
+  KITE's head does not transfer: 7.4 mm / 49 % on the nominal hand, 13–14 mm / 11–16 % on every variant.
+  Geometry alone breaks it: the full hand with link scales 0.8–1.2 (g1–g6) gets 11.9–16.0 mm against
+  7.5 mm at g0. B2 is no better than B1. The GET numbers come from Anushka's runs (same splits, her
+  evaluation, not yet run through `eval_kite_baselines.py`): the comparison is preliminary until both are
+  scored by the same script on the same examples.
+- **B3** (fine-tuning per test hand, `b3/`, lr 1e-4): the best point comes after ~15 s (e.g. 13.9 → 11.4 mm
+  on the middle-finger-removed hand), then it overfits (18–25 mm after 5 min). Best values 9.8–12.7 mm with
+  1,000 examples, all far from GET's zero-shot ~7.5 mm. With lr 1e-5 (`b3_lr1e-5/`) the curves are stable,
+  best after ~2 min, then slightly worse at 5 min; the best values are the same (9.75–12.6 mm, e.g.
+  13.9 → 11.4 mm on the middle-finger-removed hand). So head-only fine-tuning with 1,000 examples of a
+  test hand stays ~4 mm behind the GET decoder's zero-shot result.
+  Picking the best point on the held-out examples flatters B3; a fair version needs a separate
+  validation set.
 - **Scale:** KITE's budget is 1M examples per hand; its buffer is ~18 GB in RAM (369 MB per 20k), so the
   full run is a cluster job. Generation runs at ~380 examples/s (1M ≈ 45 min).
 
@@ -167,6 +218,20 @@ Allegro fallback skips gates G1–G4 and starts at the baselines.
    - Start poses for Keyboard Pressing: LEAP's palm where Allegro's is.
    - Run Oracle-Intent Keyboard Pressing with B0, scored and watched with `scripts/demo_task.py`.
      Pass: LEAP presses chords at a rate comparable to Allegro's 15/20.
+
+### Cluster chain (Nov 24)
+
+`bash slurm/submit_kite_baselines.sh` submits the remaining baseline work as dependent jobs
+(`slurm/kite_baselines.sbatch`, partition `fang`); results go to `$GETKITE_RUNS/leap_head/cluster/`:
+- `gen` (CPU): with the dataset's code, 1M nominal-hand examples, 16k + 500 val for each of 12 B3 hands
+  (3 per test split), 200k + 500 val for each of 4 B4 hands (`scripts/gen_kite_head_data.py`).
+- `b0ds`: B0-ds at 1M examples, 20 epochs, from the laptop's b0-trunk (`outputs/leap_head/local/b0-trunk-init`,
+  copied to `$GETKITE_RUNS/leap_head/init/b0-trunk/`), then G4.
+- `matrix`: clamped / B1 / B2 on every test hand with all 2,000 examples per hand.
+- `b3`: the fair B3: 1k / 4k / 16k training examples of the hand, checkpoint chosen on separate
+  validation examples, scored on the hand's official test examples; lr 1e-5, up to 40 min.
+- `b4`: B0-ds's B1 head retrained on 200k examples of the hand (trunk too, 20 epochs), the upper bound.
+- optional `--with-kite-1m`: b0-trunk on KITE's own data at KITE's 1M budget (G3 at full scale).
 
 ### Cluster request
 

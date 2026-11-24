@@ -130,6 +130,7 @@ class KiteHead:
     robot: object           # KITE's RobotModel of that hand (for its hand tokens)
     T_palm: torch.Tensor
     device: torch.device
+    checkpoint: Path | None = None
 
     @classmethod
     def load(cls, checkpoint, name: str = LEAP_NAME, device="cuda", prefer_ema: bool = True) -> "KiteHead":
@@ -151,7 +152,7 @@ class KiteHead:
             n_points = int(meta["per_manipulator"][name]["surface_num_points"])
             robot = create_robot_model(name, device=device, num_points=n_points)
             robot.build_hand_fps_template(int(saved_cfg.model.hand_points))
-        return cls(bank=bank, name=name, robot=robot, T_palm=palm_offset(), device=device)
+        return cls(bank=bank, name=name, robot=robot, T_palm=palm_offset(), device=device, checkpoint=checkpoint)
 
     @property
     def head(self):
