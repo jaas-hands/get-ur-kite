@@ -1,5 +1,8 @@
 # T1: translation-only diagnostic for the direct decoder (proposal, 2026-11-19). NOT LAUNCHED.
 
+> **Status (2026-11-27): launched and completed on 2026-11-19**; results in docs/decoder_audit.md sections 52 and 53.
+
+
 Separate from W1 and from the multi-family runs. Code: `src/getkite/decoder/translation_diag.py`. Config:
 `configs/decoder/scratch/t1_translation_allegro.json`. Out dir: `runs/t1_translation_allegro/{get,mlp}`.
 

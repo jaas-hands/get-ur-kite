@@ -1,5 +1,10 @@
 # Item 3 design: canonical base origin (CF-O) (2026-11-25; draft for review, nothing implemented or launched)
 
+> **Status (2026-11-27): implemented, trained and failed.** CF-O (runs cfo_long_hf*) failed its gate (Wuji / Shadow worse); see
+> "Result" below. A 2026-11-27 check showed the wrist deficit is a real loss, not a measurement effect
+> (docs/cf3f_proposal.md, "Origin checks", on the getting-kite-universal branch). Origin line closed.
+
+
 ## Why (evidence, docs/multipass_origin_checks_proposal.md, item 2)
 
 - Every model (D1, D1-long, CF2, D1-bv) is strongly sensitive to where a hand's base origin sits. Moving the origin 2 cm with the

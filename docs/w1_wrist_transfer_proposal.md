@@ -1,5 +1,8 @@
 # W1: source-only wrist-transfer diagnostic (proposal, 2026-11-19). NOT LAUNCHED.
 
+> **Status (2026-11-27): launched and completed on 2026-11-19**; results in docs/decoder_audit.md sections 49, 50 and 54.
+
+
 **Question.** Fingers already at the goal, true request contacts as input, only the wrist perturbed: does a wrist correction
 learned on source hands (Allegro, Barrett, 12 LEAP) transfer to Wuji?
 

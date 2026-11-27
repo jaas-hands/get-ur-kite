@@ -1,5 +1,11 @@
 # CF-3f: full-scale step up from CF-3e (proposal v3, DRAFT; not approved, nothing launched; 2026-11-27)
 
+> **Status (2026-11-27 evening): Stage 1 approved and run.** Five test arms x 3 seeds launched 03:35 EST (leap, long, teach, big,
+> rec); then matched teachers and the larger model continued to 200k. Results in the "Result: ..." sections below
+> (rec, leap, teach failed; big failed on Wuji / Shadow only; long, matched teachers and big-to-200k pending). The full-scale
+> run has not been launched (awaiting discussion). CF-3e remains the delivered model.
+
+
 CF-3e is **frozen** as the delivery fallback: `${GETKITE_RUNS}/frozen_cf3e_2026-11-27/` (3 seeds' best.pt, configs, logs,
 gate and benchmark results, SHA256SUMS, read-only). Interim delivery candidate: CF-3e seed 0, single model. All new work is
 named **CF-3f** and writes to new folders; nothing under the frozen folder or the CF-3e run folders is touched. The six teacher

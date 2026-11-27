@@ -1,6 +1,8 @@
 # CF-J proposal: make CF robust to small errors in its own canonical frame (2026-11-25)
 
 Status: Step 0 run 2026-11-25 (job 19825) and MET in 3/3 seeds; Step 1 not launched (needs go-ahead).
+Update (2026-11-27): Step 1 (CF-J) was launched on 2026-11-25 and did NOT meet its readout; CF-J was not promoted
+(see "Step 1 result" below).
 
 ## What the 105-hand evaluation showed (evaluation only; configs/decoder/dlevels/cf2_readout/leapval105_*.txt)
 

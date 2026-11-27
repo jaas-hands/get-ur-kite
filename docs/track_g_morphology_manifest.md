@@ -1,5 +1,9 @@
 # Track G: source-morphology manifest, splits and resource estimate (draft, 2026-11-19)
 
+> **Status (2026-11-27): ran as G1** (48 LEAP training topologies; runs g1_leapdiv50k_hf*); results in docs/decoder_audit.md
+> sections 45 and 46. G1 is the root of the D1 -> CF -> CF2 -> CF-3e config lineage.
+
+
 Status: G0 written down. No data has been generated. The G1 run is not launched.
 
 ## Coverage choice
