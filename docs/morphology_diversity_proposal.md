@@ -1,5 +1,8 @@
 # Morphology-diversity test (D-levels): plan (draft, 2026-11-19)
 
+> **Status (2026-11-27): ran.** D1 / D3 and follow-ups were trained and evaluated; results in docs/decoder_audit.md
+> sections 55, 56 and 59. The 800-body set became part of D1-bv and CF-3e.
+
 Status: proposal only. Nothing has been built, generated or launched. Awaiting the user's final go-ahead.
 
 This is distinct from G2 in `track_g_morphology_manifest.md`, which means 4× goals on the same hands.

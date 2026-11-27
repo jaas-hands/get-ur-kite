@@ -11,7 +11,14 @@ become tokens described by the URDF, with attention biased by the kinematic tree
 is that one set of weights drives unseen and lesioned variants of a hand zero-shot, with
 KITE's intent encoder and policy kept frozen.
 
-## Status (Nov 18, 2026)
+## Status (Nov 27, 2026)
+
+- **Delivered decoder: CF-3e (seed 0).** One decoder for any hand given its description files: frozen KITE ψ, a contact-set
+  predictor and a GET decoder in each hand's canonical palm frame, distilled from six teachers with 800 generated bodies.
+  Results, scope, checkpoints (Google Drive, `scripts/fetch_checkpoints.sh`), prediction and reproduction:
+  [docs/cf3e_delivery.md](docs/cf3e_delivery.md). Experiments after CF-3e live on the `getting-kite-universal` branch.
+
+## Earlier status (Nov 18, 2026)
 
 - **LEAP data:** the LEAP hand family ([get-ur-kite-dataset](third_party/get-ur-kite-dataset))
   is a submodule; `getkite.leap` turns it into decoder training batches, with KITE's frozen

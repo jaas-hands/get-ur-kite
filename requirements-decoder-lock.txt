@@ -1,6 +1,7 @@
 # Exact package versions of the environment every decoder run since 2026-11-18 used (CF-3e included): Python 3.12.7, torch cu132.
 # Install into a fresh venv:  pip install -r requirements-decoder-lock.txt  then  pip install -e ../get-ur-kite-dataset && pip install -e . --no-deps
-# torch cu13x needs an Ampere-or-newer GPU (no Pascal/Volta kernels). Generated with pip freeze; local editable installs omitted.
+# (kite-model, the retired prototype package, is not needed.)
+# torch cu13x needs a Turing (e.g. RTX 2080 Ti) or newer GPU; Pascal / Volta have no kernels. Generated with pip freeze; local editable installs omitted.
 beautifulsoup4==4.15.0
 certifi==2026.10.23
 charset-normalizer==3.5.2
@@ -20,7 +21,6 @@ glfw==2.11.0
 idna==3.20
 iniconfig==2.3.1
 Jinja2==3.1.6
-# Editable Git install with no remote (kite-model==0.1.0)
 kiwisolver==1.5.1
 MarkupSafe==3.0.4
 matplotlib==3.11.2

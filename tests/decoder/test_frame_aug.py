@@ -7,7 +7,10 @@ from scipy.spatial.transform import Rotation
 
 from getkite.decoder.get_scratch import J_MAX, ScratchConfig, target_residuals
 from getkite.decoder.robots import RobotBank, leap_desc, relabel_base
-from kite_data.prim_hand import PrimHand, sample_coupling, sample_spec
+import pytest
+
+pytest.importorskip("kite_data", reason="needs get-ur-kite-dataset installed (pip install -e ../get-ur-kite-dataset)")
+from kite_data.prim_hand import PrimHand, sample_coupling, sample_spec  # noqa: E402
 
 SEED = 20261119
 

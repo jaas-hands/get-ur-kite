@@ -7,7 +7,10 @@ from getkite.decoder.canonical import CanonicalFrame
 from getkite.decoder.get_scratch import J_MAX, ScratchConfig
 from getkite.decoder.robots import RobotBank, canonical_bank, canonical_frame, relabel_base
 
-from test_frame_aug import _descs
+import pytest
+
+pytest.importorskip("kite_data", reason="needs get-ur-kite-dataset installed (pip install -e ../get-ur-kite-dataset)")
+from test_frame_aug import _descs  # noqa: E402
 
 
 def test_frame_is_proper_and_invariant_to_relabelling(tmp_path):

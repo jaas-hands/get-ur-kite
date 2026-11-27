@@ -12,7 +12,7 @@ set -euo pipefail
 cd "${SLURM_SUBMIT_DIR:-.}"; source slurm/env.sh
 echo "host=$(hostname -s) start=$(date -Is)"
 getkite_require_cuda slurm/predict_j1_check.sbatch
-CK="$GETKITE_RUNS/frozen_cf3e_2026-11-27/cf3e_long_hf/best.pt"
+CK="$GETKITE_RUNS/cf3e_long_hf/best.pt"  # bash scripts/fetch_checkpoints.sh cf3e_long_hf
 PYTHONPATH=src "$GETKITE_PY" -u scripts/decoder/predict_j1.py --ckpt "$CK" --check-config configs/decoder/scratch/c3_psi50k_10x_wrist_leapval105.json --check-pool leap_heldout
 OUT="$GETKITE_RUNS/predict_j1_check_cf3e_s0"; rm -rf "$OUT"
 PYTHONPATH=src "$GETKITE_PY" -u scripts/decoder/predict_j1.py --ckpt "$CK" --data "$GETKITE_DATASET" --regime kite_code --splits val --out "$OUT"

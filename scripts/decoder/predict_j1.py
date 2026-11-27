@@ -23,7 +23,7 @@ Check mode (--check-config CONFIG --check-pool KEY): reproduces our benchmark ex
 "val") with the benchmark's seeded noisy start (val_start_seed, KITE noise) — and prints the means, to compare with the
 benchmark's metrics.json for the same checkpoint.
 
-    PYTHONPATH=src python scripts/decoder/predict_j1.py --ckpt $GETKITE_RUNS/frozen_cf3e_2026-11-27/cf3e_long_hf/best.pt \
+    PYTHONPATH=src python scripts/decoder/predict_j1.py --ckpt $GETKITE_RUNS/cf3e_long_hf/best.pt   # bash scripts/fetch_checkpoints.sh cf3e_long_hf \
         --data $GETKITE_DATASET --regime kite_code --splits val --out predictions/cf3e_s0
     PYTHONPATH=src python scripts/decoder/predict_j1.py --ckpt .../best.pt \
         --check-config configs/decoder/scratch/c3_psi50k_10x_wrist_leapval105.json --check-pool leap_heldout

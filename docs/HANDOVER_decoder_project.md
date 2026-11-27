@@ -1,5 +1,9 @@
 # GET Your KITE: decoder project handover (state as of 2026-11-25, ~15:40 EST)
 
+> **Superseded (2026-11-27).** The delivered model is now **CF-3e seed 0**, a single model (no seed ensemble); see
+> [cf3e_delivery.md](cf3e_delivery.md). Statements below about D1 / D1-bv as the delivery default or delivering a
+> 3-seed ensemble describe the state on 2026-11-25. The rules, architecture notes and arm history below still apply.
+
 This file is written for a new Claude session (or a collaborator) picking up the decoder work. It summarises what the
 project is, the rules every session must follow, the architecture, every model arm we have trained, what each taught us,
 and what is running now. Primary sources are linked throughout; when this file and a primary source disagree, **the

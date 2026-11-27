@@ -1,4 +1,4 @@
-<!-- Working log of the multi-family scratch decoder (sections 1-42, 2026-11-14 to 2026-11-18), moved here from a local note. Run directories named runs/... are under ${GETKITE_RUNS}. -->
+<!-- Working log of the multi-family scratch decoder (sections 1-64, 2026-11-14 to 2026-11-27), moved here from a local note. Run directories named runs/... are under ${GETKITE_RUNS}. -->
 
 # get_universal_scratch: Stage A audit and file map (2026-11-14)
 
@@ -1710,3 +1710,15 @@ by D1-bv). Details in docs/cf3_distillation_proposal.md.
 CF2 beats no movement on all and D1-long on most (Inspire/XHand by 3–13 mm); fails on MetaHand (~no movement) because rule E swaps
 n and a (frame probe job 33187: a 90° turn about d fixes it). 360-hand pool (job 32982): CF2 − D1-long +0.07/+0.18/+0.19 (replicates);
 9/360 hands have ~90° rule-E flips costing +2.5–3.0 mm; excluding them the gap is +0.01/+0.11/+0.13. docs/external_hands.md.
+
+## 64. CF-3d, CF-3e (delivered) and CF-3f (2026-11-26 to 2026-11-27; pointer entry)
+
+Full records live in the proposal / result documents; this entry only links them.
+- **CF-3d** (CF2 + six-teacher distillation, alpha 0.5): gate FAILED on Wuji (P3; seed 1 worse than CF2 on every unseen hand)
+  although held-out LEAP improved. docs/cf3_distillation_proposal.md, "Result" and "CF-3d on the 360 held-out LEAP pool".
+- **CF-3e** (CF-3d + 800 generated bodies x 25 records): gate PASSED (P1/P2/P3) in 3/3 seeds; frozen 2026-11-27 and delivered
+  (seed 0). docs/cf3_distillation_proposal.md, "CF-3e result"; docs/cf3e_delivery.md.
+- **CF-3f** (test arms against CF-3e, 2026-11-27: more LEAP hands, 300k steps, nine teachers, larger model, more records per
+  body; then matched teachers and the larger model continued to 200k): rec, leap and teach failed; the larger model failed on
+  Wuji / Shadow only. docs/cf3f_proposal.md on the getting-kite-universal branch.
+

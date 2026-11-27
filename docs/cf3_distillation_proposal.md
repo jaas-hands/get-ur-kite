@@ -155,7 +155,8 @@ the 360 hands, the 105 hands and source. Must not be tuned on MetaHand or any ex
   9.86 / 9.57 / 10.02 / 9.23; Aero 9.23 / 9.76 / 9.11 / 8.94. CF-3d ensemble − CF2 ensemble significant only where worse (Ability
   +0.43, Inspire +0.68, Schunk +0.45).
 - 90° frame flips: not fixed. MetaHand stays at CF2's level (seeds 11.8–13.0 vs D1-bv 7.5–8.0). The 360-hand pool (9 flip hands)
-  first ran out of GPU memory on a 24 GB card (job 50901); the chain's retry (51562) was restricted to ≥ 48 GB cards; pending.
+  first ran out of GPU memory on a 24 GB card (job 50901); the retry on a ≥ 48 GB card completed, see "CF-3d on the 360 held-out
+  LEAP pool" below (flip hands 10.39 / 10.49 / 10.34 mm vs D1-long ~8.1).
 Reading: distillation transferred D1-bv's LEAP-family behaviour (the gain is largest on LEAP-like hands) but not the ensemble's
 gain on unseen families, and it added seed variance there. It does not touch the frame-flip failure.
 
