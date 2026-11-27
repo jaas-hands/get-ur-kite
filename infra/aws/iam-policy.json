@@ -53,13 +53,16 @@
       ]
     },
     {
-      "Sid": "SpotServiceLinkedRole",
+      "Sid": "ServiceLinkedRoles",
       "Effect": "Allow",
       "Action": "iam:CreateServiceLinkedRole",
       "Resource": "*",
       "Condition": {
         "StringEquals": {
-          "iam:AWSServiceName": "spot.amazonaws.com"
+          "iam:AWSServiceName": [
+            "spot.amazonaws.com",
+            "servicequotas.amazonaws.com"
+          ]
         }
       }
     },
