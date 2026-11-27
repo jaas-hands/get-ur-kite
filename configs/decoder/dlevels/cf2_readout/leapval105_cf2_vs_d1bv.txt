@@ -1,0 +1,32 @@
+held-out LEAP: 105 hands, 13125 records; cf2 - d1bv (negative = cf2 better)
+no movement corr_mm 14.839
+
+seed 0: cf2 corr 9.032  d1bv corr 8.586
+  corr diff +0.446  hand-bootstrap 95% CI [+0.377, +0.517]  hands cf2 lower 10/105
+  wrist_mm +0.208  wrist_deg +0.269  compat_success -0.040
+  original 4 hands +0.235   other 101 hands +0.454
+  2 fingers:   7 hands  corr diff +0.583  cf2 lower 1/7
+  3 fingers:  35 hands  corr diff +0.374  cf2 lower 4/35
+  4 fingers:  63 hands  corr diff +0.471  cf2 lower 5/63
+  corr diff vs frame angle: r=+0.63  (angle median 3.6, max 84.4; >15deg: 3 hands, diff +1.666)
+
+seed 1: cf2 corr 8.925  d1bv corr 8.755
+  corr diff +0.169  hand-bootstrap 95% CI [+0.104, +0.239]  hands cf2 lower 35/105
+  wrist_mm +0.053  wrist_deg +0.137  compat_success -0.012
+  original 4 hands -0.022   other 101 hands +0.177
+  2 fingers:   7 hands  corr diff +0.438  cf2 lower 2/7
+  3 fingers:  35 hands  corr diff +0.073  cf2 lower 11/35
+  4 fingers:  63 hands  corr diff +0.193  cf2 lower 22/63
+  corr diff vs frame angle: r=+0.68  (angle median 3.6, max 84.4; >15deg: 3 hands, diff +1.489)
+
+seed 2: cf2 corr 8.829  d1bv corr 8.673
+  corr diff +0.155  hand-bootstrap 95% CI [+0.098, +0.215]  hands cf2 lower 34/105
+  wrist_mm +0.068  wrist_deg +0.148  compat_success -0.011
+  original 4 hands -0.130   other 101 hands +0.167
+  2 fingers:   7 hands  corr diff +0.281  cf2 lower 1/7
+  3 fingers:  35 hands  corr diff +0.067  cf2 lower 16/35
+  4 fingers:  63 hands  corr diff +0.191  cf2 lower 17/63
+  corr diff vs frame angle: r=+0.56  (angle median 3.6, max 84.4; >15deg: 3 hands, diff +1.247)
+
+hands where cf2 is higher in all 3 seeds: 49/105; lower in all 3: 2
+largest mean gaps: [(np.str_('I0-M2-R0-T4_g6'), 1.87, 84.4, 2), (np.str_('I2-M4-R3-T2_g4'), 1.4, 19.8, 4), (np.str_('I2-M4-R3-T2_g5'), 1.13, 15.8, 4), (np.str_('I2-M3-R3-T2_g0'), 0.85, 13.3, 4), (np.str_('I4-M4-R3-T4_g0'), 0.84, 11.6, 4), (np.str_('I4-M2-R4-T4_g0'), 0.79, 12.2, 4), (np.str_('I2-M4-R2-T3_g3'), 0.72, 10.8, 4), (np.str_('I2-M3-R3-T2_g3'), 0.68, 7.7, 4)]

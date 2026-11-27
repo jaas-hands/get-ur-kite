@@ -1,0 +1,20 @@
+cf2_s0: base corr 8.908
+   2.5 deg: corr +0.050 mm (n +0.017, a +0.069, d +0.066)  wrist_deg +0.050  compat_success -0.005
+     5 deg: corr +0.207 mm (n +0.077, a +0.288, d +0.255)  wrist_deg +0.194  compat_success -0.016
+    10 deg: corr +0.806 mm (n +0.341, a +1.104, d +0.972)  wrist_deg +0.724  compat_success -0.074
+    15 deg: corr +1.555 mm (n +0.823, a +1.974, d +1.868)  wrist_deg +1.360  compat_success -0.144
+  monotonic True; 10 deg increase 0.806 >= 0.3: True -> causal
+cf2_s1: base corr 8.771
+   2.5 deg: corr +0.057 mm (n +0.020, a +0.068, d +0.083)  wrist_deg +0.053  compat_success -0.004
+     5 deg: corr +0.226 mm (n +0.083, a +0.282, d +0.312)  wrist_deg +0.209  compat_success -0.019
+    10 deg: corr +0.909 mm (n +0.393, a +1.192, d +1.141)  wrist_deg +0.786  compat_success -0.088
+    15 deg: corr +1.826 mm (n +0.934, a +2.335, d +2.209)  wrist_deg +1.498  compat_success -0.178
+  monotonic True; 10 deg increase 0.909 >= 0.3: True -> causal
+cf2_s2: base corr 8.741
+   2.5 deg: corr +0.052 mm (n +0.013, a +0.065, d +0.076)  wrist_deg +0.048  compat_success -0.005
+     5 deg: corr +0.205 mm (n +0.067, a +0.259, d +0.288)  wrist_deg +0.194  compat_success -0.015
+    10 deg: corr +0.806 mm (n +0.331, a +1.034, d +1.054)  wrist_deg +0.727  compat_success -0.074
+    15 deg: corr +1.577 mm (n +0.863, a +1.902, d +1.966)  wrist_deg +1.376  compat_success -0.151
+  monotonic True; 10 deg increase 0.806 >= 0.3: True -> causal
+
+Step 0 rule (3/3 seeds): MET: frame error is causal; Step 1 (CF-J) is supported

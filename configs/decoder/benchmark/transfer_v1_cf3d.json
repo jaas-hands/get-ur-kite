@@ -1,0 +1,69 @@
+{
+ "_note": "CF-3d (docs/cf3_distillation_proposal.md): standard pools + Shadow. Systems as transfer_v1_cfo with CF-O replaced by CF-3d.",
+ "base_config": "configs/decoder/scratch/c3_psi50k_10x_wrist.json",
+ "surface_sampling": "hand_frame",
+ "out_dir": "${GETKITE_RUNS}/transfer_benchmark_v1_cf3d",
+ "shadow_pool": true,
+ "systems": {
+  "d1_s0": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/d1_prim50_hf/best.pt"
+  },
+  "d1long_s0": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/d1_long_hf/best.pt"
+  },
+  "cf2_s0": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/cf2_long_hf/best.pt"
+  },
+  "d1bv_s0": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/d1_bv_long_hf/best.pt"
+  },
+  "cf3d_s0": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/cf3d_long_hf/best.pt"
+  },
+  "d1_s1": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/d1_prim50_hf_s1/best.pt"
+  },
+  "d1long_s1": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/d1_long_hf_s1/best.pt"
+  },
+  "cf2_s1": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/cf2_long_hf_s1/best.pt"
+  },
+  "d1bv_s1": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/d1_bv_long_hf_s1/best.pt"
+  },
+  "cf3d_s1": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/cf3d_long_hf_s1/best.pt"
+  },
+  "d1_s2": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/d1_prim50_hf_s2/best.pt"
+  },
+  "d1long_s2": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/d1_long_hf_s2/best.pt"
+  },
+  "cf2_s2": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/cf2_long_hf_s2/best.pt"
+  },
+  "d1bv_s2": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/d1_bv_long_hf_s2/best.pt"
+  },
+  "cf3d_s2": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/cf3d_long_hf_s2/best.pt"
+  }
+ }
+}

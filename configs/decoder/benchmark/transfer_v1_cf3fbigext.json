@@ -1,0 +1,57 @@
+{
+ "_note": "big continued to 200k: selected (best.pt over 0-200k) and final 200k (last.pt) vs big@100k and CF-3e.",
+ "base_config": "configs/decoder/scratch/c3_psi50k_10x_wrist.json",
+ "surface_sampling": "hand_frame",
+ "out_dir": "${GETKITE_RUNS}/transfer_benchmark_v1_cf3fbigext",
+ "shadow_pool": true,
+ "systems": {
+  "cf3e_s0": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/cf3e_long_hf/best.pt"
+  },
+  "cf3fbig_s0": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/cf3f_big_hf/best.pt"
+  },
+  "cf3e_s1": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/cf3e_long_hf_s1/best.pt"
+  },
+  "cf3fbig_s1": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/cf3f_big_hf_s1/best.pt"
+  },
+  "cf3e_s2": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/cf3e_long_hf_s2/best.pt"
+  },
+  "cf3fbig_s2": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/cf3f_big_hf_s2/best.pt"
+  },
+  "cf3fbigext_s0": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/cf3f_bigext_hf/best.pt"
+  },
+  "cf3fbigextlast_s0": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/cf3f_bigext_hf/last.pt"
+  },
+  "cf3fbigext_s1": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/cf3f_bigext_hf_s1/best.pt"
+  },
+  "cf3fbigextlast_s1": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/cf3f_bigext_hf_s1/last.pt"
+  },
+  "cf3fbigext_s2": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/cf3f_bigext_hf_s2/best.pt"
+  },
+  "cf3fbigextlast_s2": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/cf3f_bigext_hf_s2/last.pt"
+  }
+ }
+}

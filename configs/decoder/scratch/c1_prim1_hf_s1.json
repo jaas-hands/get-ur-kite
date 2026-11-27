@@ -1,0 +1,2332 @@
+{
+ "kite_root": "${KITE_ROOT}",
+ "kite_ckpt": "${KITE_ROOT}/checkpoints/decoder/release.pt",
+ "robots": [
+  {
+   "kind": "kite",
+   "robot": "allegro_right",
+   "family": "allegro",
+   "urdf": "${KITE_ROOT}/assets/ohra_urdf_robot/allegro/allegro_hand_right_extended.urdf",
+   "template": "${KITE_ROOT}/assets/ohra_urdf_robot/allegro/surface_template_graph_n4096_ddcc74fe8fec.pt",
+   "coords_npz": "${GETKITE_DATA}/multifamily_pilot/allegro_right_train.npz",
+   "ignore_mimic": true
+  },
+  {
+   "kind": "kite",
+   "robot": "barrett",
+   "family": "barrett",
+   "urdf": "${KITE_ROOT}/assets/dro_urdf_robot/barrett/model_extended.urdf",
+   "template": "${KITE_ROOT}/assets/dro_urdf_robot/barrett/surface_template_graph_n4096_3e0ba32e061c.pt",
+   "coords_npz": "${GETKITE_DATA}/multifamily_pilot/barrett_train.npz",
+   "ignore_mimic": true
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/hands/I0-M2-R2-T0_g0"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/hands/I0-M2-R3-T0_g2"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/hands/I0-M2-R4-T3_g6"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/hands/I0-M3-R4-T2_g3"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/hands/I0-M4-R3-T4_g0"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/hands/I2-M0-R0-T3_g5"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/hands/I2-M3-R2-T0_g5"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/hands/I2-M4-R2-T4_g5"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/hands/I4-M0-R0-T2_g1"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/hands/I4-M3-R0-T0_g0"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/hands/I4-M3-R0-T3_g6"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/hands/I4-M4-R0-T3_g0"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/hands/I2-M2-R0-T0_g2"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/hands/I2-M3-R0-T0_g2"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/hands/I2-M0-R4-T0_g0"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/hands/I4-M0-R3-T0_g2"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/hands/I4-M4-R0-T0_g5"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/hands/I2-M2-R2-T0_g2"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/hands/I2-M2-R3-T0_g4"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/hands/I4-M2-R0-T2_g3"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/hands/I0-M4-R2-T3_g1"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/hands/I0-M4-R4-T2_g3"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/hands/I0-M4-R4-T3_g0"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/hands/I4-M4-R4-T0_g4"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/hands/I2-M2-R2-T2_g3"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/hands/I2-M2-R2-T3_g3"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/hands/I2-M3-R2-T3_g2"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/hands/I2-M3-R2-T4_g1"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/hands/I2-M2-R4-T4_g2"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/hands/I2-M4-R4-T3_g1"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/hands/I4-M4-R4-T2_g0"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/hands/I4-M4-R4-T3_g6"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/hands/I4-M4-R4-T4_g0"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/hands/I2-M0-R0-T2_g1"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/hands/I0-M3-R2-T0_g2"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/hands/I0-M4-R0-T2_g4"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/hands/I0-M4-R0-T3_g0"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/hands/I0-M4-R4-T0_g6"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/hands/I2-M2-R0-T2_g5"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/hands/I0-M2-R3-T2_g6"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/hands/I2-M2-R4-T0_g5"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/hands/I0-M3-R3-T3_g2"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/hands/I4-M4-R0-T2_g0"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/hands/I4-M4-R3-T0_g4"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/hands/I4-M4-R0-T4_g6"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/hands/I2-M2-R3-T2_g5"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/hands/I4-M2-R2-T2_g3"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/hands/I2-M3-R3-T3_g1"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/hands/I0-M2-R2-T3_g0"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/hands/I0-M4-R3-T2_g0"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/hands/I2-M3-R2-T2_g0"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/hands/I2-M3-R3-T2_g4"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0000"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0001"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0002"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0003"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0004"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0005"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0006"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0007"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0008"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0009"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0010"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0011"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0012"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0013"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0014"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0015"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0016"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0017"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0018"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0019"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0020"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0021"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0022"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0023"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0024"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0025"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0026"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0027"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0028"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0029"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0030"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0031"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0032"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0033"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0034"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0035"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0036"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0037"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0038"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0039"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0040"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0041"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0042"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0043"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0044"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0045"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0046"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0047"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0048"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0049"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0800"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0801"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0802"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0803"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0804"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0805"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0806"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0807"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0808"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0809"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0810"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0811"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0812"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0813"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0814"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0815"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0816"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0817"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0818"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0819"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0820"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0821"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0822"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0823"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0824"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0825"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0826"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0827"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0828"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0829"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0830"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0831"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0832"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0833"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0834"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0835"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0836"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0837"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0838"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0839"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0840"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0841"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0842"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0843"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0844"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0845"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0846"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0847"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0848"
+  },
+  {
+   "kind": "leap",
+   "hand_dir": "${GETKITE_DATASET}/prim/hands/P0849"
+  }
+ ],
+ "model": {
+  "d_model": 128,
+  "n_layers": 4,
+  "n_heads": 4,
+  "mlp_ratio": 4,
+  "pos_fourier": 8,
+  "rot_fourier": 8,
+  "intent_source": "raw_contacts",
+  "contact_fourier": 8,
+  "frame": "wrist"
+ },
+ "out_dir": "${GETKITE_RUNS}/c1_prim1_hf_s1",
+ "start": "resample",
+ "normal_noise_rad": 0.1,
+ "train": [
+  {
+   "kind": "kite",
+   "robot": "allegro_right",
+   "npz": "${GETKITE_DATA}/multifamily_pilot/allegro_right_train.npz"
+  },
+  {
+   "kind": "kite",
+   "robot": "barrett",
+   "npz": "${GETKITE_DATA}/multifamily_pilot/barrett_train.npz"
+  },
+  {
+   "kind": "kite",
+   "robot": "allegro_right",
+   "npz": "${GETKITE_DATA}/multifamily_10x/allegro_right_train_extra_s303.npz"
+  },
+  {
+   "kind": "kite",
+   "robot": "barrett",
+   "npz": "${GETKITE_DATA}/multifamily_10x/barrett_train_extra_s303.npz"
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M2-R2-T0_g0.npz",
+   "rows": [
+    0,
+    417
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M2-R3-T0_g2.npz",
+   "rows": [
+    0,
+    417
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M2-R4-T3_g6.npz",
+   "rows": [
+    0,
+    417
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M3-R4-T2_g3.npz",
+   "rows": [
+    0,
+    417
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M4-R3-T4_g0.npz",
+   "rows": [
+    0,
+    417
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M0-R0-T3_g5.npz",
+   "rows": [
+    0,
+    417
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M3-R2-T0_g5.npz",
+   "rows": [
+    0,
+    417
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M4-R2-T4_g5.npz",
+   "rows": [
+    0,
+    417
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M0-R0-T2_g1.npz",
+   "rows": [
+    0,
+    417
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M3-R0-T0_g0.npz",
+   "rows": [
+    0,
+    417
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M3-R0-T3_g6.npz",
+   "rows": [
+    0,
+    417
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M4-R0-T3_g0.npz",
+   "rows": [
+    0,
+    417
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M2-R0-T0_g2.npz",
+   "rows": [
+    0,
+    417
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M3-R0-T0_g2.npz",
+   "rows": [
+    0,
+    417
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M0-R4-T0_g0.npz",
+   "rows": [
+    0,
+    417
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M0-R3-T0_g2.npz",
+   "rows": [
+    0,
+    417
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M4-R0-T0_g5.npz",
+   "rows": [
+    0,
+    417
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M2-R2-T0_g2.npz",
+   "rows": [
+    0,
+    417
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M2-R3-T0_g4.npz",
+   "rows": [
+    0,
+    417
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M2-R0-T2_g3.npz",
+   "rows": [
+    0,
+    417
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M4-R2-T3_g1.npz",
+   "rows": [
+    0,
+    417
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M4-R4-T2_g3.npz",
+   "rows": [
+    0,
+    417
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M4-R4-T3_g0.npz",
+   "rows": [
+    0,
+    417
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M4-R4-T0_g4.npz",
+   "rows": [
+    0,
+    417
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M2-R2-T2_g3.npz",
+   "rows": [
+    0,
+    417
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M2-R2-T3_g3.npz",
+   "rows": [
+    0,
+    417
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M3-R2-T3_g2.npz",
+   "rows": [
+    0,
+    417
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M3-R2-T4_g1.npz",
+   "rows": [
+    0,
+    417
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M2-R4-T4_g2.npz",
+   "rows": [
+    0,
+    417
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M4-R4-T3_g1.npz",
+   "rows": [
+    0,
+    417
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M4-R4-T2_g0.npz",
+   "rows": [
+    0,
+    417
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M4-R4-T3_g6.npz",
+   "rows": [
+    0,
+    417
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M4-R4-T4_g0.npz",
+   "rows": [
+    0,
+    417
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M0-R0-T2_g1.npz",
+   "rows": [
+    0,
+    417
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M3-R2-T0_g2.npz",
+   "rows": [
+    0,
+    417
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M4-R0-T2_g4.npz",
+   "rows": [
+    0,
+    417
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M4-R0-T3_g0.npz",
+   "rows": [
+    0,
+    417
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M4-R4-T0_g6.npz",
+   "rows": [
+    0,
+    417
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M2-R0-T2_g5.npz",
+   "rows": [
+    0,
+    417
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M2-R3-T2_g6.npz",
+   "rows": [
+    0,
+    417
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M2-R4-T0_g5.npz",
+   "rows": [
+    0,
+    417
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M3-R3-T3_g2.npz",
+   "rows": [
+    0,
+    417
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M4-R0-T2_g0.npz",
+   "rows": [
+    0,
+    417
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M4-R3-T0_g4.npz",
+   "rows": [
+    0,
+    417
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M4-R0-T4_g6.npz",
+   "rows": [
+    0,
+    417
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M2-R3-T2_g5.npz",
+   "rows": [
+    0,
+    417
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M2-R2-T2_g3.npz",
+   "rows": [
+    0,
+    417
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M3-R3-T3_g1.npz",
+   "rows": [
+    0,
+    417
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/prim/examples/kite_code_ctrl1/train_ctrl1/P0000.npz"
+  }
+ ],
+ "val": [
+  {
+   "kind": "kite",
+   "robot": "allegro_right",
+   "npz": "${GETKITE_DATA}/multifamily_pilot/allegro_right_val.npz"
+  },
+  {
+   "kind": "kite",
+   "robot": "barrett",
+   "npz": "${GETKITE_DATA}/multifamily_pilot/barrett_val.npz"
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M2-R2-T0_g0.npz",
+   "rows": [
+    900,
+    942
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M2-R3-T0_g2.npz",
+   "rows": [
+    900,
+    942
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M2-R4-T3_g6.npz",
+   "rows": [
+    900,
+    942
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M3-R4-T2_g3.npz",
+   "rows": [
+    900,
+    942
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M4-R3-T4_g0.npz",
+   "rows": [
+    900,
+    942
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M0-R0-T3_g5.npz",
+   "rows": [
+    900,
+    942
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M3-R2-T0_g5.npz",
+   "rows": [
+    900,
+    942
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M4-R2-T4_g5.npz",
+   "rows": [
+    900,
+    942
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M0-R0-T2_g1.npz",
+   "rows": [
+    900,
+    942
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M3-R0-T0_g0.npz",
+   "rows": [
+    900,
+    942
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M3-R0-T3_g6.npz",
+   "rows": [
+    900,
+    942
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M4-R0-T3_g0.npz",
+   "rows": [
+    900,
+    942
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/prim/examples/kite_code/train/P0000.npz",
+   "rows": [
+    410,
+    420
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/prim/examples/kite_code/train/P0001.npz",
+   "rows": [
+    410,
+    420
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/prim/examples/kite_code/train/P0002.npz",
+   "rows": [
+    410,
+    420
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/prim/examples/kite_code/train/P0003.npz",
+   "rows": [
+    410,
+    420
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/prim/examples/kite_code/train/P0004.npz",
+   "rows": [
+    410,
+    420
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/prim/examples/kite_code/train/P0005.npz",
+   "rows": [
+    410,
+    420
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/prim/examples/kite_code/train/P0006.npz",
+   "rows": [
+    410,
+    420
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/prim/examples/kite_code/train/P0007.npz",
+   "rows": [
+    410,
+    420
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/prim/examples/kite_code/train/P0008.npz",
+   "rows": [
+    410,
+    420
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/prim/examples/kite_code/train/P0009.npz",
+   "rows": [
+    410,
+    420
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/prim/examples/kite_code/train/P0010.npz",
+   "rows": [
+    410,
+    420
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/prim/examples/kite_code/train/P0011.npz",
+   "rows": [
+    410,
+    420
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/prim/examples/kite_code/train/P0012.npz",
+   "rows": [
+    410,
+    420
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/prim/examples/kite_code/train/P0013.npz",
+   "rows": [
+    410,
+    420
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/prim/examples/kite_code/train/P0014.npz",
+   "rows": [
+    410,
+    420
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/prim/examples/kite_code/train/P0015.npz",
+   "rows": [
+    410,
+    420
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/prim/examples/kite_code/train/P0016.npz",
+   "rows": [
+    410,
+    420
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/prim/examples/kite_code/train/P0017.npz",
+   "rows": [
+    410,
+    420
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/prim/examples/kite_code/train/P0018.npz",
+   "rows": [
+    410,
+    420
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/prim/examples/kite_code/train/P0019.npz",
+   "rows": [
+    410,
+    420
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/prim/examples/kite_code/train/P0020.npz",
+   "rows": [
+    410,
+    420
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/prim/examples/kite_code/train/P0021.npz",
+   "rows": [
+    410,
+    420
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/prim/examples/kite_code/train/P0022.npz",
+   "rows": [
+    410,
+    420
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/prim/examples/kite_code/train/P0023.npz",
+   "rows": [
+    410,
+    420
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/prim/examples/kite_code/train/P0024.npz",
+   "rows": [
+    410,
+    420
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/prim/examples/kite_code/train/P0025.npz",
+   "rows": [
+    410,
+    420
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/prim/examples/kite_code/train/P0026.npz",
+   "rows": [
+    410,
+    420
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/prim/examples/kite_code/train/P0027.npz",
+   "rows": [
+    410,
+    420
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/prim/examples/kite_code/train/P0028.npz",
+   "rows": [
+    410,
+    420
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/prim/examples/kite_code/train/P0029.npz",
+   "rows": [
+    410,
+    420
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/prim/examples/kite_code/train/P0030.npz",
+   "rows": [
+    410,
+    420
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/prim/examples/kite_code/train/P0031.npz",
+   "rows": [
+    410,
+    420
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/prim/examples/kite_code/train/P0032.npz",
+   "rows": [
+    410,
+    420
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/prim/examples/kite_code/train/P0033.npz",
+   "rows": [
+    410,
+    420
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/prim/examples/kite_code/train/P0034.npz",
+   "rows": [
+    410,
+    420
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/prim/examples/kite_code/train/P0035.npz",
+   "rows": [
+    410,
+    420
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/prim/examples/kite_code/train/P0036.npz",
+   "rows": [
+    410,
+    420
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/prim/examples/kite_code/train/P0037.npz",
+   "rows": [
+    410,
+    420
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/prim/examples/kite_code/train/P0038.npz",
+   "rows": [
+    410,
+    420
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/prim/examples/kite_code/train/P0039.npz",
+   "rows": [
+    410,
+    420
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/prim/examples/kite_code/train/P0040.npz",
+   "rows": [
+    410,
+    420
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/prim/examples/kite_code/train/P0041.npz",
+   "rows": [
+    410,
+    420
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/prim/examples/kite_code/train/P0042.npz",
+   "rows": [
+    410,
+    420
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/prim/examples/kite_code/train/P0043.npz",
+   "rows": [
+    410,
+    420
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/prim/examples/kite_code/train/P0044.npz",
+   "rows": [
+    410,
+    420
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/prim/examples/kite_code/train/P0045.npz",
+   "rows": [
+    410,
+    420
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/prim/examples/kite_code/train/P0046.npz",
+   "rows": [
+    410,
+    420
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/prim/examples/kite_code/train/P0047.npz",
+   "rows": [
+    410,
+    420
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/prim/examples/kite_code/train/P0048.npz",
+   "rows": [
+    410,
+    420
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/prim/examples/kite_code/train/P0049.npz",
+   "rows": [
+    410,
+    420
+   ]
+  }
+ ],
+ "extra_eval": {
+  "leap_heldout": [
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/val/I0-M2-R2-T3_g0.npz",
+    "rows": [
+     0,
+     125
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/val/I0-M4-R3-T2_g0.npz",
+    "rows": [
+     0,
+     125
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/val/I2-M3-R2-T2_g0.npz",
+    "rows": [
+     0,
+     125
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/val/I2-M3-R3-T2_g4.npz",
+    "rows": [
+     0,
+     125
+    ]
+   }
+  ],
+  "train_goals": [
+   {
+    "kind": "kite",
+    "robot": "allegro_right",
+    "npz": "${GETKITE_DATA}/multifamily_pilot/allegro_right_train.npz"
+   },
+   {
+    "kind": "kite",
+    "robot": "barrett",
+    "npz": "${GETKITE_DATA}/multifamily_pilot/barrett_train.npz"
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M2-R2-T0_g0.npz",
+    "rows": [
+     0,
+     167
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M2-R3-T0_g2.npz",
+    "rows": [
+     0,
+     167
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M2-R4-T3_g6.npz",
+    "rows": [
+     0,
+     167
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M3-R4-T2_g3.npz",
+    "rows": [
+     0,
+     167
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M4-R3-T4_g0.npz",
+    "rows": [
+     0,
+     167
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M0-R0-T3_g5.npz",
+    "rows": [
+     0,
+     167
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M3-R2-T0_g5.npz",
+    "rows": [
+     0,
+     167
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M4-R2-T4_g5.npz",
+    "rows": [
+     0,
+     167
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M0-R0-T2_g1.npz",
+    "rows": [
+     0,
+     167
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M3-R0-T0_g0.npz",
+    "rows": [
+     0,
+     167
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M3-R0-T3_g6.npz",
+    "rows": [
+     0,
+     167
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M4-R0-T3_g0.npz",
+    "rows": [
+     0,
+     167
+    ]
+   }
+  ],
+  "train_goals_new": [
+   {
+    "kind": "kite",
+    "robot": "allegro_right",
+    "npz": "${GETKITE_DATA}/multifamily_10x/allegro_right_train_extra_s303.npz",
+    "rows": [
+     0,
+     2000
+    ]
+   },
+   {
+    "kind": "kite",
+    "robot": "barrett",
+    "npz": "${GETKITE_DATA}/multifamily_10x/barrett_train_extra_s303.npz",
+    "rows": [
+     0,
+     2000
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATA}/multifamily_10x/leap_kite_code_s1/train/I0-M2-R2-T0_g0.npz",
+    "rows": [
+     0,
+     167
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATA}/multifamily_10x/leap_kite_code_s1/train/I0-M2-R3-T0_g2.npz",
+    "rows": [
+     0,
+     167
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATA}/multifamily_10x/leap_kite_code_s1/train/I0-M2-R4-T3_g6.npz",
+    "rows": [
+     0,
+     167
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATA}/multifamily_10x/leap_kite_code_s1/train/I0-M3-R4-T2_g3.npz",
+    "rows": [
+     0,
+     167
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATA}/multifamily_10x/leap_kite_code_s1/train/I0-M4-R3-T4_g0.npz",
+    "rows": [
+     0,
+     167
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATA}/multifamily_10x/leap_kite_code_s1/train/I2-M0-R0-T3_g5.npz",
+    "rows": [
+     0,
+     167
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATA}/multifamily_10x/leap_kite_code_s1/train/I2-M3-R2-T0_g5.npz",
+    "rows": [
+     0,
+     167
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATA}/multifamily_10x/leap_kite_code_s1/train/I2-M4-R2-T4_g5.npz",
+    "rows": [
+     0,
+     167
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATA}/multifamily_10x/leap_kite_code_s1/train/I4-M0-R0-T2_g1.npz",
+    "rows": [
+     0,
+     167
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATA}/multifamily_10x/leap_kite_code_s1/train/I4-M3-R0-T0_g0.npz",
+    "rows": [
+     0,
+     167
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATA}/multifamily_10x/leap_kite_code_s1/train/I4-M3-R0-T3_g6.npz",
+    "rows": [
+     0,
+     167
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATA}/multifamily_10x/leap_kite_code_s1/train/I4-M4-R0-T3_g0.npz",
+    "rows": [
+     0,
+     167
+    ]
+   }
+  ],
+  "new_hands_fresh": [
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M2-R0-T0_g2.npz",
+    "rows": [
+     900,
+     942
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M3-R0-T0_g2.npz",
+    "rows": [
+     900,
+     942
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M0-R4-T0_g0.npz",
+    "rows": [
+     900,
+     942
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M0-R3-T0_g2.npz",
+    "rows": [
+     900,
+     942
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M4-R0-T0_g5.npz",
+    "rows": [
+     900,
+     942
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M2-R2-T0_g2.npz",
+    "rows": [
+     900,
+     942
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M2-R3-T0_g4.npz",
+    "rows": [
+     900,
+     942
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M2-R0-T2_g3.npz",
+    "rows": [
+     900,
+     942
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M4-R2-T3_g1.npz",
+    "rows": [
+     900,
+     942
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M4-R4-T2_g3.npz",
+    "rows": [
+     900,
+     942
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M4-R4-T3_g0.npz",
+    "rows": [
+     900,
+     942
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M4-R4-T0_g4.npz",
+    "rows": [
+     900,
+     942
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M2-R2-T2_g3.npz",
+    "rows": [
+     900,
+     942
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M2-R2-T3_g3.npz",
+    "rows": [
+     900,
+     942
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M3-R2-T3_g2.npz",
+    "rows": [
+     900,
+     942
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M3-R2-T4_g1.npz",
+    "rows": [
+     900,
+     942
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M2-R4-T4_g2.npz",
+    "rows": [
+     900,
+     942
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M4-R4-T3_g1.npz",
+    "rows": [
+     900,
+     942
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M4-R4-T2_g0.npz",
+    "rows": [
+     900,
+     942
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M4-R4-T3_g6.npz",
+    "rows": [
+     900,
+     942
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M4-R4-T4_g0.npz",
+    "rows": [
+     900,
+     942
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M0-R0-T2_g1.npz",
+    "rows": [
+     900,
+     942
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M3-R2-T0_g2.npz",
+    "rows": [
+     900,
+     942
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M4-R0-T2_g4.npz",
+    "rows": [
+     900,
+     942
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M4-R0-T3_g0.npz",
+    "rows": [
+     900,
+     942
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M4-R4-T0_g6.npz",
+    "rows": [
+     900,
+     942
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M2-R0-T2_g5.npz",
+    "rows": [
+     900,
+     942
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M2-R3-T2_g6.npz",
+    "rows": [
+     900,
+     942
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M2-R4-T0_g5.npz",
+    "rows": [
+     900,
+     942
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M3-R3-T3_g2.npz",
+    "rows": [
+     900,
+     942
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M4-R0-T2_g0.npz",
+    "rows": [
+     900,
+     942
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M4-R3-T0_g4.npz",
+    "rows": [
+     900,
+     942
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M4-R0-T4_g6.npz",
+    "rows": [
+     900,
+     942
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M2-R3-T2_g5.npz",
+    "rows": [
+     900,
+     942
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M2-R2-T2_g3.npz",
+    "rows": [
+     900,
+     942
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M3-R3-T3_g1.npz",
+    "rows": [
+     900,
+     942
+    ]
+   }
+  ],
+  "prim_heldout": [
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/prim/examples/kite_code/heldout/P0800.npz"
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/prim/examples/kite_code/heldout/P0801.npz"
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/prim/examples/kite_code/heldout/P0802.npz"
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/prim/examples/kite_code/heldout/P0803.npz"
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/prim/examples/kite_code/heldout/P0804.npz"
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/prim/examples/kite_code/heldout/P0805.npz"
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/prim/examples/kite_code/heldout/P0806.npz"
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/prim/examples/kite_code/heldout/P0807.npz"
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/prim/examples/kite_code/heldout/P0808.npz"
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/prim/examples/kite_code/heldout/P0809.npz"
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/prim/examples/kite_code/heldout/P0810.npz"
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/prim/examples/kite_code/heldout/P0811.npz"
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/prim/examples/kite_code/heldout/P0812.npz"
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/prim/examples/kite_code/heldout/P0813.npz"
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/prim/examples/kite_code/heldout/P0814.npz"
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/prim/examples/kite_code/heldout/P0815.npz"
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/prim/examples/kite_code/heldout/P0816.npz"
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/prim/examples/kite_code/heldout/P0817.npz"
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/prim/examples/kite_code/heldout/P0818.npz"
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/prim/examples/kite_code/heldout/P0819.npz"
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/prim/examples/kite_code/heldout/P0820.npz"
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/prim/examples/kite_code/heldout/P0821.npz"
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/prim/examples/kite_code/heldout/P0822.npz"
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/prim/examples/kite_code/heldout/P0823.npz"
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/prim/examples/kite_code/heldout/P0824.npz"
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/prim/examples/kite_code/heldout/P0825.npz"
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/prim/examples/kite_code/heldout/P0826.npz"
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/prim/examples/kite_code/heldout/P0827.npz"
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/prim/examples/kite_code/heldout/P0828.npz"
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/prim/examples/kite_code/heldout/P0829.npz"
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/prim/examples/kite_code/heldout/P0830.npz"
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/prim/examples/kite_code/heldout/P0831.npz"
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/prim/examples/kite_code/heldout/P0832.npz"
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/prim/examples/kite_code/heldout/P0833.npz"
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/prim/examples/kite_code/heldout/P0834.npz"
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/prim/examples/kite_code/heldout/P0835.npz"
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/prim/examples/kite_code/heldout/P0836.npz"
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/prim/examples/kite_code/heldout/P0837.npz"
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/prim/examples/kite_code/heldout/P0838.npz"
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/prim/examples/kite_code/heldout/P0839.npz"
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/prim/examples/kite_code/heldout/P0840.npz"
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/prim/examples/kite_code/heldout/P0841.npz"
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/prim/examples/kite_code/heldout/P0842.npz"
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/prim/examples/kite_code/heldout/P0843.npz"
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/prim/examples/kite_code/heldout/P0844.npz"
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/prim/examples/kite_code/heldout/P0845.npz"
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/prim/examples/kite_code/heldout/P0846.npz"
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/prim/examples/kite_code/heldout/P0847.npz"
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/prim/examples/kite_code/heldout/P0848.npz"
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/prim/examples/kite_code/heldout/P0849.npz"
+   }
+  ]
+ },
+ "batch_size": 256,
+ "lr": 0.0003,
+ "warmup_steps": 500,
+ "total_steps": 50000,
+ "eval_every": 2500,
+ "log_every": 100,
+ "ckpt_every": 1000,
+ "weight_decay": 0.0001,
+ "_note": "Family-share control C1 (2026-11-20): identical to d1_prim50_hf_s1 except the prim training records: one body (P0000, first by index, 2 fingers / 8 DOF) x 20000 records (split train_ctrl1, fresh seed; disjoint from P0000's val rows) instead of 50 bodies x 400. Same family shares (4 families x 25%), same prim record count, same val/robots/extra_eval. Tests body variety vs batch rebalancing. Wuji and Shadow excluded from training.",
+ "surface_sampling": "hand_frame",
+ "set_config_from": "${GETKITE_RUNS}/set_bridge_zworld_c3_20k_b/best.pt",
+ "contact_weight": 1.0,
+ "contacts_lr": 0.001,
+ "contacts_grad_clip": 1.0,
+ "contacts_weight_decay": 0.0001,
+ "seed": 1
+}

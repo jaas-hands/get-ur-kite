@@ -1,0 +1,8 @@
+world check max 5.960464477539063e-08
+d1long_s0: source trans R2 native 0.502 -> relabelled median -0.689 (drop 1.190) | held-out drop 1.008 | wuji 0.121->-0.681 | shadow -0.340->-0.737 | source corr_mm 6.93->15.55
+d1long_s1: source trans R2 native 0.522 -> relabelled median -0.120 (drop 0.642) | held-out drop 0.486 | wuji 0.143->-0.024 | shadow -0.109->-0.117 | source corr_mm 6.72->11.82
+d1long_s2: source trans R2 native 0.535 -> relabelled median -0.380 (drop 0.914) | held-out drop 0.768 | wuji 0.113->-0.243 | shadow -0.082->-0.350 | source corr_mm 6.62->13.19
+d1bv_s0: source trans R2 native 0.534 -> relabelled median -0.150 (drop 0.684) | held-out drop 0.567 | wuji 0.202->-0.223 | shadow 0.011->-0.212 | source corr_mm 6.56->12.59
+d1bv_s1: source trans R2 native 0.522 -> relabelled median -0.258 (drop 0.780) | held-out drop 0.630 | wuji 0.194->-0.173 | shadow -0.112->-0.213 | source corr_mm 6.74->12.64
+d1bv_s2: source trans R2 native 0.530 -> relabelled median -0.161 (drop 0.691) | held-out drop 0.570 | wuji 0.137->-0.116 | shadow -0.067->-0.112 | source corr_mm 6.67->12.05
+rule: D1-bv drop smaller than D1-long in 3/3 seeds on source: NOT SUPPORTED [-0.506, 0.138, -0.223]

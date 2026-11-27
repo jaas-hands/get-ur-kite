@@ -1,0 +1,29 @@
+held-out LEAP, 105 hands. gain = with variety - without (mm; negative = variety helped)
+seed 0: D1 gain -0.390 (helped on 100/105)   CF gain -0.110 (helped on 70/105)   corr(D1 gain, CF gain) across hands r=-0.04
+seed 1: D1 gain -0.034 (helped on 55/105)   CF gain -0.172 (helped on 81/105)   corr(D1 gain, CF gain) across hands r=+0.04
+seed 2: D1 gain -0.010 (helped on 52/105)   CF gain -0.016 (helped on 52/105)   corr(D1 gain, CF gain) across hands r=+0.13
+
+Spearman correlation of gain with hand property (per seed: D1 | CF)
+  fingers      s0 +0.11 | -0.18  s1 -0.12 | -0.13  s2 +0.12 | -0.07
+  joints       s0 -0.04 | -0.17  s1 -0.12 | -0.09  s2 +0.08 | -0.04
+  topo_dist_A  s0 -0.24 | +0.04  s1 -0.01 | +0.04  s2 -0.19 | -0.04
+  topo_dist_B  s0 +nan | +nan  s1 +nan | +nan  s2 +nan | +nan
+  palm_area    s0 +0.03 | +0.06  s1 +0.04 | +0.12  s2 +0.09 | +0.16
+  origin_cm    s0 -0.09 | -0.17  s1 +0.05 | -0.02  s2 -0.16 | +0.05
+  tilt_deg     s0 -0.12 | -0.21  s1 +0.06 | -0.13  s2 +0.02 | -0.20
+
+Gain by group (mean over 3 seeds; D1 / CF / CF2-minus-D1-long baseline gap / CF-bv-minus-D1-bv gap)
+  fingers [2,3) n=  7: D1 gain -0.187  CF gain -0.009  | CF-D1 gap before +0.247 -> after +0.425
+  fingers [3,4) n= 35: D1 gain -0.151  CF gain -0.069  | CF-D1 gap before +0.020 -> after +0.102
+  fingers [4,5) n= 63: D1 gain -0.137  CF gain -0.126  | CF-D1 gap before +0.148 -> after +0.159
+  topo_dist_A [0,2) n= 63: D1 gain -0.120  CF gain -0.097  | CF-D1 gap before +0.079 -> after +0.102
+  topo_dist_A [2,3) n= 35: D1 gain -0.180  CF gain -0.121  | CF-D1 gap before +0.145 -> after +0.204
+  topo_dist_A [3,4) n=  7: D1 gain -0.187  CF gain -0.009  | CF-D1 gap before +0.247 -> after +0.425
+  topo_dist_B [1,2) n=105: D1 gain -0.145  CF gain -0.099  | CF-D1 gap before +0.112 -> after +0.158
+  tilt_deg [0,3) n= 45: D1 gain -0.139  CF gain -0.063  | CF-D1 gap before +0.013 -> after +0.088
+  tilt_deg [3,6) n= 36: D1 gain -0.155  CF gain -0.109  | CF-D1 gap before +0.052 -> after +0.098
+  tilt_deg [6,10) n= 16: D1 gain -0.119  CF gain -0.080  | CF-D1 gap before +0.169 -> after +0.208
+  tilt_deg [10,90) n=  8: D1 gain -0.185  CF gain -0.297  | CF-D1 gap before +0.828 -> after +0.717
+  palm_area [9.5,100) n=105: D1 gain -0.145  CF gain -0.099  | CF-D1 gap before +0.112 -> after +0.158
+
+property ranges: {'palm_area': (12.38, 13.21), 'origin_cm': (5.8, 6.22), 'topo_dist_A': (1, 3), 'topo_dist_B': (1, 1)}

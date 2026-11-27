@@ -1,0 +1,9 @@
+{
+ "pass": true,
+ "n_bodies": 900,
+ "n_uncoupled": 513,
+ "n_coupled": 387,
+ "uncoupled_record_files_compared": 513,
+ "problems": [],
+ "n_problems": 0
+}

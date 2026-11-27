@@ -1,0 +1,69 @@
+{
+ "_note": "CF-J benchmark (docs/cf_frame_jitter_proposal.md): frozen D1, D1-long, CF2, D1-bv, CF-J x 3 seeds, paired by seed; Shadow included; original 4-hand held-out LEAP (Primaries 1-3).",
+ "base_config": "configs/decoder/scratch/c3_psi50k_10x_wrist.json",
+ "surface_sampling": "hand_frame",
+ "out_dir": "${GETKITE_RUNS}/transfer_benchmark_v1_cfj",
+ "shadow_pool": true,
+ "systems": {
+  "d1_s0": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/d1_prim50_hf/best.pt"
+  },
+  "d1long_s0": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/d1_long_hf/best.pt"
+  },
+  "cf2_s0": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/cf2_long_hf/best.pt"
+  },
+  "d1bv_s0": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/d1_bv_long_hf/best.pt"
+  },
+  "cfj_s0": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/cfj_long_hf/best.pt"
+  },
+  "d1_s1": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/d1_prim50_hf_s1/best.pt"
+  },
+  "d1long_s1": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/d1_long_hf_s1/best.pt"
+  },
+  "cf2_s1": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/cf2_long_hf_s1/best.pt"
+  },
+  "d1bv_s1": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/d1_bv_long_hf_s1/best.pt"
+  },
+  "cfj_s1": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/cfj_long_hf_s1/best.pt"
+  },
+  "d1_s2": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/d1_prim50_hf_s2/best.pt"
+  },
+  "d1long_s2": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/d1_long_hf_s2/best.pt"
+  },
+  "cf2_s2": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/cf2_long_hf_s2/best.pt"
+  },
+  "d1bv_s2": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/d1_bv_long_hf_s2/best.pt"
+  },
+  "cfj_s2": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/cfj_long_hf_s2/best.pt"
+  }
+ }
+}

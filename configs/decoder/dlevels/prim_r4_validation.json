@@ -1,0 +1,764 @@
+{
+ "all_pass": true,
+ "n_hands": 50,
+ "n_fail": 0,
+ "adapter_fk_max_abs_m": 9.681726365062815e-08,
+ "mjcf_native_fk_max_abs": 1.2950559374891313e-09,
+ "cover_radius_mm": {
+  "median": 27.23477264996813,
+  "max": 32.80769621784119
+ },
+ "contact_reproduction_max_m": 1.2377833513710357e-07,
+ "hands": {
+  "P0000": {
+   "adapter_fk_max_abs_m": 4.3537414506911176e-08,
+   "mjcf_native_fk_max_abs": 4.014335461266505e-10,
+   "fingers_uncovered": [],
+   "cover_radius_mm": 29.034322181617497,
+   "mimic_joints": 0,
+   "n_dof": 8,
+   "family": "prim",
+   "records/train_r4": {
+    "n": 1600,
+    "goal_out_of_limits": 0,
+    "contact_reproduction_max_m": 6.828570064953965e-08
+   },
+   "pass": true
+  },
+  "P0001": {
+   "adapter_fk_max_abs_m": 3.417634558688931e-08,
+   "mjcf_native_fk_max_abs": 6.164417934440003e-11,
+   "fingers_uncovered": [],
+   "cover_radius_mm": 23.64008224112774,
+   "mimic_joints": 0,
+   "n_dof": 4,
+   "family": "prim",
+   "records/train_r4": {
+    "n": 1600,
+    "goal_out_of_limits": 0,
+    "contact_reproduction_max_m": 6.828570064953965e-08
+   },
+   "pass": true
+  },
+  "P0002": {
+   "adapter_fk_max_abs_m": 6.603034008456632e-08,
+   "mjcf_native_fk_max_abs": 2.889908312653233e-10,
+   "fingers_uncovered": [],
+   "cover_radius_mm": 28.295883096958956,
+   "mimic_joints": 0,
+   "n_dof": 8,
+   "family": "prim",
+   "records/train_r4": {
+    "n": 1600,
+    "goal_out_of_limits": 0,
+    "contact_reproduction_max_m": 8.462232869987929e-08
+   },
+   "pass": true
+  },
+  "P0003": {
+   "adapter_fk_max_abs_m": 7.975033566864909e-08,
+   "mjcf_native_fk_max_abs": 6.959701703834753e-10,
+   "fingers_uncovered": [],
+   "cover_radius_mm": 29.717906063577132,
+   "mimic_joints": 0,
+   "n_dof": 16,
+   "family": "prim",
+   "records/train_r4": {
+    "n": 1600,
+    "goal_out_of_limits": 0,
+    "contact_reproduction_max_m": 8.429369557916289e-08
+   },
+   "pass": true
+  },
+  "P0004": {
+   "adapter_fk_max_abs_m": 4.3254338000231485e-08,
+   "mjcf_native_fk_max_abs": 4.4580217295475677e-10,
+   "fingers_uncovered": [],
+   "cover_radius_mm": 27.15272057420323,
+   "mimic_joints": 0,
+   "n_dof": 7,
+   "family": "prim",
+   "records/train_r4": {
+    "n": 1600,
+    "goal_out_of_limits": 0,
+    "contact_reproduction_max_m": 6.828570064953965e-08
+   },
+   "pass": true
+  },
+  "P0005": {
+   "adapter_fk_max_abs_m": 4.8627494808606286e-08,
+   "mjcf_native_fk_max_abs": 5.606770603350242e-10,
+   "fingers_uncovered": [],
+   "cover_radius_mm": 26.90480502312466,
+   "mimic_joints": 0,
+   "n_dof": 6,
+   "family": "prim",
+   "records/train_r4": {
+    "n": 1600,
+    "goal_out_of_limits": 0,
+    "contact_reproduction_max_m": 7.300048565639372e-08
+   },
+   "pass": true
+  },
+  "P0006": {
+   "adapter_fk_max_abs_m": 4.2647891884683986e-08,
+   "mjcf_native_fk_max_abs": 2.8746657831923983e-10,
+   "fingers_uncovered": [],
+   "cover_radius_mm": 25.454426161210453,
+   "mimic_joints": 0,
+   "n_dof": 12,
+   "family": "prim",
+   "records/train_r4": {
+    "n": 1600,
+    "goal_out_of_limits": 0,
+    "contact_reproduction_max_m": 8.462232869987929e-08
+   },
+   "pass": true
+  },
+  "P0007": {
+   "adapter_fk_max_abs_m": 4.6356362082278224e-08,
+   "mjcf_native_fk_max_abs": 6.161453569575315e-10,
+   "fingers_uncovered": [],
+   "cover_radius_mm": 29.539620042144684,
+   "mimic_joints": 0,
+   "n_dof": 7,
+   "family": "prim",
+   "records/train_r4": {
+    "n": 1600,
+    "goal_out_of_limits": 0,
+    "contact_reproduction_max_m": 7.450580596923828e-08
+   },
+   "pass": true
+  },
+  "P0008": {
+   "adapter_fk_max_abs_m": 7.931258916293871e-08,
+   "mjcf_native_fk_max_abs": 7.653900291337834e-10,
+   "fingers_uncovered": [],
+   "cover_radius_mm": 27.14822654798435,
+   "mimic_joints": 0,
+   "n_dof": 8,
+   "family": "prim",
+   "records/train_r4": {
+    "n": 1600,
+    "goal_out_of_limits": 0,
+    "contact_reproduction_max_m": 7.300048565639372e-08
+   },
+   "pass": true
+  },
+  "P0009": {
+   "adapter_fk_max_abs_m": 4.775380840760235e-08,
+   "mjcf_native_fk_max_abs": 1.2754962364081024e-09,
+   "fingers_uncovered": [],
+   "cover_radius_mm": 25.886629764002507,
+   "mimic_joints": 0,
+   "n_dof": 6,
+   "family": "prim",
+   "records/train_r4": {
+    "n": 1600,
+    "goal_out_of_limits": 0,
+    "contact_reproduction_max_m": 6.828570064953965e-08
+   },
+   "pass": true
+  },
+  "P0010": {
+   "adapter_fk_max_abs_m": 6.204709102064498e-08,
+   "mjcf_native_fk_max_abs": 1.0390894811251883e-09,
+   "fingers_uncovered": [],
+   "cover_radius_mm": 28.853026457464292,
+   "mimic_joints": 0,
+   "n_dof": 17,
+   "family": "prim",
+   "records/train_r4": {
+    "n": 1600,
+    "goal_out_of_limits": 0,
+    "contact_reproduction_max_m": 8.56006536764653e-08
+   },
+   "pass": true
+  },
+  "P0011": {
+   "adapter_fk_max_abs_m": 4.4025596612762286e-08,
+   "mjcf_native_fk_max_abs": 1.077591849085735e-09,
+   "fingers_uncovered": [],
+   "cover_radius_mm": 31.121925208995687,
+   "mimic_joints": 0,
+   "n_dof": 14,
+   "family": "prim",
+   "records/train_r4": {
+    "n": 1600,
+    "goal_out_of_limits": 0,
+    "contact_reproduction_max_m": 7.300048565639372e-08
+   },
+   "pass": true
+  },
+  "P0012": {
+   "adapter_fk_max_abs_m": 6.216629039323962e-08,
+   "mjcf_native_fk_max_abs": 7.291026463129846e-11,
+   "fingers_uncovered": [],
+   "cover_radius_mm": 27.250444836230336,
+   "mimic_joints": 0,
+   "n_dof": 13,
+   "family": "prim",
+   "records/train_r4": {
+    "n": 1600,
+    "goal_out_of_limits": 0,
+    "contact_reproduction_max_m": 8.429369557916289e-08
+   },
+   "pass": true
+  },
+  "P0013": {
+   "adapter_fk_max_abs_m": 4.002012876647143e-08,
+   "mjcf_native_fk_max_abs": 1.2950559374891313e-09,
+   "fingers_uncovered": [],
+   "cover_radius_mm": 24.788203647794244,
+   "mimic_joints": 0,
+   "n_dof": 6,
+   "family": "prim",
+   "records/train_r4": {
+    "n": 1600,
+    "goal_out_of_limits": 0,
+    "contact_reproduction_max_m": 8.429369557916289e-08
+   },
+   "pass": true
+  },
+  "P0014": {
+   "adapter_fk_max_abs_m": 3.8806904412158616e-08,
+   "mjcf_native_fk_max_abs": 7.786030153944523e-11,
+   "fingers_uncovered": [],
+   "cover_radius_mm": 27.169930558057345,
+   "mimic_joints": 0,
+   "n_dof": 13,
+   "family": "prim",
+   "records/train_r4": {
+    "n": 1600,
+    "goal_out_of_limits": 0,
+    "contact_reproduction_max_m": 8.429369557916289e-08
+   },
+   "pass": true
+  },
+  "P0015": {
+   "adapter_fk_max_abs_m": 4.2023774238231226e-08,
+   "mjcf_native_fk_max_abs": 8.905582798979239e-10,
+   "fingers_uncovered": [],
+   "cover_radius_mm": 25.70945169469557,
+   "mimic_joints": 0,
+   "n_dof": 9,
+   "family": "prim",
+   "records/train_r4": {
+    "n": 1600,
+    "goal_out_of_limits": 0,
+    "contact_reproduction_max_m": 6.828570064953965e-08
+   },
+   "pass": true
+  },
+  "P0016": {
+   "adapter_fk_max_abs_m": 5.17642420039266e-08,
+   "mjcf_native_fk_max_abs": 3.929502140342933e-10,
+   "fingers_uncovered": [],
+   "cover_radius_mm": 27.219100463705917,
+   "mimic_joints": 0,
+   "n_dof": 5,
+   "family": "prim",
+   "records/train_r4": {
+    "n": 1600,
+    "goal_out_of_limits": 0,
+    "contact_reproduction_max_m": 7.300048565639372e-08
+   },
+   "pass": true
+  },
+  "P0017": {
+   "adapter_fk_max_abs_m": 7.872596718971892e-08,
+   "mjcf_native_fk_max_abs": 7.761105716430627e-10,
+   "fingers_uncovered": [],
+   "cover_radius_mm": 28.67319461945646,
+   "mimic_joints": 0,
+   "n_dof": 10,
+   "family": "prim",
+   "records/train_r4": {
+    "n": 1600,
+    "goal_out_of_limits": 0,
+    "contact_reproduction_max_m": 7.300048565639372e-08
+   },
+   "pass": true
+  },
+  "P0018": {
+   "adapter_fk_max_abs_m": 6.646163541734751e-08,
+   "mjcf_native_fk_max_abs": 6.668752217109386e-10,
+   "fingers_uncovered": [],
+   "cover_radius_mm": 32.22497330117822,
+   "mimic_joints": 0,
+   "n_dof": 13,
+   "family": "prim",
+   "records/train_r4": {
+    "n": 1600,
+    "goal_out_of_limits": 0,
+    "contact_reproduction_max_m": 1.2377833513710357e-07
+   },
+   "pass": true
+  },
+  "P0019": {
+   "adapter_fk_max_abs_m": 7.618691988398041e-08,
+   "mjcf_native_fk_max_abs": 1.0490232502102792e-09,
+   "fingers_uncovered": [],
+   "cover_radius_mm": 28.68162349498157,
+   "mimic_joints": 0,
+   "n_dof": 8,
+   "family": "prim",
+   "records/train_r4": {
+    "n": 1600,
+    "goal_out_of_limits": 0,
+    "contact_reproduction_max_m": 6.828570064953965e-08
+   },
+   "pass": true
+  },
+  "P0020": {
+   "adapter_fk_max_abs_m": 4.842973899688019e-08,
+   "mjcf_native_fk_max_abs": 7.570231108644521e-10,
+   "fingers_uncovered": [],
+   "cover_radius_mm": 25.7378062912942,
+   "mimic_joints": 0,
+   "n_dof": 10,
+   "family": "prim",
+   "records/train_r4": {
+    "n": 1600,
+    "goal_out_of_limits": 0,
+    "contact_reproduction_max_m": 8.429369557916289e-08
+   },
+   "pass": true
+  },
+  "P0021": {
+   "adapter_fk_max_abs_m": 4.0802199452460997e-08,
+   "mjcf_native_fk_max_abs": 8.341454194038533e-10,
+   "fingers_uncovered": [],
+   "cover_radius_mm": 28.883195908306497,
+   "mimic_joints": 0,
+   "n_dof": 12,
+   "family": "prim",
+   "records/train_r4": {
+    "n": 1600,
+    "goal_out_of_limits": 0,
+    "contact_reproduction_max_m": 6.828570064953965e-08
+   },
+   "pass": true
+  },
+  "P0022": {
+   "adapter_fk_max_abs_m": 4.347570231599818e-08,
+   "mjcf_native_fk_max_abs": 3.8119107870215885e-10,
+   "fingers_uncovered": [],
+   "cover_radius_mm": 27.77792195326899,
+   "mimic_joints": 0,
+   "n_dof": 12,
+   "family": "prim",
+   "records/train_r4": {
+    "n": 1600,
+    "goal_out_of_limits": 0,
+    "contact_reproduction_max_m": 8.940696716308594e-08
+   },
+   "pass": true
+  },
+  "P0023": {
+   "adapter_fk_max_abs_m": 5.992807727839278e-08,
+   "mjcf_native_fk_max_abs": 4.2810710532137364e-10,
+   "fingers_uncovered": [],
+   "cover_radius_mm": 22.82876176178906,
+   "mimic_joints": 0,
+   "n_dof": 7,
+   "family": "prim",
+   "records/train_r4": {
+    "n": 1600,
+    "goal_out_of_limits": 0,
+    "contact_reproduction_max_m": 6.849496259064836e-08
+   },
+   "pass": true
+  },
+  "P0024": {
+   "adapter_fk_max_abs_m": 4.848342760599422e-08,
+   "mjcf_native_fk_max_abs": 1.542814764832201e-10,
+   "fingers_uncovered": [],
+   "cover_radius_mm": 23.46765275523085,
+   "mimic_joints": 0,
+   "n_dof": 6,
+   "family": "prim",
+   "records/train_r4": {
+    "n": 1600,
+    "goal_out_of_limits": 0,
+    "contact_reproduction_max_m": 7.300048565639372e-08
+   },
+   "pass": true
+  },
+  "P0025": {
+   "adapter_fk_max_abs_m": 4.692683108764584e-08,
+   "mjcf_native_fk_max_abs": 5.269397973517442e-10,
+   "fingers_uncovered": [],
+   "cover_radius_mm": 27.93345864831175,
+   "mimic_joints": 0,
+   "n_dof": 6,
+   "family": "prim",
+   "records/train_r4": {
+    "n": 1600,
+    "goal_out_of_limits": 0,
+    "contact_reproduction_max_m": 6.828570064953965e-08
+   },
+   "pass": true
+  },
+  "P0026": {
+   "adapter_fk_max_abs_m": 5.0560589770487496e-08,
+   "mjcf_native_fk_max_abs": 5.44413569780744e-10,
+   "fingers_uncovered": [],
+   "cover_radius_mm": 27.008510021046533,
+   "mimic_joints": 0,
+   "n_dof": 6,
+   "family": "prim",
+   "records/train_r4": {
+    "n": 1600,
+    "goal_out_of_limits": 0,
+    "contact_reproduction_max_m": 7.300048565639372e-08
+   },
+   "pass": true
+  },
+  "P0027": {
+   "adapter_fk_max_abs_m": 5.160656857405854e-08,
+   "mjcf_native_fk_max_abs": 6.180903150410089e-10,
+   "fingers_uncovered": [],
+   "cover_radius_mm": 22.39681285619991,
+   "mimic_joints": 0,
+   "n_dof": 7,
+   "family": "prim",
+   "records/train_r4": {
+    "n": 1600,
+    "goal_out_of_limits": 0,
+    "contact_reproduction_max_m": 8.940696716308594e-08
+   },
+   "pass": true
+  },
+  "P0028": {
+   "adapter_fk_max_abs_m": 4.0327169492648807e-08,
+   "mjcf_native_fk_max_abs": 7.269685409205806e-10,
+   "fingers_uncovered": [],
+   "cover_radius_mm": 30.64765817370158,
+   "mimic_joints": 0,
+   "n_dof": 9,
+   "family": "prim",
+   "records/train_r4": {
+    "n": 1600,
+    "goal_out_of_limits": 0,
+    "contact_reproduction_max_m": 7.300048565639372e-08
+   },
+   "pass": true
+  },
+  "P0029": {
+   "adapter_fk_max_abs_m": 5.5735343007512483e-08,
+   "mjcf_native_fk_max_abs": 8.832852227413923e-10,
+   "fingers_uncovered": [],
+   "cover_radius_mm": 30.76294883588611,
+   "mimic_joints": 0,
+   "n_dof": 13,
+   "family": "prim",
+   "records/train_r4": {
+    "n": 1600,
+    "goal_out_of_limits": 0,
+    "contact_reproduction_max_m": 8.56006536764653e-08
+   },
+   "pass": true
+  },
+  "P0030": {
+   "adapter_fk_max_abs_m": 4.5746207710806175e-08,
+   "mjcf_native_fk_max_abs": 6.141631647693657e-10,
+   "fingers_uncovered": [],
+   "cover_radius_mm": 21.718601464302804,
+   "mimic_joints": 0,
+   "n_dof": 7,
+   "family": "prim",
+   "records/train_r4": {
+    "n": 1600,
+    "goal_out_of_limits": 0,
+    "contact_reproduction_max_m": 7.300048565639372e-08
+   },
+   "pass": true
+  },
+  "P0031": {
+   "adapter_fk_max_abs_m": 4.5368195533690425e-08,
+   "mjcf_native_fk_max_abs": 8.553662222965386e-10,
+   "fingers_uncovered": [],
+   "cover_radius_mm": 24.45675277809214,
+   "mimic_joints": 0,
+   "n_dof": 10,
+   "family": "prim",
+   "records/train_r4": {
+    "n": 1600,
+    "goal_out_of_limits": 0,
+    "contact_reproduction_max_m": 7.300048565639372e-08
+   },
+   "pass": true
+  },
+  "P0032": {
+   "adapter_fk_max_abs_m": 5.1019402647067835e-08,
+   "mjcf_native_fk_max_abs": 5.470399688789485e-10,
+   "fingers_uncovered": [],
+   "cover_radius_mm": 28.862843713291852,
+   "mimic_joints": 0,
+   "n_dof": 13,
+   "family": "prim",
+   "records/train_r4": {
+    "n": 1600,
+    "goal_out_of_limits": 0,
+    "contact_reproduction_max_m": 1.2287812012345967e-07
+   },
+   "pass": true
+  },
+  "P0033": {
+   "adapter_fk_max_abs_m": 5.4107009539450246e-08,
+   "mjcf_native_fk_max_abs": 4.101268213929643e-10,
+   "fingers_uncovered": [],
+   "cover_radius_mm": 28.779916315203483,
+   "mimic_joints": 0,
+   "n_dof": 14,
+   "family": "prim",
+   "records/train_r4": {
+    "n": 1600,
+    "goal_out_of_limits": 0,
+    "contact_reproduction_max_m": 8.43759764279639e-08
+   },
+   "pass": true
+  },
+  "P0034": {
+   "adapter_fk_max_abs_m": 3.886174315681501e-08,
+   "mjcf_native_fk_max_abs": 5.020823201640212e-10,
+   "fingers_uncovered": [],
+   "cover_radius_mm": 27.058007196170674,
+   "mimic_joints": 0,
+   "n_dof": 5,
+   "family": "prim",
+   "records/train_r4": {
+    "n": 1600,
+    "goal_out_of_limits": 0,
+    "contact_reproduction_max_m": 6.828570064953965e-08
+   },
+   "pass": true
+  },
+  "P0035": {
+   "adapter_fk_max_abs_m": 5.8530577051740806e-08,
+   "mjcf_native_fk_max_abs": 5.135946667955693e-10,
+   "fingers_uncovered": [],
+   "cover_radius_mm": 28.848397961917026,
+   "mimic_joints": 0,
+   "n_dof": 10,
+   "family": "prim",
+   "records/train_r4": {
+    "n": 1600,
+    "goal_out_of_limits": 0,
+    "contact_reproduction_max_m": 7.300048565639372e-08
+   },
+   "pass": true
+  },
+  "P0036": {
+   "adapter_fk_max_abs_m": 4.414774756877904e-08,
+   "mjcf_native_fk_max_abs": 1.0965791052974794e-09,
+   "fingers_uncovered": [],
+   "cover_radius_mm": 29.955212241913607,
+   "mimic_joints": 0,
+   "n_dof": 11,
+   "family": "prim",
+   "records/train_r4": {
+    "n": 1600,
+    "goal_out_of_limits": 0,
+    "contact_reproduction_max_m": 6.828570064953965e-08
+   },
+   "pass": true
+  },
+  "P0037": {
+   "adapter_fk_max_abs_m": 4.7286436821725175e-08,
+   "mjcf_native_fk_max_abs": 1.08818026811619e-09,
+   "fingers_uncovered": [],
+   "cover_radius_mm": 22.134064282726083,
+   "mimic_joints": 0,
+   "n_dof": 5,
+   "family": "prim",
+   "records/train_r4": {
+    "n": 1600,
+    "goal_out_of_limits": 0,
+    "contact_reproduction_max_m": 7.300048565639372e-08
+   },
+   "pass": true
+  },
+  "P0038": {
+   "adapter_fk_max_abs_m": 9.681726365062815e-08,
+   "mjcf_native_fk_max_abs": 3.3400154864082765e-10,
+   "fingers_uncovered": [],
+   "cover_radius_mm": 26.36370111839349,
+   "mimic_joints": 0,
+   "n_dof": 10,
+   "family": "prim",
+   "records/train_r4": {
+    "n": 1600,
+    "goal_out_of_limits": 0,
+    "contact_reproduction_max_m": 7.300048565639372e-08
+   },
+   "pass": true
+  },
+  "P0039": {
+   "adapter_fk_max_abs_m": 5.704506322867786e-08,
+   "mjcf_native_fk_max_abs": 8.446081820046025e-10,
+   "fingers_uncovered": [],
+   "cover_radius_mm": 32.52558419085458,
+   "mimic_joints": 0,
+   "n_dof": 17,
+   "family": "prim",
+   "records/train_r4": {
+    "n": 1600,
+    "goal_out_of_limits": 0,
+    "contact_reproduction_max_m": 7.53393365471311e-08
+   },
+   "pass": true
+  },
+  "P0040": {
+   "adapter_fk_max_abs_m": 5.6444076079742445e-08,
+   "mjcf_native_fk_max_abs": 4.17964773902213e-10,
+   "fingers_uncovered": [],
+   "cover_radius_mm": 32.80769621784119,
+   "mimic_joints": 0,
+   "n_dof": 14,
+   "family": "prim",
+   "records/train_r4": {
+    "n": 1600,
+    "goal_out_of_limits": 0,
+    "contact_reproduction_max_m": 7.300048565639372e-08
+   },
+   "pass": true
+  },
+  "P0041": {
+   "adapter_fk_max_abs_m": 7.031035875737501e-08,
+   "mjcf_native_fk_max_abs": 5.4652296577195614e-11,
+   "fingers_uncovered": [],
+   "cover_radius_mm": 22.998225575892743,
+   "mimic_joints": 0,
+   "n_dof": 10,
+   "family": "prim",
+   "records/train_r4": {
+    "n": 1600,
+    "goal_out_of_limits": 0,
+    "contact_reproduction_max_m": 8.56006536764653e-08
+   },
+   "pass": true
+  },
+  "P0042": {
+   "adapter_fk_max_abs_m": 4.504062289800714e-08,
+   "mjcf_native_fk_max_abs": 1.12323941814374e-09,
+   "fingers_uncovered": [],
+   "cover_radius_mm": 26.80808781407202,
+   "mimic_joints": 0,
+   "n_dof": 15,
+   "family": "prim",
+   "records/train_r4": {
+    "n": 1600,
+    "goal_out_of_limits": 0,
+    "contact_reproduction_max_m": 1.1928293019991543e-07
+   },
+   "pass": true
+  },
+  "P0043": {
+   "adapter_fk_max_abs_m": 4.442430168172251e-08,
+   "mjcf_native_fk_max_abs": 9.914325610482777e-10,
+   "fingers_uncovered": [],
+   "cover_radius_mm": 30.703118993471872,
+   "mimic_joints": 0,
+   "n_dof": 11,
+   "family": "prim",
+   "records/train_r4": {
+    "n": 1600,
+    "goal_out_of_limits": 0,
+    "contact_reproduction_max_m": 8.462232869987929e-08
+   },
+   "pass": true
+  },
+  "P0044": {
+   "adapter_fk_max_abs_m": 4.259669766915053e-08,
+   "mjcf_native_fk_max_abs": 3.880646914922181e-10,
+   "fingers_uncovered": [],
+   "cover_radius_mm": 26.91088707309386,
+   "mimic_joints": 0,
+   "n_dof": 9,
+   "family": "prim",
+   "records/train_r4": {
+    "n": 1600,
+    "goal_out_of_limits": 0,
+    "contact_reproduction_max_m": 7.300048565639372e-08
+   },
+   "pass": true
+  },
+  "P0045": {
+   "adapter_fk_max_abs_m": 3.205883258861064e-08,
+   "mjcf_native_fk_max_abs": 1.1602867416860008e-09,
+   "fingers_uncovered": [],
+   "cover_radius_mm": 21.272723579078885,
+   "mimic_joints": 0,
+   "n_dof": 5,
+   "family": "prim",
+   "records/train_r4": {
+    "n": 1600,
+    "goal_out_of_limits": 0,
+    "contact_reproduction_max_m": 7.300048565639372e-08
+   },
+   "pass": true
+  },
+  "P0046": {
+   "adapter_fk_max_abs_m": 3.268116088861461e-08,
+   "mjcf_native_fk_max_abs": 7.631358878157357e-10,
+   "fingers_uncovered": [],
+   "cover_radius_mm": 24.141382526677955,
+   "mimic_joints": 0,
+   "n_dof": 11,
+   "family": "prim",
+   "records/train_r4": {
+    "n": 1600,
+    "goal_out_of_limits": 0,
+    "contact_reproduction_max_m": 6.828570064953965e-08
+   },
+   "pass": true
+  },
+  "P0047": {
+   "adapter_fk_max_abs_m": 4.3488963041848905e-08,
+   "mjcf_native_fk_max_abs": 3.747842314272276e-10,
+   "fingers_uncovered": [],
+   "cover_radius_mm": 28.331064543218062,
+   "mimic_joints": 0,
+   "n_dof": 15,
+   "family": "prim",
+   "records/train_r4": {
+    "n": 1600,
+    "goal_out_of_limits": 0,
+    "contact_reproduction_max_m": 7.300048565639372e-08
+   },
+   "pass": true
+  },
+  "P0048": {
+   "adapter_fk_max_abs_m": 3.74088813259732e-08,
+   "mjcf_native_fk_max_abs": 3.853715194179763e-10,
+   "fingers_uncovered": [],
+   "cover_radius_mm": 29.989408602693008,
+   "mimic_joints": 0,
+   "n_dof": 5,
+   "family": "prim",
+   "records/train_r4": {
+    "n": 1600,
+    "goal_out_of_limits": 0,
+    "contact_reproduction_max_m": 7.300048565639372e-08
+   },
+   "pass": true
+  },
+  "P0049": {
+   "adapter_fk_max_abs_m": 3.7910086958525824e-08,
+   "mjcf_native_fk_max_abs": 5.975933636825914e-11,
+   "fingers_uncovered": [],
+   "cover_radius_mm": 27.86622554249655,
+   "mimic_joints": 0,
+   "n_dof": 6,
+   "family": "prim",
+   "records/train_r4": {
+    "n": 1600,
+    "goal_out_of_limits": 0,
+    "contact_reproduction_max_m": 1.194999725839807e-07
+   },
+   "pass": true
+  }
+ }
+}

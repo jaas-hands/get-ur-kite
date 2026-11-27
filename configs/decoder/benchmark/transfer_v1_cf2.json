@@ -1,0 +1,57 @@
+{
+ "_note": "CF2 benchmark (docs/cf2_longer_training_proposal.md): D1 / CF (50k) and D1-long / CF2 (100k) x 3 seeds, paired by seed; Shadow included.",
+ "base_config": "configs/decoder/scratch/c3_psi50k_10x_wrist.json",
+ "surface_sampling": "hand_frame",
+ "systems": {
+  "d1_s0": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/d1_prim50_hf/best.pt"
+  },
+  "cf_s0": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/cf_canon_hf/best.pt"
+  },
+  "d1long_s0": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/d1_long_hf/best.pt"
+  },
+  "cf2_s0": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/cf2_long_hf/best.pt"
+  },
+  "d1_s1": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/d1_prim50_hf_s1/best.pt"
+  },
+  "cf_s1": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/cf_canon_hf_s1/best.pt"
+  },
+  "d1long_s1": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/d1_long_hf_s1/best.pt"
+  },
+  "cf2_s1": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/cf2_long_hf_s1/best.pt"
+  },
+  "d1_s2": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/d1_prim50_hf_s2/best.pt"
+  },
+  "cf_s2": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/cf_canon_hf_s2/best.pt"
+  },
+  "d1long_s2": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/d1_long_hf_s2/best.pt"
+  },
+  "cf2_s2": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/cf2_long_hf_s2/best.pt"
+  }
+ },
+ "out_dir": "${GETKITE_RUNS}/transfer_benchmark_v1_cf2",
+ "shadow_pool": true
+}
