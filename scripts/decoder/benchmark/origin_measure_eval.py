@@ -37,7 +37,7 @@ from wuji_per_example import paired_boot  # noqa: E402
 from external_hands_eval import EXT, HANDS, spec  # noqa: E402
 
 R = os.environ["GETKITE_RUNS"]
-RUNS = {"cf2": "cf2_long_hf", "cfo": "cfo_long_hf", "cf3e": "frozen_cf3e_2026-11-27/cf3e_long_hf"}
+RUNS = {"cf2": "cf2_long_hf", "cfo": "cfo_long_hf", "cf3e": "cf3e_long_hf"}
 POINTS = ("base", "O1", "O2")
 
 
