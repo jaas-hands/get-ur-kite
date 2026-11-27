@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import copy
 import json
+import os
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -66,8 +67,14 @@ def joint_rows(desc: dict, mode: str = "slice") -> list[int]:
 # ---------------------------------------------------------------------------------------------
 
 def kite_template() -> dict:
-    """KITE's LEAP surface template (link-local points, normals, link index, link names)."""
-    path = sorted(LEAP_URDF.parent.glob("surface_template_graph_n4096_*.pt"))
+    """KITE's LEAP surface template (link-local points, normals, link index, link names).
+
+    Its random draws differ between machines, so a head only works with the template it was trained with
+    (Nov 27: the cluster's B0-ds scores 6.9 mm with the cluster's template, 11.0 mm with the laptop's).
+    `GETKITE_KITE_TEMPLATE` selects a template file instead of the one installed in KITE.
+    """
+    override = os.environ.get("GETKITE_KITE_TEMPLATE")
+    path = [Path(override)] if override else sorted(LEAP_URDF.parent.glob("surface_template_graph_n4096_*.pt"))
     if not path:
         raise FileNotFoundError("LEAP's surface template is not built yet (scripts/install_kite_leap.py)")
     a = torch.load(path[0], map_location="cpu", weights_only=False)

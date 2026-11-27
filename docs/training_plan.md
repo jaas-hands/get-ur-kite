@@ -164,6 +164,44 @@ Allegro fallback skips gates G1–G4 and starts at the baselines.
   test hand stays ~4 mm behind the GET decoder's zero-shot result.
   Picking the best point on the held-out examples flatters B3; a fair version needs a separate
   validation set.
+- **Cluster results (Nov 26, `slurm/submit_kite_baselines.sh`; copied to `outputs/leap_head/cluster/`).**
+  - **Template caveat.** KITE's LEAP surface template is seeded, but its random draws differ between
+    machines (laptop md5 `f3bf89f7…`, cluster `6bc79cf1…`), and a head only works with the template it was
+    trained with: the cluster's B0-ds scores 6.9 mm with the cluster's template, 11.0 mm with the
+    laptop's; the laptop's b0-trunk 11.2 mm with its own, 18.4 mm with the cluster's. All numbers below
+    use the cluster's template (kept in `outputs/leap_head/cluster/template/`; select it with
+    `GETKITE_KITE_TEMPLATE`). The GET decoder does not use KITE's template.
+  - **B0-ds, 1M examples, 20 epochs** (3.2 h on an A6000; started from the laptop's b0-trunk, i.e. from
+    18.4 mm because of the template): **6.94 mm / 55.7 %** on the nominal hand (laptop, 300k: 7.36 / 49.3 %).
+  - **Zero-shot baselines** (all 2,000 examples per hand; contact / success):
+
+    | Split | No movement | Clamped | B1 sliced | B2 reassigned | GET (Anushka) |
+    |---|---|---|---|---|---|
+    | test_finger_subset (36) | 14.74 / 7.0 % | n/a | 17.11 / 4.4 % | 17.17 / 4.1 % | 7.54 / 49.7 % |
+    | test_joint_count (378) | 14.27 / 7.8 % | 9.97 / 27.1 % (189 hands) | 11.24 / 22.3 % | 11.25 / 22.2 % | 7.48 / 50.6 % |
+    | test_geometry (40) | 14.17 / 8.1 % | 11.00 / 21.0 % (12 hands) | 11.34 / 21.8 % | 11.84 / 19.8 % | 7.53 / 50.0 % |
+    | test_combined (216) | 14.72 / 7.1 % | n/a | 17.11 / 5.3 % | 16.97 / 5.2 % | 7.67 / 48.4 % |
+
+    The stronger B0-ds is better on variants that keep all fingers (11.3 mm against 13.5 on the laptop)
+    and worse than no movement when a finger is removed. B2 is again no better than B1.
+  - **B3** (fair protocol: training examples generated for the hand, checkpoint chosen on 500 separate
+    validation examples, scored on the hand's 2,000 official test examples; lr 1e-5, 40 min; 3 hands per
+    split). Test error at the selected checkpoint, range over the split's hands:
+
+    | Training examples | finger_subset | joint_count | geometry | combined |
+    |---|---|---|---|---|
+    | 0 | 16.7–17.2 mm | 9.5–15.7 | 10.4–13.3 | 16.5–19.1 |
+    | 1k | 13.6–14.0 | 9.0–13.1 | 9.4–11.3 | 13.6–14.4 |
+    | 4k | 13.0–13.3 | 8.9–12.6 | 8.9–10.9 | 13.1–13.5 |
+    | 16k | 12.6–12.8 | 8.5–12.0 | 8.5–10.4 | 12.5–13.0 |
+
+    The validation-selected point is almost always the test optimum. With 1k examples the head overfits
+    (22–27 mm after 40 min); 16k examples are stable. B3 stays 1–5 mm behind GET's zero-shot result.
+  - **B4** (B0-ds's B1 head retrained on 200k examples of the hand, trunk too, 20 epochs, 30–40 min;
+    official test examples): finger_subset I4-M0-R4-T4_g0 7.41 mm / 49.6 %, joint_count I3-M0-R0-T2_g0
+    6.56 / 65.5 %, geometry I0-M2-R0-T2_g7 6.44 / 66.4 %, combined I0-M0-R2-T2_g1 6.73 / 64.0 %. With
+    200k examples of its own hand, KITE's head matches or beats GET's zero-shot result.
+  - Still open: score the GET decoder with `scripts/eval_kite_baselines.py`'s metrics on the same examples.
 - **Scale:** KITE's budget is 1M examples per hand; its buffer is ~18 GB in RAM (369 MB per 20k), so the
   full run is a cluster job. Generation runs at ~380 examples/s (1M ≈ 45 min).
 
