@@ -76,6 +76,8 @@ git clone git@github.com:jaas-hands/get-ur-kite-dataset.git
 cd get-ur-kite/third_party/KITE && python download_assets.py --only runtime decoder && cd ../..
 pip install -e ../get-ur-kite-dataset          # kite_data
 pip install -e ".[decoder,dev]"                # getkite + torch
+# exact environment of every decoder run since 2026-11-18 (CF-3e included), in a fresh venv instead:
+#   pip install -r requirements-decoder-lock.txt && pip install -e ../get-ur-kite-dataset && pip install -e . --no-deps
 python -m getkite.decoder.paths                # check every location resolves
 python -m pytest tests/decoder                 # ~3 min on CPU
 ```
@@ -86,6 +88,10 @@ The Allegro/Barrett pilot records: `sbatch scripts/kite_family/gen_kite.sbatch` 
 (about 10 min on 8 CPUs).
 
 ## Running
+
+The delivered model (CF-3e: checkpoints from Google Drive, prediction, reproduction) is documented in
+[cf3e_delivery.md](cf3e_delivery.md).
+
 
 All Slurm scripts are submitted from the repo root and log to `slurm/logs/`. Add your cluster's partition and
 GPU constraint on the command line (Unicorn: `-p default_partition --constraint="ampere|ada|2080ti"`;

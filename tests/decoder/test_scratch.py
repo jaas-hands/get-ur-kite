@@ -397,7 +397,8 @@ def test_decoder_and_psi_inputs_are_deployment_only():
     supervision/evaluation data and are not arguments of either."""
     import inspect
     from getkite.decoder.train_scratch import FrozenPsi, RawContacts
-    assert list(inspect.signature(GETScratch.forward).parameters) == ["self", "bank", "r", "qc0", "R0", "t0", "z"]
+    # intent_tokens (optional): contact-encoder tokens computed from the requested contacts (J1), deployment-time as well
+    assert list(inspect.signature(GETScratch.forward).parameters) == ["self", "bank", "r", "qc0", "R0", "t0", "z", "intent_tokens"]
     for enc in (FrozenPsi, RawContacts):
         assert list(inspect.signature(enc.forward).parameters) == ["self", "pos", "normal", "valid"]
 

@@ -1,0 +1,22 @@
+# run_dir	drive_file_id	sha256	note
+# Drive folder: get-kite-model-pts (https://drive.google.com/drive/folders/1Qqa8gqtpcQxto_cuS5Pb3khcqYTLst8z), shared view-only by link.
+# Each row downloads to ${GETKITE_RUNS}/<run_dir>/best.pt, where every config and benchmark expects it.
+cf3e_long_hf	1K5jxdkRelC0OSyc-QuLbj6RFwHOvJ--K	282f36ffc6945b692af0b9116c7d6534e03b04e4402cf67acc9adb4b5890060b	CF-3e seed 0 (delivery model)
+cf3e_long_hf_s1	1tC_WSSsf683liXBArTLCNExm6oghmqnt	d8cefa260129e9e5e11e65c36aa512562b64f3bd761966813f6ce68ee695c257	CF-3e seed 1
+cf3e_long_hf_s2	181rfh4gpFkcCirkak31HbqDRN1MiY9Aq	18779b4816a51e7ec295cb77db7a7a120d0b86742b44c80779c96d0af898bd84	CF-3e seed 2
+d1_bv_long_hf	1BV60BYqOim5amkTpi8W_kpjbKYjPNxiQ	b81a21a692a7342ffad03ffc41a278af70db1ed49f46b64ee7e8dec1b836546a	teacher (training CF-3e only): D1-bv seed 0
+d1_bv_long_hf_s1	1rpaQFu6xPcDU4DU3FFwe4Qvl5zxcVSiq	6761a20acfc5041d4111aa1c119bb338592270d811e8b457e5a3fa944e22c9d1	teacher: D1-bv seed 1
+d1_bv_long_hf_s2	1S6n2K8EAYzKvVVFJWzQCO4pr_8ZJ_AyQ	62b162cab6d97d7f5c66682726b16cafe5fce8c171e31a6a13bc9369320d0a23	teacher: D1-bv seed 2
+cf2_long_hf	1JyNxdet6UMiy5CJs_UOMUSXLa-YsZCkI	303e16a3d4989507925e91bfb91569108df990705a3a2582486bce40b5b02528	teacher: CF2 seed 0
+cf2_long_hf_s1	16f1nrTXcYNTTWO79o28ppA0JnOvh-QWm	5bd1f5d173720d7da8db6f3671fb4f4ac91626811ecf4cb7e83558910ea4e52c	teacher: CF2 seed 1
+cf2_long_hf_s2	1HK24ZeGOmt6ldx8WnuwJSOQMjmhIt85o	38dd80ae7e2704cc081af94e99eecddeb93132807a6bd0ddbed09d520b829bba	teacher: CF2 seed 2
+d1_long_hf	1m0BMiV5nmtyMjC3NTIS8zto_aL3wAVxl	2805c3254820695f65986462a17ca30d3761013bc1d57e58b9a9d89899741a4f	baseline for the CF-3e benchmark / gate: D1-long seed 0 (weights only: optimizer state removed; evaluation only)
+d1_long_hf_s1	1qTx1ADzCQ79xSKvZtE-_MKRB1HhQXjM2	53fdb3f74ae642b5c1201e942a01393d767bbe1baae225129859c54d36946b53	baseline for the CF-3e benchmark / gate: D1-long seed 1 (weights only: optimizer state removed; evaluation only)
+d1_long_hf_s2	1AEPMU4QfzB53eFvEkE6SAQ4JNZ7yOD34	41e345dd08473bb4b47c823fca49dcf5792d82ca6ad4377797c053664d3e4104	baseline for the CF-3e benchmark / gate: D1-long seed 2 (weights only: optimizer state removed; evaluation only)
+cf3d_long_hf	13wauidvtWIas39Av7fbpJRfwC_th2clT	f92cbff9a1efd37b1b6610e624677a98f9835d44e41f6f381947fe6f38856a3b	baseline for the CF-3e benchmark / gate: CF-3d seed 0 (weights only: optimizer state removed; evaluation only)
+cf3d_long_hf_s1	1ud7e4GYgSM0_-Zk4TFUUawcP6OTcjgea	668c9c92bf41ea85b9d2cd4d76d76245cc7af293e84b320e2d5746634763035c	baseline for the CF-3e benchmark / gate: CF-3d seed 1 (weights only: optimizer state removed; evaluation only)
+cf3d_long_hf_s2	1pKENWZcs2GeDB_gORSYH3fMBX0_v8Wvu	b1fde1cadc078f9b1f92db0d6c2d6df1398f05ed41f9b0a713c6bb6b81c3c4dd	baseline for the CF-3e benchmark / gate: CF-3d seed 2 (weights only: optimizer state removed; evaluation only)
+d1_prim50_hf	1CL_VXpTzwgoWibJLgJjS1UMb4r_cpxKi	600b957413a651748198ee272e7a396fc6d0393af5325f816a5bdcb271305691	baseline for the CF-3e benchmark: D1 (50 generated bodies) seed 0 (weights only: optimizer state removed; evaluation only)
+d1_prim50_hf_s1	1aXFo0Blks1NVeiVhp4ckDPH46mXFA_kv	3d59d912bc7af966d9a9f2051a9b83aaf8d58e9e7c9bc9c61842a245f7f12739	baseline for the CF-3e benchmark: D1 (50 generated bodies) seed 1 (weights only: optimizer state removed; evaluation only)
+d1_prim50_hf_s2	1pKFI1l5wNmATsPqYoikSXwQBhxe05ceo	9968514960ff41bc0e424c4b267be25a270382bc2448e6282fb25a3440b78c7a	baseline for the CF-3e benchmark: D1 (50 generated bodies) seed 2 (weights only: optimizer state removed; evaluation only)
+set_bridge_zworld_c3_20k_b	1e-2j_f7lsjApFbp3NFBZrWf3kTZQHGov	84da8ec6e1db9e48c66e461e80b35657707ce790b64347537dbc64eac06b73f2	architecture settings read by every training config (set_config_from; weights not used)

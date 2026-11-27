@@ -11,7 +11,7 @@ Start/goal (KITE released code, data_process/contact_policy_probe_dataset.py, q1
     goal: base = q2; joint = q2 where active else q1 (every coordinate supervised; inactive target = stay)
 Training redraws q1 every batch; evaluation pools fix q1 with a seed so every model sees the same records.
 
-Sources: KITE embodiments via jobs/pilot/gen_kite_family.py (KITE's own sampler) and LEAP variants via
+Sources: KITE embodiments via get-ur-kite-dataset scripts/kite_family/gen_kite_family.py (KITE's own sampler) and LEAP variants via
 kite_data's kite_code regime (same recipe; its `mask` is the same contact-relevant mask).
 """
 

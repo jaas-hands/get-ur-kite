@@ -1,0 +1,1409 @@
+{
+ "benchmark": {
+  "_note": "CF-3e (docs/cf3_distillation_proposal.md): standard pools + Shadow. Systems as transfer_v1_cfo with CF-O replaced by CF-3e. CF-3e systems added next to CF-3d (docs/cf3_distillation_proposal.md, CF-3e).",
+  "base_config": "configs/decoder/scratch/c3_psi50k_10x_wrist.json",
+  "surface_sampling": "hand_frame",
+  "out_dir": "${GETKITE_RUNS}/transfer_benchmark_v1_cf3e",
+  "shadow_pool": true,
+  "systems": {
+   "d1_s0": {
+    "kind": "j1",
+    "ckpt": "${GETKITE_RUNS}/d1_prim50_hf/best.pt"
+   },
+   "d1long_s0": {
+    "kind": "j1",
+    "ckpt": "${GETKITE_RUNS}/d1_long_hf/best.pt"
+   },
+   "cf2_s0": {
+    "kind": "j1",
+    "ckpt": "${GETKITE_RUNS}/cf2_long_hf/best.pt"
+   },
+   "d1bv_s0": {
+    "kind": "j1",
+    "ckpt": "${GETKITE_RUNS}/d1_bv_long_hf/best.pt"
+   },
+   "cf3d_s0": {
+    "kind": "j1",
+    "ckpt": "${GETKITE_RUNS}/cf3d_long_hf/best.pt"
+   },
+   "cf3e_s0": {
+    "kind": "j1",
+    "ckpt": "${GETKITE_RUNS}/cf3e_long_hf/best.pt"
+   },
+   "d1_s1": {
+    "kind": "j1",
+    "ckpt": "${GETKITE_RUNS}/d1_prim50_hf_s1/best.pt"
+   },
+   "d1long_s1": {
+    "kind": "j1",
+    "ckpt": "${GETKITE_RUNS}/d1_long_hf_s1/best.pt"
+   },
+   "cf2_s1": {
+    "kind": "j1",
+    "ckpt": "${GETKITE_RUNS}/cf2_long_hf_s1/best.pt"
+   },
+   "d1bv_s1": {
+    "kind": "j1",
+    "ckpt": "${GETKITE_RUNS}/d1_bv_long_hf_s1/best.pt"
+   },
+   "cf3d_s1": {
+    "kind": "j1",
+    "ckpt": "${GETKITE_RUNS}/cf3d_long_hf_s1/best.pt"
+   },
+   "cf3e_s1": {
+    "kind": "j1",
+    "ckpt": "${GETKITE_RUNS}/cf3e_long_hf_s1/best.pt"
+   },
+   "d1_s2": {
+    "kind": "j1",
+    "ckpt": "${GETKITE_RUNS}/d1_prim50_hf_s2/best.pt"
+   },
+   "d1long_s2": {
+    "kind": "j1",
+    "ckpt": "${GETKITE_RUNS}/d1_long_hf_s2/best.pt"
+   },
+   "cf2_s2": {
+    "kind": "j1",
+    "ckpt": "${GETKITE_RUNS}/cf2_long_hf_s2/best.pt"
+   },
+   "d1bv_s2": {
+    "kind": "j1",
+    "ckpt": "${GETKITE_RUNS}/d1_bv_long_hf_s2/best.pt"
+   },
+   "cf3d_s2": {
+    "kind": "j1",
+    "ckpt": "${GETKITE_RUNS}/cf3d_long_hf_s2/best.pt"
+   },
+   "cf3e_s2": {
+    "kind": "j1",
+    "ckpt": "${GETKITE_RUNS}/cf3e_long_hf_s2/best.pt"
+   }
+  }
+ },
+ "resolved_base_config": {
+  "seed": 0,
+  "start": "resample",
+  "train_start_seed": 1,
+  "val_start_seed": 12345,
+  "normal_noise_rad": 0.1,
+  "batch_size": 256,
+  "lr": 0.0003,
+  "weight_decay": 0.0001,
+  "warmup_steps": 500,
+  "total_steps": 50000,
+  "grad_clip": 1.0,
+  "eval_every": 2500,
+  "log_every": 100,
+  "ckpt_every": 1000,
+  "model": {
+   "d_model": 128,
+   "n_layers": 4,
+   "n_heads": 4,
+   "mlp_ratio": 4,
+   "pos_fourier": 8,
+   "rot_fourier": 8,
+   "intent_source": "psi",
+   "frame": "wrist",
+   "world_pose_in": true
+  },
+  "success_pos_mm": 10.0,
+  "success_normal_deg": 15.0,
+  "eval_batch": 512,
+  "kite_root": "${KITE_ROOT}",
+  "kite_ckpt": "${KITE_ROOT}/checkpoints/decoder/release.pt",
+  "robots": [
+   {
+    "kind": "kite",
+    "robot": "allegro_right",
+    "family": "allegro",
+    "urdf": "${KITE_ROOT}/assets/ohra_urdf_robot/allegro/allegro_hand_right_extended.urdf",
+    "template": "${KITE_ROOT}/assets/ohra_urdf_robot/allegro/surface_template_graph_n4096_ddcc74fe8fec.pt",
+    "coords_npz": "${GETKITE_DATA}/multifamily_pilot/allegro_right_train.npz",
+    "ignore_mimic": true
+   },
+   {
+    "kind": "kite",
+    "robot": "barrett",
+    "family": "barrett",
+    "urdf": "${KITE_ROOT}/assets/dro_urdf_robot/barrett/model_extended.urdf",
+    "template": "${KITE_ROOT}/assets/dro_urdf_robot/barrett/surface_template_graph_n4096_3e0ba32e061c.pt",
+    "coords_npz": "${GETKITE_DATA}/multifamily_pilot/barrett_train.npz",
+    "ignore_mimic": true
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I0-M2-R2-T0_g0"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I0-M2-R3-T0_g2"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I0-M2-R4-T3_g6"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I0-M3-R4-T2_g3"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I0-M4-R3-T4_g0"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I2-M0-R0-T3_g5"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I2-M3-R2-T0_g5"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I2-M4-R2-T4_g5"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I4-M0-R0-T2_g1"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I4-M3-R0-T0_g0"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I4-M3-R0-T3_g6"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I4-M4-R0-T3_g0"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I0-M2-R2-T3_g0"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I0-M4-R3-T2_g0"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I2-M3-R2-T2_g0"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I2-M3-R3-T2_g4"
+   }
+  ],
+  "out_dir": "${GETKITE_RUNS}/scratch_c3_psi50k_10x_wrist",
+  "train": [
+   {
+    "kind": "kite",
+    "robot": "allegro_right",
+    "npz": "${GETKITE_DATA}/multifamily_pilot/allegro_right_train.npz"
+   },
+   {
+    "kind": "kite",
+    "robot": "barrett",
+    "npz": "${GETKITE_DATA}/multifamily_pilot/barrett_train.npz"
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M2-R2-T0_g0.npz",
+    "rows": [
+     0,
+     167
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M2-R3-T0_g2.npz",
+    "rows": [
+     0,
+     167
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M2-R4-T3_g6.npz",
+    "rows": [
+     0,
+     167
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M3-R4-T2_g3.npz",
+    "rows": [
+     0,
+     167
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M4-R3-T4_g0.npz",
+    "rows": [
+     0,
+     167
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M0-R0-T3_g5.npz",
+    "rows": [
+     0,
+     167
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M3-R2-T0_g5.npz",
+    "rows": [
+     0,
+     167
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M4-R2-T4_g5.npz",
+    "rows": [
+     0,
+     167
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M0-R0-T2_g1.npz",
+    "rows": [
+     0,
+     167
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M3-R0-T0_g0.npz",
+    "rows": [
+     0,
+     167
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M3-R0-T3_g6.npz",
+    "rows": [
+     0,
+     167
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M4-R0-T3_g0.npz",
+    "rows": [
+     0,
+     167
+    ]
+   },
+   {
+    "kind": "kite",
+    "robot": "allegro_right",
+    "npz": "${GETKITE_DATA}/multifamily_10x/allegro_right_train_extra_s303.npz"
+   },
+   {
+    "kind": "kite",
+    "robot": "barrett",
+    "npz": "${GETKITE_DATA}/multifamily_10x/barrett_train_extra_s303.npz"
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M2-R2-T0_g0.npz",
+    "rows": [
+     167,
+     900
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M2-R2-T0_g0.npz",
+    "rows": [
+     942,
+     1000
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATA}/multifamily_10x/leap_kite_code_s1/train/I0-M2-R2-T0_g0.npz",
+    "rows": [
+     0,
+     709
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M2-R3-T0_g2.npz",
+    "rows": [
+     167,
+     900
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M2-R3-T0_g2.npz",
+    "rows": [
+     942,
+     1000
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATA}/multifamily_10x/leap_kite_code_s1/train/I0-M2-R3-T0_g2.npz",
+    "rows": [
+     0,
+     709
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M2-R4-T3_g6.npz",
+    "rows": [
+     167,
+     900
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M2-R4-T3_g6.npz",
+    "rows": [
+     942,
+     1000
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATA}/multifamily_10x/leap_kite_code_s1/train/I0-M2-R4-T3_g6.npz",
+    "rows": [
+     0,
+     709
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M3-R4-T2_g3.npz",
+    "rows": [
+     167,
+     900
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M3-R4-T2_g3.npz",
+    "rows": [
+     942,
+     1000
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATA}/multifamily_10x/leap_kite_code_s1/train/I0-M3-R4-T2_g3.npz",
+    "rows": [
+     0,
+     709
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M4-R3-T4_g0.npz",
+    "rows": [
+     167,
+     900
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M4-R3-T4_g0.npz",
+    "rows": [
+     942,
+     1000
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATA}/multifamily_10x/leap_kite_code_s1/train/I0-M4-R3-T4_g0.npz",
+    "rows": [
+     0,
+     709
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M0-R0-T3_g5.npz",
+    "rows": [
+     167,
+     900
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M0-R0-T3_g5.npz",
+    "rows": [
+     942,
+     1000
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATA}/multifamily_10x/leap_kite_code_s1/train/I2-M0-R0-T3_g5.npz",
+    "rows": [
+     0,
+     709
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M3-R2-T0_g5.npz",
+    "rows": [
+     167,
+     900
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M3-R2-T0_g5.npz",
+    "rows": [
+     942,
+     1000
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATA}/multifamily_10x/leap_kite_code_s1/train/I2-M3-R2-T0_g5.npz",
+    "rows": [
+     0,
+     709
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M4-R2-T4_g5.npz",
+    "rows": [
+     167,
+     900
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M4-R2-T4_g5.npz",
+    "rows": [
+     942,
+     1000
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATA}/multifamily_10x/leap_kite_code_s1/train/I2-M4-R2-T4_g5.npz",
+    "rows": [
+     0,
+     709
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M0-R0-T2_g1.npz",
+    "rows": [
+     167,
+     900
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M0-R0-T2_g1.npz",
+    "rows": [
+     942,
+     1000
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATA}/multifamily_10x/leap_kite_code_s1/train/I4-M0-R0-T2_g1.npz",
+    "rows": [
+     0,
+     709
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M3-R0-T0_g0.npz",
+    "rows": [
+     167,
+     900
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M3-R0-T0_g0.npz",
+    "rows": [
+     942,
+     1000
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATA}/multifamily_10x/leap_kite_code_s1/train/I4-M3-R0-T0_g0.npz",
+    "rows": [
+     0,
+     709
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M3-R0-T3_g6.npz",
+    "rows": [
+     167,
+     900
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M3-R0-T3_g6.npz",
+    "rows": [
+     942,
+     1000
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATA}/multifamily_10x/leap_kite_code_s1/train/I4-M3-R0-T3_g6.npz",
+    "rows": [
+     0,
+     709
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M4-R0-T3_g0.npz",
+    "rows": [
+     167,
+     900
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M4-R0-T3_g0.npz",
+    "rows": [
+     942,
+     1000
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATA}/multifamily_10x/leap_kite_code_s1/train/I4-M4-R0-T3_g0.npz",
+    "rows": [
+     0,
+     709
+    ]
+   }
+  ],
+  "val": [
+   {
+    "kind": "kite",
+    "robot": "allegro_right",
+    "npz": "${GETKITE_DATA}/multifamily_pilot/allegro_right_val.npz"
+   },
+   {
+    "kind": "kite",
+    "robot": "barrett",
+    "npz": "${GETKITE_DATA}/multifamily_pilot/barrett_val.npz"
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M2-R2-T0_g0.npz",
+    "rows": [
+     900,
+     942
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M2-R3-T0_g2.npz",
+    "rows": [
+     900,
+     942
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M2-R4-T3_g6.npz",
+    "rows": [
+     900,
+     942
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M3-R4-T2_g3.npz",
+    "rows": [
+     900,
+     942
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M4-R3-T4_g0.npz",
+    "rows": [
+     900,
+     942
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M0-R0-T3_g5.npz",
+    "rows": [
+     900,
+     942
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M3-R2-T0_g5.npz",
+    "rows": [
+     900,
+     942
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M4-R2-T4_g5.npz",
+    "rows": [
+     900,
+     942
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M0-R0-T2_g1.npz",
+    "rows": [
+     900,
+     942
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M3-R0-T0_g0.npz",
+    "rows": [
+     900,
+     942
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M3-R0-T3_g6.npz",
+    "rows": [
+     900,
+     942
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M4-R0-T3_g0.npz",
+    "rows": [
+     900,
+     942
+    ]
+   }
+  ],
+  "extra_eval": {
+   "leap_heldout": [
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I0-M2-R2-T3_g0.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I0-M4-R3-T2_g0.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I2-M3-R2-T2_g0.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I2-M3-R3-T2_g4.npz",
+     "rows": [
+      0,
+      125
+     ]
+    }
+   ],
+   "train_goals": [
+    {
+     "kind": "kite",
+     "robot": "allegro_right",
+     "npz": "${GETKITE_DATA}/multifamily_pilot/allegro_right_train.npz"
+    },
+    {
+     "kind": "kite",
+     "robot": "barrett",
+     "npz": "${GETKITE_DATA}/multifamily_pilot/barrett_train.npz"
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M2-R2-T0_g0.npz",
+     "rows": [
+      0,
+      167
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M2-R3-T0_g2.npz",
+     "rows": [
+      0,
+      167
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M2-R4-T3_g6.npz",
+     "rows": [
+      0,
+      167
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M3-R4-T2_g3.npz",
+     "rows": [
+      0,
+      167
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M4-R3-T4_g0.npz",
+     "rows": [
+      0,
+      167
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M0-R0-T3_g5.npz",
+     "rows": [
+      0,
+      167
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M3-R2-T0_g5.npz",
+     "rows": [
+      0,
+      167
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M4-R2-T4_g5.npz",
+     "rows": [
+      0,
+      167
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M0-R0-T2_g1.npz",
+     "rows": [
+      0,
+      167
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M3-R0-T0_g0.npz",
+     "rows": [
+      0,
+      167
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M3-R0-T3_g6.npz",
+     "rows": [
+      0,
+      167
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M4-R0-T3_g0.npz",
+     "rows": [
+      0,
+      167
+     ]
+    }
+   ],
+   "train_goals_new": [
+    {
+     "kind": "kite",
+     "robot": "allegro_right",
+     "npz": "${GETKITE_DATA}/multifamily_10x/allegro_right_train_extra_s303.npz",
+     "rows": [
+      0,
+      2000
+     ]
+    },
+    {
+     "kind": "kite",
+     "robot": "barrett",
+     "npz": "${GETKITE_DATA}/multifamily_10x/barrett_train_extra_s303.npz",
+     "rows": [
+      0,
+      2000
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATA}/multifamily_10x/leap_kite_code_s1/train/I0-M2-R2-T0_g0.npz",
+     "rows": [
+      0,
+      167
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATA}/multifamily_10x/leap_kite_code_s1/train/I0-M2-R3-T0_g2.npz",
+     "rows": [
+      0,
+      167
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATA}/multifamily_10x/leap_kite_code_s1/train/I0-M2-R4-T3_g6.npz",
+     "rows": [
+      0,
+      167
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATA}/multifamily_10x/leap_kite_code_s1/train/I0-M3-R4-T2_g3.npz",
+     "rows": [
+      0,
+      167
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATA}/multifamily_10x/leap_kite_code_s1/train/I0-M4-R3-T4_g0.npz",
+     "rows": [
+      0,
+      167
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATA}/multifamily_10x/leap_kite_code_s1/train/I2-M0-R0-T3_g5.npz",
+     "rows": [
+      0,
+      167
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATA}/multifamily_10x/leap_kite_code_s1/train/I2-M3-R2-T0_g5.npz",
+     "rows": [
+      0,
+      167
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATA}/multifamily_10x/leap_kite_code_s1/train/I2-M4-R2-T4_g5.npz",
+     "rows": [
+      0,
+      167
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATA}/multifamily_10x/leap_kite_code_s1/train/I4-M0-R0-T2_g1.npz",
+     "rows": [
+      0,
+      167
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATA}/multifamily_10x/leap_kite_code_s1/train/I4-M3-R0-T0_g0.npz",
+     "rows": [
+      0,
+      167
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATA}/multifamily_10x/leap_kite_code_s1/train/I4-M3-R0-T3_g6.npz",
+     "rows": [
+      0,
+      167
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATA}/multifamily_10x/leap_kite_code_s1/train/I4-M4-R0-T3_g0.npz",
+     "rows": [
+      0,
+      167
+     ]
+    }
+   ]
+  },
+  "_note": "frozen-psi C3 (2026-11-16, prepared; launch only after psi wrist C1/C2 pass): = c3_raw50k_cf8_10x_wrist except model: psi intent, world_pose_in=True, no contact Fourier",
+  "surface_sampling": "hand_frame"
+ },
+ "systems_meta": {
+  "d1_s0": {
+   "step": 50000,
+   "best": {
+    "key": [
+     0.6326904743909836,
+     -6.6685932874679565
+    ],
+    "step": 50000
+   },
+   "canonical_frame": false,
+   "canonical_origin": false
+  },
+  "d1long_s0": {
+   "step": 90000,
+   "best": {
+    "key": [
+     0.6406944394111633,
+     -6.620182991027832
+    ],
+    "step": 90000
+   },
+   "canonical_frame": false,
+   "canonical_origin": false
+  },
+  "cf2_s0": {
+   "step": 87500,
+   "best": {
+    "key": [
+     0.6646746024489403,
+     -6.35574209690094
+    ],
+    "step": 87500
+   },
+   "canonical_frame": true,
+   "canonical_origin": false
+  },
+  "d1bv_s0": {
+   "step": 92500,
+   "best": {
+    "key": [
+     0.6796190440654755,
+     -6.213313341140747
+    ],
+    "step": 92500
+   },
+   "canonical_frame": false,
+   "canonical_origin": false
+  },
+  "cf3d_s0": {
+   "step": 85000,
+   "best": {
+    "key": [
+     0.6910992115736008,
+     -6.179746031761169
+    ],
+    "step": 85000
+   },
+   "canonical_frame": true,
+   "canonical_origin": false
+  },
+  "cf3e_s0": {
+   "step": 95000,
+   "best": {
+    "key": [
+     0.6931071355938911,
+     -6.0901939868927
+    ],
+    "step": 95000
+   },
+   "canonical_frame": true,
+   "canonical_origin": false
+  },
+  "d1_s1": {
+   "step": 50000,
+   "best": {
+    "key": [
+     0.6117579415440559,
+     -6.788108229637146
+    ],
+    "step": 50000
+   },
+   "canonical_frame": false,
+   "canonical_origin": false
+  },
+  "d1long_s1": {
+   "step": 97500,
+   "best": {
+    "key": [
+     0.6666706427931786,
+     -6.370588541030884
+    ],
+    "step": 97500
+   },
+   "canonical_frame": false,
+   "canonical_origin": false
+  },
+  "cf2_s1": {
+   "step": 95000,
+   "best": {
+    "key": [
+     0.6631309539079666,
+     -6.36083984375
+    ],
+    "step": 95000
+   },
+   "canonical_frame": true,
+   "canonical_origin": false
+  },
+  "d1bv_s1": {
+   "step": 97500,
+   "best": {
+    "key": [
+     0.6581785753369331,
+     -6.381077766418457
+    ],
+    "step": 97500
+   },
+   "canonical_frame": false,
+   "canonical_origin": false
+  },
+  "cf3d_s1": {
+   "step": 90000,
+   "best": {
+    "key": [
+     0.6795992106199265,
+     -6.225275874137878
+    ],
+    "step": 90000
+   },
+   "canonical_frame": true,
+   "canonical_origin": false
+  },
+  "cf3e_s1": {
+   "step": 85000,
+   "best": {
+    "key": [
+     0.6955833360552788,
+     -6.143848657608032
+    ],
+    "step": 85000
+   },
+   "canonical_frame": true,
+   "canonical_origin": false
+  },
+  "d1_s2": {
+   "step": 50000,
+   "best": {
+    "key": [
+     0.6207619085907936,
+     -6.726339340209961
+    ],
+    "step": 50000
+   },
+   "canonical_frame": false,
+   "canonical_origin": false
+  },
+  "d1long_s2": {
+   "step": 97500,
+   "best": {
+    "key": [
+     0.6721626967191696,
+     -6.277951598167419
+    ],
+    "step": 97500
+   },
+   "canonical_frame": false,
+   "canonical_origin": false
+  },
+  "cf2_s2": {
+   "step": 100000,
+   "best": {
+    "key": [
+     0.67214285582304,
+     -6.327219009399414
+    ],
+    "step": 100000
+   },
+   "canonical_frame": true,
+   "canonical_origin": false
+  },
+  "d1bv_s2": {
+   "step": 87500,
+   "best": {
+    "key": [
+     0.6571150794625282,
+     -6.375083684921265
+    ],
+    "step": 87500
+   },
+   "canonical_frame": false,
+   "canonical_origin": false
+  },
+  "cf3d_s2": {
+   "step": 90000,
+   "best": {
+    "key": [
+     0.6816111281514168,
+     -6.160464882850647
+    ],
+    "step": 90000
+   },
+   "canonical_frame": true,
+   "canonical_origin": false
+  },
+  "cf3e_s2": {
+   "step": 95000,
+   "best": {
+    "key": [
+     0.6865912675857544,
+     -6.077002048492432
+    ],
+    "step": 95000
+   },
+   "canonical_frame": true,
+   "canonical_origin": false
+  }
+ },
+ "sha256": {
+  "code:scripts/decoder/benchmark/transfer_benchmark.py": "60a33bf5b5380efccf1a350e0cd0ab8d8e0e8ca592552205296b5eaa6413d715",
+  "code:scripts/decoder/diagnostics/crossbody_heldout_eval.py": "81d6093c09765fa38f92aab8ee6457d4d7200cee68b18959e0ce222804bdf594",
+  "code:scripts/decoder/diagnostics/wuji_per_example.py": "f7f94633d52dff3104521300d29c204d375a6a850d6bc852d527903454aaba43",
+  "code:scripts/decoder/shadow/make_shadow_records.py": "83aa8083dfeb060f8b4a4798b514ebb2e5ed652b05a8da67af02614919f6d253",
+  "code:src/getkite/decoder/direct_worldaux.py": "9446a99469f48909fbfdd28ad9eb9f15b557180bfafeaaa5c61626ffd42627c6",
+  "code:src/getkite/decoder/get_scratch.py": "3ede98f110b031c3c0b3d4340afcd3dd0155695fd1eb3f6bec083cd66096e9aa",
+  "code:src/getkite/decoder/joint_contact_get.py": "e7f0c695ff0d004a8c8b7b6038cda5ab10d50a0f123d08b0298268c064b7c597",
+  "code:src/getkite/decoder/multifamily.py": "27da8131d88d7b42506e6ccc053f0d1a73eebba2c956365bb353fb4d1dbca943",
+  "code:src/getkite/decoder/robots.py": "9e973aeec1c576ab27d856b3d75d5185827d0949d4e117688cebe6c4abbe10f5",
+  "code:src/getkite/decoder/rotations.py": "5a2e926e91dd4d22129ca0a4f3d4d843a133dd1fcd86dde5abeea223e07bb506",
+  "code:src/getkite/decoder/spatial_bridge.py": "1720414153b36c5ac62afe0909ec375335616dfc82a643b5d1993d3526f6b937",
+  "code:src/getkite/decoder/train_joint.py": "df01807019e9f71ea93f7e60c276e3db696befd5ef721b8f0d7467eac0513a6d",
+  "code:src/getkite/decoder/train_scratch.py": "32bbeb2e965399eef624bb8cc3579f8f4d7419745e9cd51a446b1aaf5f530631",
+  "pool:leap_heldout:I0-M2-R2-T3_g0.npz": "a3caf9844d30323f635ddecec6ac946c516cd5a53b6709e8fde464ad3b3ee3be",
+  "pool:leap_heldout:I0-M4-R3-T2_g0.npz": "650d5418032634bc67550263fe77bc78c50caa766ecc244dca74ec8ad2d0e747",
+  "pool:leap_heldout:I2-M3-R2-T2_g0.npz": "bb2b60db343f9974af8530a0e8c98fea20faa615dfbbaf4dea810c897a251fc7",
+  "pool:leap_heldout:I2-M3-R3-T2_g4.npz": "4aeb3ec203b79875850a4333c986d61a8eeff3e0f721e81d2162042d6b61c0a0",
+  "pool:shadow:shadow_eval.npz": "28851a061f539185fa24464bea783a5bc9f4ad33d5ac18cc49265291fa356ca5",
+  "pool:val:I0-M2-R2-T0_g0.npz": "5a45a507ecbb73f48796ee48ecb6a1db45951975835fb01764e991725dee6afd",
+  "pool:val:I0-M2-R3-T0_g2.npz": "fd1a60ac1f323869187942afec2568cb2e6da07b5fd7d5be373df3d79dc2a088",
+  "pool:val:I0-M2-R4-T3_g6.npz": "bec204f36618d62478b6c3bf8cab8d3a4513cb6aa134e8ef83c4e2a6d8aa340a",
+  "pool:val:I0-M3-R4-T2_g3.npz": "11450c76b6c94c741aea0db2614bc2c859f3d5377aa5cde04881ca8eefa75aa8",
+  "pool:val:I0-M4-R3-T4_g0.npz": "6700d6e01706e6640ba7b48bbe4a3f02cc2af95277c151963c377ca17e8eee63",
+  "pool:val:I2-M0-R0-T3_g5.npz": "64a97add62ddc510292bd286580da27c97d3718e284405852f669cbb1c8da6af",
+  "pool:val:I2-M3-R2-T0_g5.npz": "fb0e0fc1d77dfcdf00badc448c2f9851838eb9e0d3d14c7c9389e8591628bc0e",
+  "pool:val:I2-M4-R2-T4_g5.npz": "534cee559f503718b3c8b00c24c43ad8959d29eca35757d244b1a8f28f9a9310",
+  "pool:val:I4-M0-R0-T2_g1.npz": "a772b18cc03f82186b2373d7358d561665ac7f52c2f7c0949352f276ead5e41b",
+  "pool:val:I4-M3-R0-T0_g0.npz": "c9c9191b5c9e864ce733c85c338efa7216d6e865697bd4e64ff01e3ba09b8b2c",
+  "pool:val:I4-M3-R0-T3_g6.npz": "5238253bb218bd163e36e3782869ac0179c42b24d7ff71e449dde18d8665ae0e",
+  "pool:val:I4-M4-R0-T3_g0.npz": "76f40c60197ec763cfc3c60c981addabef2c7b007814de2102fd0a6950f8521f",
+  "pool:val:allegro_right_val.npz": "b6722d53691de2d25c8f4d0ea2109c22d208db38279e597210f4a6f43db60f95",
+  "pool:val:barrett_val.npz": "26c5518463cb2218363068e0c79c06788640b3c52564e4328bcf8aca1bfdc792",
+  "pool:wuji:wujihand_right_eval.npz": "c45f1eb507739eb0305d9c77069709ce6f6e254563db12933d926e342cb4db69",
+  "psi": "a8c7deb740681863d06a5e7d112298b8cb05f933a988089202e8933b94af454d",
+  "robot:I0-M2-R2-T0_g0:hand.json": "0825b79b841f3fff95702c7314fed304e570e2ea9f1c41f5e981627a3a786462",
+  "robot:I0-M2-R2-T0_g0:hand.urdf": "6b5a7a55235b06407ae2b6489242937e8dae09cc0c4b9c30c25cbbe9fed916aa",
+  "robot:I0-M2-R2-T0_g0:hand.xml": "4ecce0f302b5fc2eafbb409cf2a1e6d233c45f97c808b2344fef21589b900dd4",
+  "robot:I0-M2-R2-T0_g0:template.npz": "b2a4feba53e5573360f6eef5d403d6e7616f7fcc04430f8b94af281c2c132d1b",
+  "robot:I0-M2-R2-T3_g0:hand.json": "f0ee2df946b407afec4a123fed532ffe9d4f8307dfaf33dcd46d52c38633a0e7",
+  "robot:I0-M2-R2-T3_g0:hand.urdf": "860c2ab89158d20fe007cf67a7b567a0052306840b76a60c380c29eed21c222d",
+  "robot:I0-M2-R2-T3_g0:hand.xml": "d78278af255492e09c5132828d6f2e1d5f98a013eef56e4764eb88bc18fa00ff",
+  "robot:I0-M2-R2-T3_g0:template.npz": "5ce99b924a1775d6027566d851b029cad10dd9d93adb0222caf9926a59cbb7eb",
+  "robot:I0-M2-R3-T0_g2:hand.json": "f8ae1cede182e3b2dad25e99019847b069b24fffd701cc3937aed54b1bee25a7",
+  "robot:I0-M2-R3-T0_g2:hand.urdf": "d4ce1c52d25ae4b92507400af577fd2fbe9d0435e20535823f222820652a6f09",
+  "robot:I0-M2-R3-T0_g2:hand.xml": "8630c500b39aec059b9853755775bb806d194a9346dcf341d44a7b4dea090978",
+  "robot:I0-M2-R3-T0_g2:template.npz": "0481b0c8537674409069ca28b7dcb217a897eb4da2f298e2739822e6d068499a",
+  "robot:I0-M2-R4-T3_g6:hand.json": "c0bbf4d6ebf5b952037e98d575f3a6fb718dbe55ddd41f18a4217b41e0e5a7f8",
+  "robot:I0-M2-R4-T3_g6:hand.urdf": "6c54e15d343a759588c8cbcb74e433be6f762baed5a89421d6ecf8ea15708125",
+  "robot:I0-M2-R4-T3_g6:hand.xml": "2284bf89707dfc7763e7e6e31374906235308f830a18384aa69f852ce838fb8e",
+  "robot:I0-M2-R4-T3_g6:template.npz": "cbfebf9f4e940ae44ae572c459c72070e9a285b21dc70ac968919ea7fd21df35",
+  "robot:I0-M3-R4-T2_g3:hand.json": "d68e00a28f9bfcd10f8fffe8a2f5ee8c4da8ce15d88150f03c72bb4588473b45",
+  "robot:I0-M3-R4-T2_g3:hand.urdf": "f05950a4034ed8cae5f29d3748b63415b9c7fd9dee079dd07799fe092d56e86b",
+  "robot:I0-M3-R4-T2_g3:hand.xml": "7e34062cd2c935176c70510b0e7ec83e8cff5b91fbef05eb7ce99ff15a7ff6a9",
+  "robot:I0-M3-R4-T2_g3:template.npz": "8b983b71533b50b44e6a4ecbf29ab93ad6b95a6f733b19dfe42dacbc0f22cdb9",
+  "robot:I0-M4-R3-T2_g0:hand.json": "1dabc33a1745a677a0e5bb50e68e979aa01b773da92af1ac76b83759c4bb4d73",
+  "robot:I0-M4-R3-T2_g0:hand.urdf": "93d4e4b0d78ded10d868eb384c03ff65cc86ba5a3d8320195a0cc5d4bbfacee0",
+  "robot:I0-M4-R3-T2_g0:hand.xml": "d04aa246627c1bf6ef614c4ca7216ceb151f31b3048f98fcdfc227b1e967a939",
+  "robot:I0-M4-R3-T2_g0:template.npz": "3ffd3354881e6a235eaa9e56e5d2c15857514437da58052de3e52038ad678baf",
+  "robot:I0-M4-R3-T4_g0:hand.json": "47fae938aa4402cd2395fa8aa7b0fb428bb33c9cdc3303fdaee8d1f9c6cfa68a",
+  "robot:I0-M4-R3-T4_g0:hand.urdf": "ecc0e8a3b0e19996839ba8c39b1547106db2d9f298b47a36a19749b2113aa458",
+  "robot:I0-M4-R3-T4_g0:hand.xml": "ece35b0e5c281c30c1659f794ddb26c73044a3718895d1977520ab65052dd984",
+  "robot:I0-M4-R3-T4_g0:template.npz": "8f257794640c5e79524f739391069d8cf9de82ff13314343f3700c905867d59a",
+  "robot:I2-M0-R0-T3_g5:hand.json": "2165bf3c97ba4a5641283eda7d8b7a6056dcf732e4afcc0272e77eb2c8b34632",
+  "robot:I2-M0-R0-T3_g5:hand.urdf": "e2e22f2f2d3ae8ce2d96c6740a93fd942a6649f75eacf4455b59f40d61a813bc",
+  "robot:I2-M0-R0-T3_g5:hand.xml": "57ed902348cb077a25774b0e25c05a06de3fbf3b52c83939fb545319f2c6175b",
+  "robot:I2-M0-R0-T3_g5:template.npz": "ec8b9dd39a50ed3f2e93726df26d6d6860af503f1d3f4ec6f540585bdd028fc8",
+  "robot:I2-M3-R2-T0_g5:hand.json": "8a6195ac9d8a445a137783a9433e159776cf5bde16a94c1024f99c26e215794f",
+  "robot:I2-M3-R2-T0_g5:hand.urdf": "16985885b4ea310f0dc9d5438871a5b6d0c636a7e7db4c60335886e1100e3a62",
+  "robot:I2-M3-R2-T0_g5:hand.xml": "409677e2cfd38f6fbd5de09c662a93e4c2f1b4aa6b42df39460a016b1a19a477",
+  "robot:I2-M3-R2-T0_g5:template.npz": "45235a46262c6f981e2d7b15bae8e34862b50c1dc41a03a030b379dc392a2606",
+  "robot:I2-M3-R2-T2_g0:hand.json": "7d93e71dd7da828deb36cb39f0ea4338dbbd9e8d2df104727ca532d00f7dba27",
+  "robot:I2-M3-R2-T2_g0:hand.urdf": "2606c4352a996c1556e3838426b32e568c7548a26d54adb0d7806ab8e7d21a6b",
+  "robot:I2-M3-R2-T2_g0:hand.xml": "84c4810da8ef45ebb9b6bc0b3a0f0a3c389130d3fff917774087452b211e2547",
+  "robot:I2-M3-R2-T2_g0:template.npz": "6f19c9be001b6854ad3cb380848fbbb48f684c962d9219c4b1f1b8b54a60e367",
+  "robot:I2-M3-R3-T2_g4:hand.json": "d25799f2504cc7f753ccb2273d49c875828cda14fccab226ab4efdea7d23f898",
+  "robot:I2-M3-R3-T2_g4:hand.urdf": "fa9006892d27bc56735058c304c98e91e897e7e408e1ca3744a60fe1ad06605e",
+  "robot:I2-M3-R3-T2_g4:hand.xml": "3e5bbedd22e329976fcd18567828f7c25e8d365819e77b58b4cc5fcbe6376acf",
+  "robot:I2-M3-R3-T2_g4:template.npz": "c46423dd60683a80d5840c5cf6961e3ba44a441d5f93eaf2a6486a1e4389c93e",
+  "robot:I2-M4-R2-T4_g5:hand.json": "0141273d17e2a307f4cf6d8c81f16ac944143f205fe3c4a8c6c27ec28240c1b8",
+  "robot:I2-M4-R2-T4_g5:hand.urdf": "567b4ffc4cceb61e9808f857b058d4e7e8ef59eedf66320c23d9fc7f5c8298d6",
+  "robot:I2-M4-R2-T4_g5:hand.xml": "f930631d706b6415a4bd52e70baf8c36984c9daba99483902e91730b33ede1d4",
+  "robot:I2-M4-R2-T4_g5:template.npz": "dec8b452ac05e299c646ffcdb87c6dcd3b9bfdbc51f791becdcc22511b481096",
+  "robot:I4-M0-R0-T2_g1:hand.json": "f38f2a36326fab4af9a2dd1a408331e6a610f56be9cb935f176bf3cebd676c83",
+  "robot:I4-M0-R0-T2_g1:hand.urdf": "3294919d0629835bf4acd2e891f5c5c630cf5cb4dd51c5a4bf9bc0f87ec83578",
+  "robot:I4-M0-R0-T2_g1:hand.xml": "606dff29682039c74351a8c3afbf25b7377ca0d9032f4003678692b756158ec8",
+  "robot:I4-M0-R0-T2_g1:template.npz": "c36a31991ec44385c4244dbc48ced7f7361db62c531fbd84f580ca5e192e3266",
+  "robot:I4-M3-R0-T0_g0:hand.json": "1c5dadd6d46e3e29b3d9a688d37fd1832a27f47ea66d52771aa9df7a54615ac2",
+  "robot:I4-M3-R0-T0_g0:hand.urdf": "2c6098c30793d8ba016547f1954a1abfe997a4bb88bc1fc4aa1c784a97134839",
+  "robot:I4-M3-R0-T0_g0:hand.xml": "82476d9dd36ce43435e9f31abde024dd6f2476dd5cd4fb7d762082279e902075",
+  "robot:I4-M3-R0-T0_g0:template.npz": "fddf96bd1c5ca7eca4de7c58a51652016d033e428df61f2a937c27be95e5607c",
+  "robot:I4-M3-R0-T3_g6:hand.json": "1a22182c0f8b675ab5d2ac73d0a38ad5f5be581c7d88a067e4aa5a5880e037d3",
+  "robot:I4-M3-R0-T3_g6:hand.urdf": "5cc98cc62b1c48e4f25ee43a39abfac6730706f4daf71029c5330bf365ba7016",
+  "robot:I4-M3-R0-T3_g6:hand.xml": "5eaba85c3e29710732cd804d07e895dfa752ea3d2237bd6cedd3b0c11b55df76",
+  "robot:I4-M3-R0-T3_g6:template.npz": "5bdc985c9856f0834f3773c55d98949aafe5d9a6551bb2743250f1862d1f64c6",
+  "robot:I4-M4-R0-T3_g0:hand.json": "f0425cf269f44848290d52e7ca453c3a0599c48e1d7485e20f9d4dbd680b0c21",
+  "robot:I4-M4-R0-T3_g0:hand.urdf": "9b53fefa289c1259833d4c56d0139e49595f04df1a6ca2d3e816983829e68f4b",
+  "robot:I4-M4-R0-T3_g0:hand.xml": "85b2eb932f33bbcf1f14412fa5cc4165fcde2a9153c2415fd35f554c6580a034",
+  "robot:I4-M4-R0-T3_g0:template.npz": "7b56a123d89e96d797e3f875590c83f20abe2f84ddc489c464b9b7bc1565c471",
+  "robot:allegro_right:coords_npz": "64ef865e2615516cce8debaebdcc8f490066ed5a0f105d18dea0c5935a68f997",
+  "robot:allegro_right:template": "d86b08ea7a848b828e73aee8410cc9f39a43428532fbc9f33b48fbedbe026cfe",
+  "robot:allegro_right:urdf": "642c0d5c19e4d25e9bdd77b2be9fc457ac0e5b95bf3e894287c2103f686dad89",
+  "robot:barrett:coords_npz": "a530cd2f755d2aff278b6d7703f6bb86da9ebb25590d02fe21ebb081a06e47c4",
+  "robot:barrett:template": "22fbef3da42b71ef78e8aef8dc0e4e50cd05975cefc5bfa2d3db8e4197fe1888",
+  "robot:barrett:urdf": "b397756f15ac6d82d2f496e0744675186c0cfa6985901d9321053e438e8e8d0b",
+  "robot:shadow_hand_right:template": "02b40c19a2a3d7fc4d3f2a63a050f60c9f379f674f28ce6674ec1991d0d64d44",
+  "robot:shadow_hand_right:urdf": "68601abd85bf89abbd51d0c12ec7ea7359183b253a80fefdb25d4a6a2ad48ba6",
+  "robot:wujihand_right:coords_npz": "d9bdbab94f3fcdf44b7d3e9daaab24e7d88272759d2478fafc07a5c81905a82a",
+  "robot:wujihand_right:template": "51ac6c21c1d9cf59edddd18d72fef44ebd8277a6caed3da6e897ff707d025fef",
+  "robot:wujihand_right:urdf": "6b875977a0b000c4c4c0696fc3198e861a97cdc66965d996584999a3f03c7c68",
+  "system:cf2_s0:ckpt": "303e16a3d4989507925e91bfb91569108df990705a3a2582486bce40b5b02528",
+  "system:cf2_s1:ckpt": "5bd1f5d173720d7da8db6f3671fb4f4ac91626811ecf4cb7e83558910ea4e52c",
+  "system:cf2_s2:ckpt": "38dd80ae7e2704cc081af94e99eecddeb93132807a6bd0ddbed09d520b829bba",
+  "system:cf3d_s0:ckpt": "1482eee84bc54239612aff3046b133877549def6c17e70ef0789ebd17ce02c8e",
+  "system:cf3d_s1:ckpt": "040e1103c572469f0c0febba90b637be62fa6eeef16713ee9fc42424828bc48c",
+  "system:cf3d_s2:ckpt": "1afa24086d5180b50b23a3c78e55c3b5d86b99eea5cc9827abf4015040b756cf",
+  "system:cf3e_s0:ckpt": "282f36ffc6945b692af0b9116c7d6534e03b04e4402cf67acc9adb4b5890060b",
+  "system:cf3e_s1:ckpt": "d8cefa260129e9e5e11e65c36aa512562b64f3bd761966813f6ce68ee695c257",
+  "system:cf3e_s2:ckpt": "18779b4816a51e7ec295cb77db7a7a120d0b86742b44c80779c96d0af898bd84",
+  "system:d1_s0:ckpt": "4c69a7d793c61ca6923c3ae08686685c3376882ee1497220ee30035cc3377431",
+  "system:d1_s1:ckpt": "1e6213139e4df24dee86c9102b045de48836fd3a600adbe67c0d272a2d1e52ea",
+  "system:d1_s2:ckpt": "128721ffa7c1d7d5011d90452abc233f6be436b40035316aa9d9e3b3d741d1e7",
+  "system:d1bv_s0:ckpt": "b81a21a692a7342ffad03ffc41a278af70db1ed49f46b64ee7e8dec1b836546a",
+  "system:d1bv_s1:ckpt": "6761a20acfc5041d4111aa1c119bb338592270d811e8b457e5a3fa944e22c9d1",
+  "system:d1bv_s2:ckpt": "62b162cab6d97d7f5c66682726b16cafe5fce8c171e31a6a13bc9369320d0a23",
+  "system:d1long_s0:ckpt": "64770a1044301db0f09e6464424c6a7a6ca0f6b48bce056eeddf1bc4257f3ca6",
+  "system:d1long_s1:ckpt": "7a998833075c13037d4fbe8d2ecea660b11aa819278cad499b6ce626efa7d4e4",
+  "system:d1long_s2:ckpt": "df080c0b3d6c186f03bbb9828c5c3373dc32c587cf4201e8cf8192330664ebe7",
+  "train:multifamily_10x/allegro_right_train_extra_s303.npz": "71a4e636c8e05eb095a14615d0ad91b4f151bc83c91f419b74333d3cfdc4a2c1",
+  "train:multifamily_10x/barrett_train_extra_s303.npz": "180a721e61a7cff5d74db2d046552b0092e183aff705ec06a9f5b0098c637749",
+  "train:multifamily_pilot/allegro_right_train.npz": "64ef865e2615516cce8debaebdcc8f490066ed5a0f105d18dea0c5935a68f997",
+  "train:multifamily_pilot/barrett_train.npz": "a530cd2f755d2aff278b6d7703f6bb86da9ebb25590d02fe21ebb081a06e47c4",
+  "train:train/I0-M2-R2-T0_g0.npz": "d93970d8db3d8b4d1e8c3f601ef54dec7bd514d25aca079e7a1f8b7eed952946",
+  "train:train/I0-M2-R3-T0_g2.npz": "cc73735ed99b02c75272f2fa411fd71c760b2512d43687834b44737da5ab1eea",
+  "train:train/I0-M2-R4-T3_g6.npz": "a1e2c02dfb0dd0398d6fcd93b1a87d37b3e49bab5d4f75bf2164e7b6d9199dd7",
+  "train:train/I0-M3-R4-T2_g3.npz": "db739054b0862bf5a45eaa7d661ac34a27782a2bbe0da4842eb630610699814c",
+  "train:train/I0-M4-R3-T4_g0.npz": "6f448f856ff84465e78ef02fe21ed8bb4c72f7847312a0901d227c3b6f03fe08",
+  "train:train/I2-M0-R0-T3_g5.npz": "c321057326adc58a9ab76391294091fa24dcdb85c0c580ea9717347fdfccc583",
+  "train:train/I2-M3-R2-T0_g5.npz": "a9977ccd8e07c922991c0c1943c231561e74fb8df0f69a2d6f3e9a45e9d59c35",
+  "train:train/I2-M4-R2-T4_g5.npz": "1a0417f9a1fae8f87168833bf6e649138ee8d69ca5e2d991be1576aede9ebc78",
+  "train:train/I4-M0-R0-T2_g1.npz": "cbf66c76aa13bcb502094ae81fe3c3d49e0f76d0986501fec4b82965da0be3fb",
+  "train:train/I4-M3-R0-T0_g0.npz": "0e9b23e146ff0ae23575b1b092958e635977259cdbbf91375a9c2e24037f1091",
+  "train:train/I4-M3-R0-T3_g6.npz": "11e595d0224a699cea213cb133b19ba77f5128ab95f3113dcdfe27d070e00ea9",
+  "train:train/I4-M4-R0-T3_g0.npz": "acdf84c3e6dd1c33c96d97ba6915ebc326dacf9a582ec7e4317cf7efacbd7e9a",
+  "crossbody_example_bank:allegro": "64ef865e2615516cce8debaebdcc8f490066ed5a0f105d18dea0c5935a68f997",
+  "crossbody_example_bank:barrett": "a530cd2f755d2aff278b6d7703f6bb86da9ebb25590d02fe21ebb081a06e47c4",
+  "crossbody_example_bank:wuji": "d9bdbab94f3fcdf44b7d3e9daaab24e7d88272759d2478fafc07a5c81905a82a",
+  "crossbody_example_bank:I0-M2-R2-T3_g0": "a3caf9844d30323f635ddecec6ac946c516cd5a53b6709e8fde464ad3b3ee3be",
+  "crossbody_example_bank:I0-M4-R3-T2_g0": "650d5418032634bc67550263fe77bc78c50caa766ecc244dca74ec8ad2d0e747",
+  "crossbody_example_bank:I2-M3-R2-T2_g0": "bb2b60db343f9974af8530a0e8c98fea20faa615dfbbaf4dea810c897a251fc7",
+  "crossbody_example_bank:I2-M3-R3-T2_g4": "4aeb3ec203b79875850a4333c986d61a8eeff3e0f721e81d2162042d6b61c0a0"
+ },
+ "surface_sampling": "hand_frame",
+ "surf_idx_sha16": "29f28cb56a05e083",
+ "surf_idx_sha16_without_wuji": "6e9d3d5a912a0086",
+ "tpl_sha16_per_robot": {
+  "allegro_right": "1a84e685bb9b9c33",
+  "barrett": "fe09d688519df38f",
+  "I0-M2-R2-T0_g0": "7b04ce0e190540b7",
+  "I0-M2-R3-T0_g2": "02631a40a88b919a",
+  "I0-M2-R4-T3_g6": "907019273727cf06",
+  "I0-M3-R4-T2_g3": "460949385b5f7fa5",
+  "I0-M4-R3-T4_g0": "969dc2af9f944aad",
+  "I2-M0-R0-T3_g5": "7d9c1d5828e9497a",
+  "I2-M3-R2-T0_g5": "1f397db28c0a51b7",
+  "I2-M4-R2-T4_g5": "03cf4db3857d785e",
+  "I4-M0-R0-T2_g1": "a3094f1d1203d2e0",
+  "I4-M3-R0-T0_g0": "995bd1a9319a6309",
+  "I4-M3-R0-T3_g6": "0c1055854c030d56",
+  "I4-M4-R0-T3_g0": "ec930ac1e0a11e3f",
+  "I0-M2-R2-T3_g0": "f37c66ea4a83d7bc",
+  "I0-M4-R3-T2_g0": "8aed068c91d382d5",
+  "I2-M3-R2-T2_g0": "94742be159a9a822",
+  "I2-M3-R3-T2_g4": "cc6ab951f9e87499",
+  "wujihand_right": "c63e831f12ef82d6",
+  "shadow_hand_right": "e1c2d14eb83dbb23"
+ },
+ "joint_coords_per_robot": {
+  "allegro_right": 16,
+  "barrett": 8,
+  "I0-M2-R2-T0_g0": 4,
+  "I0-M2-R3-T0_g2": 5,
+  "I0-M2-R4-T3_g6": 9,
+  "I0-M3-R4-T2_g3": 9,
+  "I0-M4-R3-T4_g0": 11,
+  "I2-M0-R0-T3_g5": 5,
+  "I2-M3-R2-T0_g5": 7,
+  "I2-M4-R2-T4_g5": 12,
+  "I4-M0-R0-T2_g1": 6,
+  "I4-M3-R0-T0_g0": 7,
+  "I4-M3-R0-T3_g6": 10,
+  "I4-M4-R0-T3_g0": 11,
+  "I0-M2-R2-T3_g0": 7,
+  "I0-M4-R3-T2_g0": 9,
+  "I2-M3-R2-T2_g0": 9,
+  "I2-M3-R3-T2_g4": 10,
+  "wujihand_right": 20,
+  "shadow_hand_right": 18
+ },
+ "start_noise": {
+  "xyz_std": 0.005,
+  "rot_std_deg": 5.0,
+  "joint_frac": 0.05
+ },
+ "val_start_seed": 12345,
+ "success": [
+  10.0,
+  15.0
+ ],
+ "repo": {
+  "head": "e74bd0b8848ead43341f2c6760d4c36fd3a937b3",
+  "dirty_files": 168
+ },
+ "gpu": "NVIDIA GeForce RTX 2080 Ti",
+ "pool4": null
+}

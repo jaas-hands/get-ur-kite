@@ -5,6 +5,7 @@
 #   GETKITE_DATASET  get-ur-kite-dataset's data/ (hands/, examples/)       default: ../get-ur-kite-dataset/data
 #   GETKITE_DATA     data generated for the decoder (pilot data, ...)       default: ../getkite_data
 #   GETKITE_RUNS     run outputs (checkpoints, logs, results)               default: ../getkite_runs
+#   GETKITE_EXTERNAL third-party hand assets (external hands, Shadow)       default: ../external_assets
 #   GETKITE_EXCLUDE  nodes to always avoid, comma-separated                 default: none
 GETKITE_REPO=$(pwd)
 [ -f "$GETKITE_REPO/slurm/env.local.sh" ] && source "$GETKITE_REPO/slurm/env.local.sh"
@@ -14,6 +15,7 @@ export KITE_ROOT=${KITE_ROOT:-$("${GETKITE_PY:-python}" -c "import sys; sys.path
 export GETKITE_DATASET=${GETKITE_DATASET:-$(cd "$GETKITE_REPO/.." && pwd)/get-ur-kite-dataset/data}
 export GETKITE_DATA=${GETKITE_DATA:-$(cd "$GETKITE_REPO/.." && pwd)/getkite_data}
 export GETKITE_RUNS=${GETKITE_RUNS:-$(cd "$GETKITE_REPO/.." && pwd)/getkite_runs}
+export GETKITE_EXTERNAL=${GETKITE_EXTERNAL:-$(cd "$GETKITE_REPO/.." && pwd)/external_assets}
 export GETKITE_EXCLUDE=${GETKITE_EXCLUDE:-}
 export PYTHONPATH=$GETKITE_REPO/src${PYTHONPATH:+:$PYTHONPATH}
 
@@ -22,10 +24,16 @@ export PYTHONPATH=$GETKITE_REPO/src${PYTHONPATH:+:$PYTHONPATH}
 getkite_require_cuda() {
   nvidia-smi --query-gpu=name,driver_version,memory.total --format=csv,noheader || true
   if ! "$GETKITE_PY" -c "import torch,sys; sys.exit(0 if torch.cuda.is_available() else 1)" 2>/dev/null; then
-    local host; host=$(hostname -s)
-    export GETKITE_EXCLUDE=${GETKITE_EXCLUDE:+$GETKITE_EXCLUDE,}$host
-    echo "CUDA unusable on $host; resubmitting with --exclude=$GETKITE_EXCLUDE"
-    sbatch --export=ALL --exclude="$GETKITE_EXCLUDE" -J "$SLURM_JOB_NAME" "$@"
+    local host orig; host=$(hostname -s)
+    # keep the job's own --exclude list (it was being dropped on resubmission, 2026-11-20)
+    orig=$(scontrol show job "${SLURM_JOB_ID:-0}" 2>/dev/null | grep -o 'ExcNodeList=[^ ]*' | cut -d= -f2)
+    [ "$orig" = "(null)" ] && orig=""
+    export GETKITE_EXCLUDE=${GETKITE_EXCLUDE:-$orig}; export GETKITE_EXCLUDE=${GETKITE_EXCLUDE:+$GETKITE_EXCLUDE,}$host
+    # keep the job's own time limit and partition too (dropped before 2026-11-27: resubmits fell back to the 2 h default)
+    local tl part; tl=$(scontrol show job "${SLURM_JOB_ID:-0}" 2>/dev/null | grep -o 'TimeLimit=[^ ]*' | cut -d= -f2)
+    part=$(scontrol show job "${SLURM_JOB_ID:-0}" 2>/dev/null | grep -o ' Partition=[^ ]*' | cut -d= -f2)
+    echo "CUDA unusable on $host; resubmitting with --exclude=$GETKITE_EXCLUDE ${tl:+-t $tl} ${part:+-p $part}"
+    sbatch --export=ALL --exclude="$GETKITE_EXCLUDE" ${tl:+-t "$tl"} ${part:+-p "$part"} -J "$SLURM_JOB_NAME" "$@"
     exit 0
   fi
 }

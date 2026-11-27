@@ -1,0 +1,11 @@
+{
+ "teachers": [
+  "${GETKITE_RUNS}/d1_bv_long_hf/best.pt",
+  "${GETKITE_RUNS}/d1_bv_long_hf_s1/best.pt",
+  "${GETKITE_RUNS}/d1_bv_long_hf_s2/best.pt",
+  "${GETKITE_RUNS}/cf2_long_hf/best.pt",
+  "${GETKITE_RUNS}/cf2_long_hf_s1/best.pt",
+  "${GETKITE_RUNS}/cf2_long_hf_s2/best.pt"
+ ],
+ "alpha": 0.5
+}

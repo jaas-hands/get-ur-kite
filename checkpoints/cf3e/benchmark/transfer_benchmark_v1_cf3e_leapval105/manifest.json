@@ -1,0 +1,3322 @@
+{
+ "benchmark": {
+  "_note": "CF-3e on the 105-hand held-out LEAP pool; Shadow off. CF-3e systems added next to CF-3d (docs/cf3_distillation_proposal.md, CF-3e).",
+  "base_config": "configs/decoder/scratch/c3_psi50k_10x_wrist_leapval105.json",
+  "surface_sampling": "hand_frame",
+  "out_dir": "${GETKITE_RUNS}/transfer_benchmark_v1_cf3e_leapval105",
+  "shadow_pool": false,
+  "systems": {
+   "d1_s0": {
+    "kind": "j1",
+    "ckpt": "${GETKITE_RUNS}/d1_prim50_hf/best.pt"
+   },
+   "d1long_s0": {
+    "kind": "j1",
+    "ckpt": "${GETKITE_RUNS}/d1_long_hf/best.pt"
+   },
+   "cf2_s0": {
+    "kind": "j1",
+    "ckpt": "${GETKITE_RUNS}/cf2_long_hf/best.pt"
+   },
+   "d1bv_s0": {
+    "kind": "j1",
+    "ckpt": "${GETKITE_RUNS}/d1_bv_long_hf/best.pt"
+   },
+   "cf3d_s0": {
+    "kind": "j1",
+    "ckpt": "${GETKITE_RUNS}/cf3d_long_hf/best.pt"
+   },
+   "cf3e_s0": {
+    "kind": "j1",
+    "ckpt": "${GETKITE_RUNS}/cf3e_long_hf/best.pt"
+   },
+   "d1_s1": {
+    "kind": "j1",
+    "ckpt": "${GETKITE_RUNS}/d1_prim50_hf_s1/best.pt"
+   },
+   "d1long_s1": {
+    "kind": "j1",
+    "ckpt": "${GETKITE_RUNS}/d1_long_hf_s1/best.pt"
+   },
+   "cf2_s1": {
+    "kind": "j1",
+    "ckpt": "${GETKITE_RUNS}/cf2_long_hf_s1/best.pt"
+   },
+   "d1bv_s1": {
+    "kind": "j1",
+    "ckpt": "${GETKITE_RUNS}/d1_bv_long_hf_s1/best.pt"
+   },
+   "cf3d_s1": {
+    "kind": "j1",
+    "ckpt": "${GETKITE_RUNS}/cf3d_long_hf_s1/best.pt"
+   },
+   "cf3e_s1": {
+    "kind": "j1",
+    "ckpt": "${GETKITE_RUNS}/cf3e_long_hf_s1/best.pt"
+   },
+   "d1_s2": {
+    "kind": "j1",
+    "ckpt": "${GETKITE_RUNS}/d1_prim50_hf_s2/best.pt"
+   },
+   "d1long_s2": {
+    "kind": "j1",
+    "ckpt": "${GETKITE_RUNS}/d1_long_hf_s2/best.pt"
+   },
+   "cf2_s2": {
+    "kind": "j1",
+    "ckpt": "${GETKITE_RUNS}/cf2_long_hf_s2/best.pt"
+   },
+   "d1bv_s2": {
+    "kind": "j1",
+    "ckpt": "${GETKITE_RUNS}/d1_bv_long_hf_s2/best.pt"
+   },
+   "cf3d_s2": {
+    "kind": "j1",
+    "ckpt": "${GETKITE_RUNS}/cf3d_long_hf_s2/best.pt"
+   },
+   "cf3e_s2": {
+    "kind": "j1",
+    "ckpt": "${GETKITE_RUNS}/cf3e_long_hf_s2/best.pt"
+   }
+  }
+ },
+ "resolved_base_config": {
+  "seed": 0,
+  "start": "resample",
+  "train_start_seed": 1,
+  "val_start_seed": 12345,
+  "normal_noise_rad": 0.1,
+  "batch_size": 256,
+  "lr": 0.0003,
+  "weight_decay": 0.0001,
+  "warmup_steps": 500,
+  "total_steps": 50000,
+  "grad_clip": 1.0,
+  "eval_every": 2500,
+  "log_every": 100,
+  "ckpt_every": 1000,
+  "model": {
+   "d_model": 128,
+   "n_layers": 4,
+   "n_heads": 4,
+   "mlp_ratio": 4,
+   "pos_fourier": 8,
+   "rot_fourier": 8,
+   "intent_source": "psi",
+   "frame": "wrist",
+   "world_pose_in": true
+  },
+  "success_pos_mm": 10.0,
+  "success_normal_deg": 15.0,
+  "eval_batch": 512,
+  "kite_root": "${KITE_ROOT}",
+  "kite_ckpt": "${KITE_ROOT}/checkpoints/decoder/release.pt",
+  "robots": [
+   {
+    "kind": "kite",
+    "robot": "allegro_right",
+    "family": "allegro",
+    "urdf": "${KITE_ROOT}/assets/ohra_urdf_robot/allegro/allegro_hand_right_extended.urdf",
+    "template": "${KITE_ROOT}/assets/ohra_urdf_robot/allegro/surface_template_graph_n4096_ddcc74fe8fec.pt",
+    "coords_npz": "${GETKITE_DATA}/multifamily_pilot/allegro_right_train.npz",
+    "ignore_mimic": true
+   },
+   {
+    "kind": "kite",
+    "robot": "barrett",
+    "family": "barrett",
+    "urdf": "${KITE_ROOT}/assets/dro_urdf_robot/barrett/model_extended.urdf",
+    "template": "${KITE_ROOT}/assets/dro_urdf_robot/barrett/surface_template_graph_n4096_3e0ba32e061c.pt",
+    "coords_npz": "${GETKITE_DATA}/multifamily_pilot/barrett_train.npz",
+    "ignore_mimic": true
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I0-M2-R2-T0_g0"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I0-M2-R3-T0_g2"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I0-M2-R4-T3_g6"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I0-M3-R4-T2_g3"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I0-M4-R3-T4_g0"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I2-M0-R0-T3_g5"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I2-M3-R2-T0_g5"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I2-M4-R2-T4_g5"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I4-M0-R0-T2_g1"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I4-M3-R0-T0_g0"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I4-M3-R0-T3_g6"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I4-M4-R0-T3_g0"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I0-M2-R2-T3_g0"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I0-M4-R3-T2_g0"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I2-M3-R2-T2_g0"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I2-M3-R3-T2_g4"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I0-M2-R0-T4_g0"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I0-M2-R0-T4_g1"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I0-M2-R0-T4_g2"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I0-M2-R0-T4_g3"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I0-M2-R0-T4_g4"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I0-M2-R0-T4_g5"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I0-M2-R0-T4_g6"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I0-M2-R2-T3_g1"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I0-M2-R2-T3_g2"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I0-M2-R2-T3_g3"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I0-M2-R2-T3_g4"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I0-M2-R2-T3_g5"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I0-M2-R2-T3_g6"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I0-M2-R3-T4_g0"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I0-M2-R3-T4_g1"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I0-M2-R3-T4_g2"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I0-M2-R3-T4_g3"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I0-M2-R3-T4_g4"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I0-M2-R3-T4_g5"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I0-M2-R3-T4_g6"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I0-M3-R3-T4_g0"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I0-M3-R3-T4_g1"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I0-M3-R3-T4_g2"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I0-M3-R3-T4_g3"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I0-M3-R3-T4_g4"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I0-M3-R3-T4_g5"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I0-M3-R3-T4_g6"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I0-M4-R3-T2_g1"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I0-M4-R3-T2_g2"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I0-M4-R3-T2_g3"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I0-M4-R3-T2_g4"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I0-M4-R3-T2_g5"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I0-M4-R3-T2_g6"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I0-M4-R4-T4_g0"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I0-M4-R4-T4_g1"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I0-M4-R4-T4_g2"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I0-M4-R4-T4_g3"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I0-M4-R4-T4_g4"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I0-M4-R4-T4_g5"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I0-M4-R4-T4_g6"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I2-M3-R2-T2_g1"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I2-M3-R2-T2_g2"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I2-M3-R2-T2_g3"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I2-M3-R2-T2_g4"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I2-M3-R2-T2_g5"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I2-M3-R2-T2_g6"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I2-M3-R3-T2_g0"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I2-M3-R3-T2_g1"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I2-M3-R3-T2_g2"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I2-M3-R3-T2_g3"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I2-M3-R3-T2_g5"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I2-M3-R3-T2_g6"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I2-M4-R2-T3_g0"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I2-M4-R2-T3_g1"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I2-M4-R2-T3_g2"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I2-M4-R2-T3_g3"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I2-M4-R2-T3_g4"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I2-M4-R2-T3_g5"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I2-M4-R2-T3_g6"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I2-M4-R3-T2_g0"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I2-M4-R3-T2_g1"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I2-M4-R3-T2_g2"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I2-M4-R3-T2_g3"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I2-M4-R3-T2_g4"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I2-M4-R3-T2_g5"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I2-M4-R3-T2_g6"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I2-M4-R4-T2_g0"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I2-M4-R4-T2_g1"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I2-M4-R4-T2_g2"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I2-M4-R4-T2_g3"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I2-M4-R4-T2_g4"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I2-M4-R4-T2_g5"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I2-M4-R4-T2_g6"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I4-M2-R4-T2_g0"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I4-M2-R4-T2_g1"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I4-M2-R4-T2_g2"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I4-M2-R4-T2_g3"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I4-M2-R4-T2_g4"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I4-M2-R4-T2_g5"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I4-M2-R4-T2_g6"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I4-M2-R4-T4_g0"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I4-M2-R4-T4_g1"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I4-M2-R4-T4_g2"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I4-M2-R4-T4_g3"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I4-M2-R4-T4_g4"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I4-M2-R4-T4_g5"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I4-M2-R4-T4_g6"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I4-M3-R4-T4_g0"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I4-M3-R4-T4_g1"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I4-M3-R4-T4_g2"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I4-M3-R4-T4_g3"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I4-M3-R4-T4_g4"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I4-M3-R4-T4_g5"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I4-M3-R4-T4_g6"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I4-M4-R3-T4_g0"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I4-M4-R3-T4_g1"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I4-M4-R3-T4_g2"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I4-M4-R3-T4_g3"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I4-M4-R3-T4_g4"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I4-M4-R3-T4_g5"
+   },
+   {
+    "kind": "leap",
+    "hand_dir": "${GETKITE_DATASET}/hands/I4-M4-R3-T4_g6"
+   }
+  ],
+  "out_dir": "${GETKITE_RUNS}/scratch_c3_psi50k_10x_wrist",
+  "train": [
+   {
+    "kind": "kite",
+    "robot": "allegro_right",
+    "npz": "${GETKITE_DATA}/multifamily_pilot/allegro_right_train.npz"
+   },
+   {
+    "kind": "kite",
+    "robot": "barrett",
+    "npz": "${GETKITE_DATA}/multifamily_pilot/barrett_train.npz"
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M2-R2-T0_g0.npz",
+    "rows": [
+     0,
+     167
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M2-R3-T0_g2.npz",
+    "rows": [
+     0,
+     167
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M2-R4-T3_g6.npz",
+    "rows": [
+     0,
+     167
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M3-R4-T2_g3.npz",
+    "rows": [
+     0,
+     167
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M4-R3-T4_g0.npz",
+    "rows": [
+     0,
+     167
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M0-R0-T3_g5.npz",
+    "rows": [
+     0,
+     167
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M3-R2-T0_g5.npz",
+    "rows": [
+     0,
+     167
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M4-R2-T4_g5.npz",
+    "rows": [
+     0,
+     167
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M0-R0-T2_g1.npz",
+    "rows": [
+     0,
+     167
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M3-R0-T0_g0.npz",
+    "rows": [
+     0,
+     167
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M3-R0-T3_g6.npz",
+    "rows": [
+     0,
+     167
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M4-R0-T3_g0.npz",
+    "rows": [
+     0,
+     167
+    ]
+   },
+   {
+    "kind": "kite",
+    "robot": "allegro_right",
+    "npz": "${GETKITE_DATA}/multifamily_10x/allegro_right_train_extra_s303.npz"
+   },
+   {
+    "kind": "kite",
+    "robot": "barrett",
+    "npz": "${GETKITE_DATA}/multifamily_10x/barrett_train_extra_s303.npz"
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M2-R2-T0_g0.npz",
+    "rows": [
+     167,
+     900
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M2-R2-T0_g0.npz",
+    "rows": [
+     942,
+     1000
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATA}/multifamily_10x/leap_kite_code_s1/train/I0-M2-R2-T0_g0.npz",
+    "rows": [
+     0,
+     709
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M2-R3-T0_g2.npz",
+    "rows": [
+     167,
+     900
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M2-R3-T0_g2.npz",
+    "rows": [
+     942,
+     1000
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATA}/multifamily_10x/leap_kite_code_s1/train/I0-M2-R3-T0_g2.npz",
+    "rows": [
+     0,
+     709
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M2-R4-T3_g6.npz",
+    "rows": [
+     167,
+     900
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M2-R4-T3_g6.npz",
+    "rows": [
+     942,
+     1000
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATA}/multifamily_10x/leap_kite_code_s1/train/I0-M2-R4-T3_g6.npz",
+    "rows": [
+     0,
+     709
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M3-R4-T2_g3.npz",
+    "rows": [
+     167,
+     900
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M3-R4-T2_g3.npz",
+    "rows": [
+     942,
+     1000
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATA}/multifamily_10x/leap_kite_code_s1/train/I0-M3-R4-T2_g3.npz",
+    "rows": [
+     0,
+     709
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M4-R3-T4_g0.npz",
+    "rows": [
+     167,
+     900
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M4-R3-T4_g0.npz",
+    "rows": [
+     942,
+     1000
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATA}/multifamily_10x/leap_kite_code_s1/train/I0-M4-R3-T4_g0.npz",
+    "rows": [
+     0,
+     709
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M0-R0-T3_g5.npz",
+    "rows": [
+     167,
+     900
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M0-R0-T3_g5.npz",
+    "rows": [
+     942,
+     1000
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATA}/multifamily_10x/leap_kite_code_s1/train/I2-M0-R0-T3_g5.npz",
+    "rows": [
+     0,
+     709
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M3-R2-T0_g5.npz",
+    "rows": [
+     167,
+     900
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M3-R2-T0_g5.npz",
+    "rows": [
+     942,
+     1000
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATA}/multifamily_10x/leap_kite_code_s1/train/I2-M3-R2-T0_g5.npz",
+    "rows": [
+     0,
+     709
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M4-R2-T4_g5.npz",
+    "rows": [
+     167,
+     900
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M4-R2-T4_g5.npz",
+    "rows": [
+     942,
+     1000
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATA}/multifamily_10x/leap_kite_code_s1/train/I2-M4-R2-T4_g5.npz",
+    "rows": [
+     0,
+     709
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M0-R0-T2_g1.npz",
+    "rows": [
+     167,
+     900
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M0-R0-T2_g1.npz",
+    "rows": [
+     942,
+     1000
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATA}/multifamily_10x/leap_kite_code_s1/train/I4-M0-R0-T2_g1.npz",
+    "rows": [
+     0,
+     709
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M3-R0-T0_g0.npz",
+    "rows": [
+     167,
+     900
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M3-R0-T0_g0.npz",
+    "rows": [
+     942,
+     1000
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATA}/multifamily_10x/leap_kite_code_s1/train/I4-M3-R0-T0_g0.npz",
+    "rows": [
+     0,
+     709
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M3-R0-T3_g6.npz",
+    "rows": [
+     167,
+     900
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M3-R0-T3_g6.npz",
+    "rows": [
+     942,
+     1000
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATA}/multifamily_10x/leap_kite_code_s1/train/I4-M3-R0-T3_g6.npz",
+    "rows": [
+     0,
+     709
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M4-R0-T3_g0.npz",
+    "rows": [
+     167,
+     900
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M4-R0-T3_g0.npz",
+    "rows": [
+     942,
+     1000
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATA}/multifamily_10x/leap_kite_code_s1/train/I4-M4-R0-T3_g0.npz",
+    "rows": [
+     0,
+     709
+    ]
+   }
+  ],
+  "val": [
+   {
+    "kind": "kite",
+    "robot": "allegro_right",
+    "npz": "${GETKITE_DATA}/multifamily_pilot/allegro_right_val.npz"
+   },
+   {
+    "kind": "kite",
+    "robot": "barrett",
+    "npz": "${GETKITE_DATA}/multifamily_pilot/barrett_val.npz"
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M2-R2-T0_g0.npz",
+    "rows": [
+     900,
+     942
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M2-R3-T0_g2.npz",
+    "rows": [
+     900,
+     942
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M2-R4-T3_g6.npz",
+    "rows": [
+     900,
+     942
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M3-R4-T2_g3.npz",
+    "rows": [
+     900,
+     942
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M4-R3-T4_g0.npz",
+    "rows": [
+     900,
+     942
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M0-R0-T3_g5.npz",
+    "rows": [
+     900,
+     942
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M3-R2-T0_g5.npz",
+    "rows": [
+     900,
+     942
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M4-R2-T4_g5.npz",
+    "rows": [
+     900,
+     942
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M0-R0-T2_g1.npz",
+    "rows": [
+     900,
+     942
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M3-R0-T0_g0.npz",
+    "rows": [
+     900,
+     942
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M3-R0-T3_g6.npz",
+    "rows": [
+     900,
+     942
+    ]
+   },
+   {
+    "kind": "leap",
+    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M4-R0-T3_g0.npz",
+    "rows": [
+     900,
+     942
+    ]
+   }
+  ],
+  "extra_eval": {
+   "leap_heldout": [
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I0-M2-R2-T3_g0.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I0-M4-R3-T2_g0.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I2-M3-R2-T2_g0.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I2-M3-R3-T2_g4.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I0-M2-R0-T4_g0.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I0-M2-R0-T4_g1.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I0-M2-R0-T4_g2.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I0-M2-R0-T4_g3.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I0-M2-R0-T4_g4.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I0-M2-R0-T4_g5.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I0-M2-R0-T4_g6.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I0-M2-R2-T3_g1.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I0-M2-R2-T3_g2.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I0-M2-R2-T3_g3.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I0-M2-R2-T3_g4.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I0-M2-R2-T3_g5.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I0-M2-R2-T3_g6.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I0-M2-R3-T4_g0.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I0-M2-R3-T4_g1.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I0-M2-R3-T4_g2.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I0-M2-R3-T4_g3.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I0-M2-R3-T4_g4.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I0-M2-R3-T4_g5.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I0-M2-R3-T4_g6.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I0-M3-R3-T4_g0.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I0-M3-R3-T4_g1.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I0-M3-R3-T4_g2.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I0-M3-R3-T4_g3.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I0-M3-R3-T4_g4.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I0-M3-R3-T4_g5.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I0-M3-R3-T4_g6.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I0-M4-R3-T2_g1.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I0-M4-R3-T2_g2.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I0-M4-R3-T2_g3.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I0-M4-R3-T2_g4.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I0-M4-R3-T2_g5.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I0-M4-R3-T2_g6.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I0-M4-R4-T4_g0.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I0-M4-R4-T4_g1.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I0-M4-R4-T4_g2.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I0-M4-R4-T4_g3.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I0-M4-R4-T4_g4.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I0-M4-R4-T4_g5.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I0-M4-R4-T4_g6.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I2-M3-R2-T2_g1.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I2-M3-R2-T2_g2.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I2-M3-R2-T2_g3.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I2-M3-R2-T2_g4.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I2-M3-R2-T2_g5.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I2-M3-R2-T2_g6.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I2-M3-R3-T2_g0.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I2-M3-R3-T2_g1.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I2-M3-R3-T2_g2.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I2-M3-R3-T2_g3.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I2-M3-R3-T2_g5.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I2-M3-R3-T2_g6.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I2-M4-R2-T3_g0.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I2-M4-R2-T3_g1.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I2-M4-R2-T3_g2.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I2-M4-R2-T3_g3.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I2-M4-R2-T3_g4.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I2-M4-R2-T3_g5.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I2-M4-R2-T3_g6.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I2-M4-R3-T2_g0.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I2-M4-R3-T2_g1.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I2-M4-R3-T2_g2.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I2-M4-R3-T2_g3.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I2-M4-R3-T2_g4.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I2-M4-R3-T2_g5.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I2-M4-R3-T2_g6.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I2-M4-R4-T2_g0.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I2-M4-R4-T2_g1.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I2-M4-R4-T2_g2.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I2-M4-R4-T2_g3.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I2-M4-R4-T2_g4.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I2-M4-R4-T2_g5.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I2-M4-R4-T2_g6.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I4-M2-R4-T2_g0.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I4-M2-R4-T2_g1.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I4-M2-R4-T2_g2.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I4-M2-R4-T2_g3.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I4-M2-R4-T2_g4.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I4-M2-R4-T2_g5.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I4-M2-R4-T2_g6.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I4-M2-R4-T4_g0.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I4-M2-R4-T4_g1.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I4-M2-R4-T4_g2.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I4-M2-R4-T4_g3.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I4-M2-R4-T4_g4.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I4-M2-R4-T4_g5.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I4-M2-R4-T4_g6.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I4-M3-R4-T4_g0.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I4-M3-R4-T4_g1.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I4-M3-R4-T4_g2.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I4-M3-R4-T4_g3.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I4-M3-R4-T4_g4.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I4-M3-R4-T4_g5.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I4-M3-R4-T4_g6.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I4-M4-R3-T4_g0.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I4-M4-R3-T4_g1.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I4-M4-R3-T4_g2.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I4-M4-R3-T4_g3.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I4-M4-R3-T4_g4.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I4-M4-R3-T4_g5.npz",
+     "rows": [
+      0,
+      125
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/val/I4-M4-R3-T4_g6.npz",
+     "rows": [
+      0,
+      125
+     ]
+    }
+   ],
+   "train_goals": [
+    {
+     "kind": "kite",
+     "robot": "allegro_right",
+     "npz": "${GETKITE_DATA}/multifamily_pilot/allegro_right_train.npz"
+    },
+    {
+     "kind": "kite",
+     "robot": "barrett",
+     "npz": "${GETKITE_DATA}/multifamily_pilot/barrett_train.npz"
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M2-R2-T0_g0.npz",
+     "rows": [
+      0,
+      167
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M2-R3-T0_g2.npz",
+     "rows": [
+      0,
+      167
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M2-R4-T3_g6.npz",
+     "rows": [
+      0,
+      167
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M3-R4-T2_g3.npz",
+     "rows": [
+      0,
+      167
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M4-R3-T4_g0.npz",
+     "rows": [
+      0,
+      167
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M0-R0-T3_g5.npz",
+     "rows": [
+      0,
+      167
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M3-R2-T0_g5.npz",
+     "rows": [
+      0,
+      167
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M4-R2-T4_g5.npz",
+     "rows": [
+      0,
+      167
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M0-R0-T2_g1.npz",
+     "rows": [
+      0,
+      167
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M3-R0-T0_g0.npz",
+     "rows": [
+      0,
+      167
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M3-R0-T3_g6.npz",
+     "rows": [
+      0,
+      167
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M4-R0-T3_g0.npz",
+     "rows": [
+      0,
+      167
+     ]
+    }
+   ],
+   "train_goals_new": [
+    {
+     "kind": "kite",
+     "robot": "allegro_right",
+     "npz": "${GETKITE_DATA}/multifamily_10x/allegro_right_train_extra_s303.npz",
+     "rows": [
+      0,
+      2000
+     ]
+    },
+    {
+     "kind": "kite",
+     "robot": "barrett",
+     "npz": "${GETKITE_DATA}/multifamily_10x/barrett_train_extra_s303.npz",
+     "rows": [
+      0,
+      2000
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATA}/multifamily_10x/leap_kite_code_s1/train/I0-M2-R2-T0_g0.npz",
+     "rows": [
+      0,
+      167
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATA}/multifamily_10x/leap_kite_code_s1/train/I0-M2-R3-T0_g2.npz",
+     "rows": [
+      0,
+      167
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATA}/multifamily_10x/leap_kite_code_s1/train/I0-M2-R4-T3_g6.npz",
+     "rows": [
+      0,
+      167
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATA}/multifamily_10x/leap_kite_code_s1/train/I0-M3-R4-T2_g3.npz",
+     "rows": [
+      0,
+      167
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATA}/multifamily_10x/leap_kite_code_s1/train/I0-M4-R3-T4_g0.npz",
+     "rows": [
+      0,
+      167
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATA}/multifamily_10x/leap_kite_code_s1/train/I2-M0-R0-T3_g5.npz",
+     "rows": [
+      0,
+      167
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATA}/multifamily_10x/leap_kite_code_s1/train/I2-M3-R2-T0_g5.npz",
+     "rows": [
+      0,
+      167
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATA}/multifamily_10x/leap_kite_code_s1/train/I2-M4-R2-T4_g5.npz",
+     "rows": [
+      0,
+      167
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATA}/multifamily_10x/leap_kite_code_s1/train/I4-M0-R0-T2_g1.npz",
+     "rows": [
+      0,
+      167
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATA}/multifamily_10x/leap_kite_code_s1/train/I4-M3-R0-T0_g0.npz",
+     "rows": [
+      0,
+      167
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATA}/multifamily_10x/leap_kite_code_s1/train/I4-M3-R0-T3_g6.npz",
+     "rows": [
+      0,
+      167
+     ]
+    },
+    {
+     "kind": "leap",
+     "npz": "${GETKITE_DATA}/multifamily_10x/leap_kite_code_s1/train/I4-M4-R0-T3_g0.npz",
+     "rows": [
+      0,
+      167
+     ]
+    }
+   ]
+  },
+  "_note": "Evaluation-only copy of c3_psi50k_10x_wrist: held-out LEAP pool = all 105 val-split LEAP hands x 125 records (original 4 first, unchanged). Made by scripts/decoder/benchmark/make_leapval105.py.",
+  "surface_sampling": "hand_frame"
+ },
+ "systems_meta": {
+  "d1_s0": {
+   "step": 50000,
+   "best": {
+    "key": [
+     0.6326904743909836,
+     -6.6685932874679565
+    ],
+    "step": 50000
+   },
+   "canonical_frame": false,
+   "canonical_origin": false
+  },
+  "d1long_s0": {
+   "step": 90000,
+   "best": {
+    "key": [
+     0.6406944394111633,
+     -6.620182991027832
+    ],
+    "step": 90000
+   },
+   "canonical_frame": false,
+   "canonical_origin": false
+  },
+  "cf2_s0": {
+   "step": 87500,
+   "best": {
+    "key": [
+     0.6646746024489403,
+     -6.35574209690094
+    ],
+    "step": 87500
+   },
+   "canonical_frame": true,
+   "canonical_origin": false
+  },
+  "d1bv_s0": {
+   "step": 92500,
+   "best": {
+    "key": [
+     0.6796190440654755,
+     -6.213313341140747
+    ],
+    "step": 92500
+   },
+   "canonical_frame": false,
+   "canonical_origin": false
+  },
+  "cf3d_s0": {
+   "step": 85000,
+   "best": {
+    "key": [
+     0.6910992115736008,
+     -6.179746031761169
+    ],
+    "step": 85000
+   },
+   "canonical_frame": true,
+   "canonical_origin": false
+  },
+  "cf3e_s0": {
+   "step": 95000,
+   "best": {
+    "key": [
+     0.6931071355938911,
+     -6.0901939868927
+    ],
+    "step": 95000
+   },
+   "canonical_frame": true,
+   "canonical_origin": false
+  },
+  "d1_s1": {
+   "step": 50000,
+   "best": {
+    "key": [
+     0.6117579415440559,
+     -6.788108229637146
+    ],
+    "step": 50000
+   },
+   "canonical_frame": false,
+   "canonical_origin": false
+  },
+  "d1long_s1": {
+   "step": 97500,
+   "best": {
+    "key": [
+     0.6666706427931786,
+     -6.370588541030884
+    ],
+    "step": 97500
+   },
+   "canonical_frame": false,
+   "canonical_origin": false
+  },
+  "cf2_s1": {
+   "step": 95000,
+   "best": {
+    "key": [
+     0.6631309539079666,
+     -6.36083984375
+    ],
+    "step": 95000
+   },
+   "canonical_frame": true,
+   "canonical_origin": false
+  },
+  "d1bv_s1": {
+   "step": 97500,
+   "best": {
+    "key": [
+     0.6581785753369331,
+     -6.381077766418457
+    ],
+    "step": 97500
+   },
+   "canonical_frame": false,
+   "canonical_origin": false
+  },
+  "cf3d_s1": {
+   "step": 90000,
+   "best": {
+    "key": [
+     0.6795992106199265,
+     -6.225275874137878
+    ],
+    "step": 90000
+   },
+   "canonical_frame": true,
+   "canonical_origin": false
+  },
+  "cf3e_s1": {
+   "step": 85000,
+   "best": {
+    "key": [
+     0.6955833360552788,
+     -6.143848657608032
+    ],
+    "step": 85000
+   },
+   "canonical_frame": true,
+   "canonical_origin": false
+  },
+  "d1_s2": {
+   "step": 50000,
+   "best": {
+    "key": [
+     0.6207619085907936,
+     -6.726339340209961
+    ],
+    "step": 50000
+   },
+   "canonical_frame": false,
+   "canonical_origin": false
+  },
+  "d1long_s2": {
+   "step": 97500,
+   "best": {
+    "key": [
+     0.6721626967191696,
+     -6.277951598167419
+    ],
+    "step": 97500
+   },
+   "canonical_frame": false,
+   "canonical_origin": false
+  },
+  "cf2_s2": {
+   "step": 100000,
+   "best": {
+    "key": [
+     0.67214285582304,
+     -6.327219009399414
+    ],
+    "step": 100000
+   },
+   "canonical_frame": true,
+   "canonical_origin": false
+  },
+  "d1bv_s2": {
+   "step": 87500,
+   "best": {
+    "key": [
+     0.6571150794625282,
+     -6.375083684921265
+    ],
+    "step": 87500
+   },
+   "canonical_frame": false,
+   "canonical_origin": false
+  },
+  "cf3d_s2": {
+   "step": 90000,
+   "best": {
+    "key": [
+     0.6816111281514168,
+     -6.160464882850647
+    ],
+    "step": 90000
+   },
+   "canonical_frame": true,
+   "canonical_origin": false
+  },
+  "cf3e_s2": {
+   "step": 95000,
+   "best": {
+    "key": [
+     0.6865912675857544,
+     -6.077002048492432
+    ],
+    "step": 95000
+   },
+   "canonical_frame": true,
+   "canonical_origin": false
+  }
+ },
+ "sha256": {
+  "code:scripts/decoder/benchmark/transfer_benchmark.py": "60a33bf5b5380efccf1a350e0cd0ab8d8e0e8ca592552205296b5eaa6413d715",
+  "code:scripts/decoder/diagnostics/crossbody_heldout_eval.py": "81d6093c09765fa38f92aab8ee6457d4d7200cee68b18959e0ce222804bdf594",
+  "code:scripts/decoder/diagnostics/wuji_per_example.py": "f7f94633d52dff3104521300d29c204d375a6a850d6bc852d527903454aaba43",
+  "code:src/getkite/decoder/direct_worldaux.py": "9446a99469f48909fbfdd28ad9eb9f15b557180bfafeaaa5c61626ffd42627c6",
+  "code:src/getkite/decoder/get_scratch.py": "3ede98f110b031c3c0b3d4340afcd3dd0155695fd1eb3f6bec083cd66096e9aa",
+  "code:src/getkite/decoder/joint_contact_get.py": "e7f0c695ff0d004a8c8b7b6038cda5ab10d50a0f123d08b0298268c064b7c597",
+  "code:src/getkite/decoder/multifamily.py": "27da8131d88d7b42506e6ccc053f0d1a73eebba2c956365bb353fb4d1dbca943",
+  "code:src/getkite/decoder/robots.py": "9e973aeec1c576ab27d856b3d75d5185827d0949d4e117688cebe6c4abbe10f5",
+  "code:src/getkite/decoder/rotations.py": "5a2e926e91dd4d22129ca0a4f3d4d843a133dd1fcd86dde5abeea223e07bb506",
+  "code:src/getkite/decoder/spatial_bridge.py": "1720414153b36c5ac62afe0909ec375335616dfc82a643b5d1993d3526f6b937",
+  "code:src/getkite/decoder/train_joint.py": "df01807019e9f71ea93f7e60c276e3db696befd5ef721b8f0d7467eac0513a6d",
+  "code:src/getkite/decoder/train_scratch.py": "32bbeb2e965399eef624bb8cc3579f8f4d7419745e9cd51a446b1aaf5f530631",
+  "pool:leap_heldout:I0-M2-R0-T4_g0.npz": "1b8e2c38e00b319baa8d28b2852db40b7f09ca2ab0bea13bbca9d548f385a02c",
+  "pool:leap_heldout:I0-M2-R0-T4_g1.npz": "67bcf7e3fb525d9d4a1df0a027b50872d8e0f7a9f55bfb3272e7ad7a13aae609",
+  "pool:leap_heldout:I0-M2-R0-T4_g2.npz": "07d551e8580804357d2735259a5f3252f84e08f070f58e806cbcbd58b3e46b5e",
+  "pool:leap_heldout:I0-M2-R0-T4_g3.npz": "6321eb3ccdbe6771582782478217e4a4e793d4aeed7088e794044d597923bb18",
+  "pool:leap_heldout:I0-M2-R0-T4_g4.npz": "bd03c1c5bae15eab183507e1c906f6fa5a4c05323777171ad171a618f08e45d9",
+  "pool:leap_heldout:I0-M2-R0-T4_g5.npz": "959cd6fb77e0da3d4b34c24dab001b154d4d3e9653e248179ed2963948f118c7",
+  "pool:leap_heldout:I0-M2-R0-T4_g6.npz": "66685df090682d04f67ef6857b2d65d105ff49e2be0736c2436adecd26ca28c6",
+  "pool:leap_heldout:I0-M2-R2-T3_g0.npz": "a3caf9844d30323f635ddecec6ac946c516cd5a53b6709e8fde464ad3b3ee3be",
+  "pool:leap_heldout:I0-M2-R2-T3_g1.npz": "9c8f596be26332cb856d5aa7944ca4b1b322a0bb227839e5dd27c372df95a5b1",
+  "pool:leap_heldout:I0-M2-R2-T3_g2.npz": "da8b6be59a4a031a969b5736ea224b80e62c33180106892af6c85e207b4f381e",
+  "pool:leap_heldout:I0-M2-R2-T3_g3.npz": "56fb53123d7915adeea39a358f2a2d23b2e6ff770bce9d0424161bfe780a51f8",
+  "pool:leap_heldout:I0-M2-R2-T3_g4.npz": "9eee5f2de38d34fb8c9df8d0cf39a77e6e6bbf4c9a911d90deb2a8e24be2acae",
+  "pool:leap_heldout:I0-M2-R2-T3_g5.npz": "1066e56d152585ad403548bcb5aeb49c370adc9253430ff0fb29e21cdad08fcb",
+  "pool:leap_heldout:I0-M2-R2-T3_g6.npz": "3c8b2d8d7b01a86bc436ad7dcae807a9040ba9d7cd71ff53c18c79dcc6c59714",
+  "pool:leap_heldout:I0-M2-R3-T4_g0.npz": "f4141b3c42bbef548fa8d22e205a1abac0b30bf889debe713dc6679d1cc6e774",
+  "pool:leap_heldout:I0-M2-R3-T4_g1.npz": "848b5117df8773a15f85f2e91ca4a337d324a492363216380b01f49ccf136884",
+  "pool:leap_heldout:I0-M2-R3-T4_g2.npz": "eca63c4eaf6c44fabec3eadaa2404ccb221b2a2819803ecb30812e67bbae98ef",
+  "pool:leap_heldout:I0-M2-R3-T4_g3.npz": "45df0e9edf6a0a790ac7d743b0396712cde5b3b64772791d62d2cf9e6cc2958b",
+  "pool:leap_heldout:I0-M2-R3-T4_g4.npz": "d35e06f4bd62d28901466d3e6f4da45b4b88f31a59001171acc0d305aaa51fce",
+  "pool:leap_heldout:I0-M2-R3-T4_g5.npz": "49ade2df162cd801fb823205cc9ef58aa2ff0f819f88b54278afcfc4b47bbd1e",
+  "pool:leap_heldout:I0-M2-R3-T4_g6.npz": "6fffebbf35cba500b49c3ee66a4b4ced508c537e6cf89c06f914c076cc09c3dc",
+  "pool:leap_heldout:I0-M3-R3-T4_g0.npz": "da011df8b3ec1d5e64d3566c7010b6adbda45fa9df0e81c3c5cbb3e4f84d89ea",
+  "pool:leap_heldout:I0-M3-R3-T4_g1.npz": "d15e9ee1ead89cdf117cca7134acd0b1b159ac685af854d3852a195ba73fb5f1",
+  "pool:leap_heldout:I0-M3-R3-T4_g2.npz": "2f16543ae0abc679bc6e1c94befdf2f9bb85bb342961af8418737486f3b12849",
+  "pool:leap_heldout:I0-M3-R3-T4_g3.npz": "80be4c6064be753385c475f110aaf2690cc6eb213e5185b0e061a96553b7226f",
+  "pool:leap_heldout:I0-M3-R3-T4_g4.npz": "41d3d922cc5f3a686c9ac56794b2230b6c99febe8ad75b2d4139429d4046d80f",
+  "pool:leap_heldout:I0-M3-R3-T4_g5.npz": "098750598ed85c6ddbcb0581864142a9ba0327ffa9411c966a3214ed6ce0a74f",
+  "pool:leap_heldout:I0-M3-R3-T4_g6.npz": "d477fccc8ad97c04a09e61c59c04a7b967e6b46f287059bd93eaad3dc6a50d53",
+  "pool:leap_heldout:I0-M4-R3-T2_g0.npz": "650d5418032634bc67550263fe77bc78c50caa766ecc244dca74ec8ad2d0e747",
+  "pool:leap_heldout:I0-M4-R3-T2_g1.npz": "7455d5460629188688df4de5a7ea346d5ab43e452fd8e390464d5df36ad7ec93",
+  "pool:leap_heldout:I0-M4-R3-T2_g2.npz": "cd6db8cc856596681ece8bd24d19e9223c6460f04637f04eeb31067fd3a36d96",
+  "pool:leap_heldout:I0-M4-R3-T2_g3.npz": "b6526f2e74630f7168062e554a138c25056fc6cea87baf852caaea501862a611",
+  "pool:leap_heldout:I0-M4-R3-T2_g4.npz": "946702af493335bfa8832b9f2ac6c571f80c7d4969a170dd1d3e9f1564bf5270",
+  "pool:leap_heldout:I0-M4-R3-T2_g5.npz": "98576af04cd6314356bbd706471b15f71941906a646450030db4bd6933f4bac5",
+  "pool:leap_heldout:I0-M4-R3-T2_g6.npz": "7bc7f28f267117844999a79459132f618c070731680d8521209a1944ae9698ac",
+  "pool:leap_heldout:I0-M4-R4-T4_g0.npz": "a78689e5fdedf94fefaca44dace50b07f26c6dd47c8a3b723396e436088a489f",
+  "pool:leap_heldout:I0-M4-R4-T4_g1.npz": "988e6ce534debacfa9efbf0bc01db71ff619a45cc6123b26aa0caa2e5a838882",
+  "pool:leap_heldout:I0-M4-R4-T4_g2.npz": "93001d730346bd9de0a21ec2618a5320d03d6fb41cff213e2b4a4cafe21fea7b",
+  "pool:leap_heldout:I0-M4-R4-T4_g3.npz": "79401821cb756514d8b11d5220f246ae607e24f37959e032dd0e40f5c2cc294b",
+  "pool:leap_heldout:I0-M4-R4-T4_g4.npz": "682ba056101f8075f9e43e2436a56d7c0cb74f3e20612f334ccfa01ded309aef",
+  "pool:leap_heldout:I0-M4-R4-T4_g5.npz": "9bb547140cbab53d169696fdef6d6bb936d5df72b8070940d1e3948de781a6b5",
+  "pool:leap_heldout:I0-M4-R4-T4_g6.npz": "e084bbd84831eb8be2335394020b8293f9da22fb896f7df3d18bba6336ad5da4",
+  "pool:leap_heldout:I2-M3-R2-T2_g0.npz": "bb2b60db343f9974af8530a0e8c98fea20faa615dfbbaf4dea810c897a251fc7",
+  "pool:leap_heldout:I2-M3-R2-T2_g1.npz": "cc467cfcfd541ee3b821eb022b0c28d33d0ba7ccd420399846136d91865d3773",
+  "pool:leap_heldout:I2-M3-R2-T2_g2.npz": "fb6a2668904376093d2163cd2cb7c136e2a265df3003154bd06c8f49b77b6ae5",
+  "pool:leap_heldout:I2-M3-R2-T2_g3.npz": "50263370d34c8c40fd7d33a9b4f427d0490a6256db75c9d66bb521e3cf015dbe",
+  "pool:leap_heldout:I2-M3-R2-T2_g4.npz": "aa13796e7c089464a18afc01638950eafc7402de6ad5a7a39a968c49f7b9b7fc",
+  "pool:leap_heldout:I2-M3-R2-T2_g5.npz": "43499780619ce02937ece403771b3f6fe140cd6f93e6fba70a4706f808ec1a76",
+  "pool:leap_heldout:I2-M3-R2-T2_g6.npz": "8b643f0da5855d22c7101e4891e64d7bea54b1c884d365f25d9c419f94b61d04",
+  "pool:leap_heldout:I2-M3-R3-T2_g0.npz": "eb66e390e72bbb6be51295d42d6b0b0a270e3b8b1da152f0737369159ce438c0",
+  "pool:leap_heldout:I2-M3-R3-T2_g1.npz": "9d144215b0081db49b5ee7b0887a4e7c69e8cffd6bc317c9b13b5935c1dae21f",
+  "pool:leap_heldout:I2-M3-R3-T2_g2.npz": "e9bab6041eaf23a476ed98ab1870b974d889a927f3714efb50173ad2ade825b4",
+  "pool:leap_heldout:I2-M3-R3-T2_g3.npz": "47b7d2eaa3eaee7581bc96b40fde8a83601709b56659b386b5c956e937ca44f0",
+  "pool:leap_heldout:I2-M3-R3-T2_g4.npz": "4aeb3ec203b79875850a4333c986d61a8eeff3e0f721e81d2162042d6b61c0a0",
+  "pool:leap_heldout:I2-M3-R3-T2_g5.npz": "aa23855e7bdc0de690c199f65952d03ef0b50c7747b03a5817e91c6cf136290d",
+  "pool:leap_heldout:I2-M3-R3-T2_g6.npz": "c19de3a27c82adf2200f03345b7d01a5b395d4e34cf75d735ab9988a5c9e4020",
+  "pool:leap_heldout:I2-M4-R2-T3_g0.npz": "46d4918662aab2d194e5f99870577bdade3527a5be668f93d1548a8205b16956",
+  "pool:leap_heldout:I2-M4-R2-T3_g1.npz": "b2ea50c2a462b091b13a086dfa1471e9001be278c55b59cd5b183d88626a940c",
+  "pool:leap_heldout:I2-M4-R2-T3_g2.npz": "cd83227289dfae847133b6c4d64a9d5362cdce46da8d30c48f7557a0d90922a8",
+  "pool:leap_heldout:I2-M4-R2-T3_g3.npz": "5a9d7ce636c2f25419248061de3c16ab1701ce815adba01e66939e43c16b2d7f",
+  "pool:leap_heldout:I2-M4-R2-T3_g4.npz": "986e1b47e6ed55922dfc05c63966ce7110628aaa20e5f1a3582079eb96d4e4b9",
+  "pool:leap_heldout:I2-M4-R2-T3_g5.npz": "8c6a57113016cf8c40e543ec31a46272b59fd845bee0ba4a11a228f546676d8e",
+  "pool:leap_heldout:I2-M4-R2-T3_g6.npz": "d352d61d806927aa5bbc7b3be7cd84e253000933a8da572f40a63713118d22b6",
+  "pool:leap_heldout:I2-M4-R3-T2_g0.npz": "a85fc0ca85a29e65dc57d53c4febc27d820992481ebbbd3daf196f94951a6609",
+  "pool:leap_heldout:I2-M4-R3-T2_g1.npz": "9c82f1e7817719b1764f04b2e31ca6d5816a2676de01c981c1252066ae95e3e5",
+  "pool:leap_heldout:I2-M4-R3-T2_g2.npz": "8efda8e96b908094b6b86cfb26aad1f081a7a4d10acff4568ebeafa12563d154",
+  "pool:leap_heldout:I2-M4-R3-T2_g3.npz": "f867337f2e70e5df782cf3f25fc17645c784c437a228d73a07f3be3133f39a2e",
+  "pool:leap_heldout:I2-M4-R3-T2_g4.npz": "1809f1e58374ec3d59775b793c5466924524e553c9f59d552b7a90506d31acd7",
+  "pool:leap_heldout:I2-M4-R3-T2_g5.npz": "cb93842d961ff3063b7ff0061293c5f6bb0abafe92def7c2c93ed7db0cdd4dd1",
+  "pool:leap_heldout:I2-M4-R3-T2_g6.npz": "207ae563cfc697108f68f3bb22f466ea86cd23d3f4b3ee191fbb1c9a374d3e98",
+  "pool:leap_heldout:I2-M4-R4-T2_g0.npz": "3f586d34c088c98a7dc77a55303844475137cc94961093f386cceb511ab0341a",
+  "pool:leap_heldout:I2-M4-R4-T2_g1.npz": "22df0da50547bf1d867cb72b1dd45fc172c7fa55404729b159e940033e850a49",
+  "pool:leap_heldout:I2-M4-R4-T2_g2.npz": "53a7c70269018a514897cd81dafed9e424e4939e902b46d8819b4a369d218de2",
+  "pool:leap_heldout:I2-M4-R4-T2_g3.npz": "c336438f63539414e09f31844a97e27b05c9c00e197805705965a62352b817c9",
+  "pool:leap_heldout:I2-M4-R4-T2_g4.npz": "2048b61f0164696c741881ee6e96f43004565e7693d9ac8af6365aec32685dce",
+  "pool:leap_heldout:I2-M4-R4-T2_g5.npz": "2cef7b1f50328f0d4ab8e38ffb0a221b8f55a65056a25f5e4e8d8ebb1eb59875",
+  "pool:leap_heldout:I2-M4-R4-T2_g6.npz": "9bdede3e2347e33ed31391cc50b64403319f0c84e1ae9293d0dd9238ae7da680",
+  "pool:leap_heldout:I4-M2-R4-T2_g0.npz": "a383d5ecb080dc170e9d625cff63fbd7618a0d410d02057b7f1035c84b02e149",
+  "pool:leap_heldout:I4-M2-R4-T2_g1.npz": "521c4124fcef69e0fffd657c7e03de4ee4b30d6403e68636a5461f4b35d9847f",
+  "pool:leap_heldout:I4-M2-R4-T2_g2.npz": "f2be7704a8955844dfbd4d4ca228040dcf28a56e52d6f78b9d08150d5fffd05a",
+  "pool:leap_heldout:I4-M2-R4-T2_g3.npz": "1c46784b518d2e912682d4cefeb5b654267c5cb48b37f8d11a45ac7b2a809cb6",
+  "pool:leap_heldout:I4-M2-R4-T2_g4.npz": "092a26331294e4f1b16e1d48c1f42062e03c5841e58db726304e1cd0a00d7219",
+  "pool:leap_heldout:I4-M2-R4-T2_g5.npz": "5ac7c83ed6d190941fe4d16ad9e9240e318ec9c7a1d851a605cbfd55de51be1c",
+  "pool:leap_heldout:I4-M2-R4-T2_g6.npz": "6f7f4cbd61cbd5f5b61d63563b343d9772dca254e0c60a0af7bd572e3418080c",
+  "pool:leap_heldout:I4-M2-R4-T4_g0.npz": "b183524d881437edec61716a79632ef713d3a6abb51c2ef016ec579dc76fac1b",
+  "pool:leap_heldout:I4-M2-R4-T4_g1.npz": "9a227530cc6818efee471dce2d10be9cba3277d28f45ae19592c7c695525195d",
+  "pool:leap_heldout:I4-M2-R4-T4_g2.npz": "11e3ab156d4f7b115eb38fc4487f8bffc3dfd53c156c20773a5c3b365818ac77",
+  "pool:leap_heldout:I4-M2-R4-T4_g3.npz": "8edf2f08ac12e9d1e614cc710e9f1d6b31da480abff424dfc67e22037c0bb4d2",
+  "pool:leap_heldout:I4-M2-R4-T4_g4.npz": "fafbe89a333fc5f25eb1595368fa8d617cc2401231cad9d5510fb8f7ea92c73e",
+  "pool:leap_heldout:I4-M2-R4-T4_g5.npz": "f2a7dbd8bc0bb12bfecf86c73ace67cdf7c8340087e894d15a5d9fa00013d0f7",
+  "pool:leap_heldout:I4-M2-R4-T4_g6.npz": "ac073585f55d685b8cf7d296106d4f9757c630bab7520d8b6d11ce2f5807fe38",
+  "pool:leap_heldout:I4-M3-R4-T4_g0.npz": "d237c006022a56666b4904179279fbe6e500d79ed741fd19b42400db8d7e8124",
+  "pool:leap_heldout:I4-M3-R4-T4_g1.npz": "e13fc1e61ec5cec417263cfb58371344d6774e6ad1b5bb99ea0fb06d80f44b77",
+  "pool:leap_heldout:I4-M3-R4-T4_g2.npz": "7d6bcf7b8155b8619267b9db7cbef5d1d3836614d31525f9b89ac0a45ab9013f",
+  "pool:leap_heldout:I4-M3-R4-T4_g3.npz": "685e2363bed136d0648b5d47fab67584eb5aadd7d12ded4679dc579aef4a7e61",
+  "pool:leap_heldout:I4-M3-R4-T4_g4.npz": "4f339251bc56231567d553a6ea35a85f5f5f8223e3104b837183a6b0469a1e57",
+  "pool:leap_heldout:I4-M3-R4-T4_g5.npz": "dd3607867b1e522fd39655e841f8e2907669570974432976ff29e0f151bda571",
+  "pool:leap_heldout:I4-M3-R4-T4_g6.npz": "3c95b6c7ce273a7ae4c3bcf7cc98935e57cf2f8767a5de688c0e2972771cfc6f",
+  "pool:leap_heldout:I4-M4-R3-T4_g0.npz": "a02648afa72ea9471c89b51e1878c35d36ae4dcbdce1c3fb5ed90f4bde9495dd",
+  "pool:leap_heldout:I4-M4-R3-T4_g1.npz": "f5e15e1ad59615179e90f7c6eb2179d53b57ac0afc9365c39249de66a4393b66",
+  "pool:leap_heldout:I4-M4-R3-T4_g2.npz": "321a97c9dbe3cc21fb08ff82e592b39e22c0ee6df003f1ed6167d404ffd449f5",
+  "pool:leap_heldout:I4-M4-R3-T4_g3.npz": "9cedf52422ec7db9a25f48361c7d88834c9d91e64a89d5a77b9eeeb2cf402019",
+  "pool:leap_heldout:I4-M4-R3-T4_g4.npz": "1ba6cdd46757a88a8f69ce667deaf28eb202deff364f7b95c3849995b0b55573",
+  "pool:leap_heldout:I4-M4-R3-T4_g5.npz": "10c709c5cca4682a53e23d4ef5680d193d65909f15ea15b5e453777636625bf5",
+  "pool:leap_heldout:I4-M4-R3-T4_g6.npz": "33a39b15b297acde6b08a60aa81e436b503e31f908e49fde2a7fcafaed62233c",
+  "pool:val:I0-M2-R2-T0_g0.npz": "5a45a507ecbb73f48796ee48ecb6a1db45951975835fb01764e991725dee6afd",
+  "pool:val:I0-M2-R3-T0_g2.npz": "fd1a60ac1f323869187942afec2568cb2e6da07b5fd7d5be373df3d79dc2a088",
+  "pool:val:I0-M2-R4-T3_g6.npz": "bec204f36618d62478b6c3bf8cab8d3a4513cb6aa134e8ef83c4e2a6d8aa340a",
+  "pool:val:I0-M3-R4-T2_g3.npz": "11450c76b6c94c741aea0db2614bc2c859f3d5377aa5cde04881ca8eefa75aa8",
+  "pool:val:I0-M4-R3-T4_g0.npz": "6700d6e01706e6640ba7b48bbe4a3f02cc2af95277c151963c377ca17e8eee63",
+  "pool:val:I2-M0-R0-T3_g5.npz": "64a97add62ddc510292bd286580da27c97d3718e284405852f669cbb1c8da6af",
+  "pool:val:I2-M3-R2-T0_g5.npz": "fb0e0fc1d77dfcdf00badc448c2f9851838eb9e0d3d14c7c9389e8591628bc0e",
+  "pool:val:I2-M4-R2-T4_g5.npz": "534cee559f503718b3c8b00c24c43ad8959d29eca35757d244b1a8f28f9a9310",
+  "pool:val:I4-M0-R0-T2_g1.npz": "a772b18cc03f82186b2373d7358d561665ac7f52c2f7c0949352f276ead5e41b",
+  "pool:val:I4-M3-R0-T0_g0.npz": "c9c9191b5c9e864ce733c85c338efa7216d6e865697bd4e64ff01e3ba09b8b2c",
+  "pool:val:I4-M3-R0-T3_g6.npz": "5238253bb218bd163e36e3782869ac0179c42b24d7ff71e449dde18d8665ae0e",
+  "pool:val:I4-M4-R0-T3_g0.npz": "76f40c60197ec763cfc3c60c981addabef2c7b007814de2102fd0a6950f8521f",
+  "pool:val:allegro_right_val.npz": "b6722d53691de2d25c8f4d0ea2109c22d208db38279e597210f4a6f43db60f95",
+  "pool:val:barrett_val.npz": "26c5518463cb2218363068e0c79c06788640b3c52564e4328bcf8aca1bfdc792",
+  "pool:wuji:wujihand_right_eval.npz": "c45f1eb507739eb0305d9c77069709ce6f6e254563db12933d926e342cb4db69",
+  "psi": "a8c7deb740681863d06a5e7d112298b8cb05f933a988089202e8933b94af454d",
+  "robot:I0-M2-R0-T4_g0:hand.json": "345da76892d0d29730c5072b39c7358d2123add02e5a262f7ae7070608223e20",
+  "robot:I0-M2-R0-T4_g0:hand.urdf": "fd79b994acf13bcafa89d509a2a80bd35d362420c06d9981db0aa74b9b33414f",
+  "robot:I0-M2-R0-T4_g0:hand.xml": "8a3694d4612e700f4d134b2eac3fa0c18da9735fea0f9c07890cb0223f07d8dc",
+  "robot:I0-M2-R0-T4_g0:template.npz": "be2f278eea36fe11312417fbb2fc607a23dff001f754b09bfaccb353eabaea8c",
+  "robot:I0-M2-R0-T4_g1:hand.json": "8a6c0303d4d79c9da78605b2de7a36491c8136a6bbc68001b5567cc3d2c774c0",
+  "robot:I0-M2-R0-T4_g1:hand.urdf": "9fd5df26c61a0cf3e3510165fd839839d6bc7ea0136fe17b551d8af40e7a491a",
+  "robot:I0-M2-R0-T4_g1:hand.xml": "7c92363a5206ebec02b3f397c53ea270ea067b424a94d192c36dd7e63e58c43b",
+  "robot:I0-M2-R0-T4_g1:template.npz": "ad58ad254954cc629267ab4a4d59c51c9bd0f4016a421cc9915d549b64f17c90",
+  "robot:I0-M2-R0-T4_g2:hand.json": "1f032a33e9f51dfae85d01d6ef8d73fc70a39752079dda8edac96131893b969c",
+  "robot:I0-M2-R0-T4_g2:hand.urdf": "3af5ddf45b9fee342b1c4f9e0c83ed54555db63c655fd929003736cd8e0754b5",
+  "robot:I0-M2-R0-T4_g2:hand.xml": "ac73c3682c8a780a2508ef09cedd883c792559b8f68b71ccba81897e809848df",
+  "robot:I0-M2-R0-T4_g2:template.npz": "0076c468ae27d8d76f2dac71e09cf4636de294ff5c3d09d991aca7053bcb99af",
+  "robot:I0-M2-R0-T4_g3:hand.json": "bc215b90134c1fc378b470f5b384e19dc3b0dfbf748388b796f5d3a7b19b2465",
+  "robot:I0-M2-R0-T4_g3:hand.urdf": "0cb26603df0d73234482895ff3dba12c0c255df2faac0131ade2030165060b91",
+  "robot:I0-M2-R0-T4_g3:hand.xml": "0572a91606f090fdf80d4a29c09c6e674f8f86c852df0dd248247291e3de084a",
+  "robot:I0-M2-R0-T4_g3:template.npz": "383364869e5d722c9aea0f7cfdf9680491e5230c5deaee8142c4e93f8c53dc9f",
+  "robot:I0-M2-R0-T4_g4:hand.json": "4ea929ea9979a9992ddec11b5e779f9212eda1909a07275dd7617f4d334f6954",
+  "robot:I0-M2-R0-T4_g4:hand.urdf": "7289f510d92bf85eae5709500ce775ffae5efb62ed6d29e67b01ed317f9b8b29",
+  "robot:I0-M2-R0-T4_g4:hand.xml": "01cd187dded73f6efd757fec2971f51b637aee2e192797e17d3e7ad932a5158f",
+  "robot:I0-M2-R0-T4_g4:template.npz": "c0e61fe2381ecdc136daadd6d6bb3ea9018f10eca226c98634db4acd4287afa9",
+  "robot:I0-M2-R0-T4_g5:hand.json": "cdf050df2eaa79de63ac968f1f07e8189d97cc780295c852cd0ab4b2824a52f3",
+  "robot:I0-M2-R0-T4_g5:hand.urdf": "cd6db11400fc2a0d44a0253f1d94d8a0777c2b9319086b25f87622315d2babdb",
+  "robot:I0-M2-R0-T4_g5:hand.xml": "ba0b074c753dee170691bed5e21a2f81134881a32f4a15869ac67ff0c50d446d",
+  "robot:I0-M2-R0-T4_g5:template.npz": "478b95066b80e5da4264543aef090759b575d7c8e531fe011ea77ed050ae4f60",
+  "robot:I0-M2-R0-T4_g6:hand.json": "64fac5a13f861249ca4b50709410d2580bdbf9f49c66e5d653724ab7e819d40e",
+  "robot:I0-M2-R0-T4_g6:hand.urdf": "b6e52c4fbb2443af941b3758183568eaf84eae29d5994f31540f66806186ffe0",
+  "robot:I0-M2-R0-T4_g6:hand.xml": "1aebad8569488039f5c918eb509cbf7a8a6bb007a0f2990520ea6b5fd23ef9ee",
+  "robot:I0-M2-R0-T4_g6:template.npz": "bcd5f28ea327412be46a81128262f43862a7d38d95ae7aa327899a13898dd7c3",
+  "robot:I0-M2-R2-T0_g0:hand.json": "0825b79b841f3fff95702c7314fed304e570e2ea9f1c41f5e981627a3a786462",
+  "robot:I0-M2-R2-T0_g0:hand.urdf": "6b5a7a55235b06407ae2b6489242937e8dae09cc0c4b9c30c25cbbe9fed916aa",
+  "robot:I0-M2-R2-T0_g0:hand.xml": "4ecce0f302b5fc2eafbb409cf2a1e6d233c45f97c808b2344fef21589b900dd4",
+  "robot:I0-M2-R2-T0_g0:template.npz": "b2a4feba53e5573360f6eef5d403d6e7616f7fcc04430f8b94af281c2c132d1b",
+  "robot:I0-M2-R2-T3_g0:hand.json": "f0ee2df946b407afec4a123fed532ffe9d4f8307dfaf33dcd46d52c38633a0e7",
+  "robot:I0-M2-R2-T3_g0:hand.urdf": "860c2ab89158d20fe007cf67a7b567a0052306840b76a60c380c29eed21c222d",
+  "robot:I0-M2-R2-T3_g0:hand.xml": "d78278af255492e09c5132828d6f2e1d5f98a013eef56e4764eb88bc18fa00ff",
+  "robot:I0-M2-R2-T3_g0:template.npz": "5ce99b924a1775d6027566d851b029cad10dd9d93adb0222caf9926a59cbb7eb",
+  "robot:I0-M2-R2-T3_g1:hand.json": "defe149ba11da9802269ba3e4a892893cfc50d33b7b92ee72d20bb4b72e54c61",
+  "robot:I0-M2-R2-T3_g1:hand.urdf": "c264fa709fdf896d7e0b6eb6a1d4201b56bbd608a418adba9f0313393fb9e107",
+  "robot:I0-M2-R2-T3_g1:hand.xml": "5ee87078b644453a20fb16791d275cec725791826ce2abbf52a82caec6bb19e4",
+  "robot:I0-M2-R2-T3_g1:template.npz": "4215900459528ed3f3f7c7c1ce490d966e993a0aecd5d3665a29d54d9e90fd79",
+  "robot:I0-M2-R2-T3_g2:hand.json": "d636784ed3d8b6fd2f7dcf35b70b8de6c8a3677b8369c599ff38e0479ec9bb52",
+  "robot:I0-M2-R2-T3_g2:hand.urdf": "c289ac2678f499955d788aacb130f849b6bec3753f8cfe1374e59cc88e6f5bdc",
+  "robot:I0-M2-R2-T3_g2:hand.xml": "bc0536f591114209ca35b073665eebfb27a9fc0fef643bebf47f08dde312fe5e",
+  "robot:I0-M2-R2-T3_g2:template.npz": "8bf75ea15310f8b743c3d5abcdbf8069f1f52ac403c6eda9f804d6789235fd00",
+  "robot:I0-M2-R2-T3_g3:hand.json": "f456481fed9b331e8683ff432864b09168f58110d607215379d3889a3b3c8022",
+  "robot:I0-M2-R2-T3_g3:hand.urdf": "4abcc65de9c87c5879c043b860f9e58e0b0c632bf15be78053bd7dfa1bba731c",
+  "robot:I0-M2-R2-T3_g3:hand.xml": "341b5a6a2a20da083ab68f46a0ed76bf114f00bea32eb3b20eb964626a4071ec",
+  "robot:I0-M2-R2-T3_g3:template.npz": "bf08b2d92cb3edfb16c29f0e54d0b28a7ad6e912f0d4e542e850b11552e4b805",
+  "robot:I0-M2-R2-T3_g4:hand.json": "b1b005025601310b65c1b9dee8f01ce27bdaac17e3f6647de6d7426163b51afb",
+  "robot:I0-M2-R2-T3_g4:hand.urdf": "7044cf7b37c634f14dc1514bbddcb415d7523c4d0bdc588b2938df11a3c24197",
+  "robot:I0-M2-R2-T3_g4:hand.xml": "70b6d6e484f20f4a1f76e1966dc800c7bc4d28d1bdd6baa0f9154bc84d1ad33d",
+  "robot:I0-M2-R2-T3_g4:template.npz": "94284031018b04d7cd9696b7b9adc5986f332ab3b631fd413d57caad96ff8fe1",
+  "robot:I0-M2-R2-T3_g5:hand.json": "bbd7a05384aabf4f92b091cece8debc4f07c7907438a578b5f8e6896c5c73d12",
+  "robot:I0-M2-R2-T3_g5:hand.urdf": "a54f025ffdcebecca9e9d5f782352119371dcf1ccc7da86a68ac401d5d89faa0",
+  "robot:I0-M2-R2-T3_g5:hand.xml": "2b558547271b3093e137930406583170db7830354bd72af791345fdf44403534",
+  "robot:I0-M2-R2-T3_g5:template.npz": "fa71c0ec5966c09cfc96dfdf1a4cab806af6fd86038a8cee788906c8f6e0b85e",
+  "robot:I0-M2-R2-T3_g6:hand.json": "aeacba52fcef3aa9060711142a4fe958c6a565a99909fcd1e457e07622e6f5b1",
+  "robot:I0-M2-R2-T3_g6:hand.urdf": "e699a21446f5a6f78fa5d775819f8ff2379f9631b28eb02b5bf54560892c0157",
+  "robot:I0-M2-R2-T3_g6:hand.xml": "760df67918b19eb724b9eede4a928defc23955854b704cc90f4905356c21a7c5",
+  "robot:I0-M2-R2-T3_g6:template.npz": "31fbed6187e090063cbcb37c1a81315a242ad85e508a368d61237d1852a3fbff",
+  "robot:I0-M2-R3-T0_g2:hand.json": "f8ae1cede182e3b2dad25e99019847b069b24fffd701cc3937aed54b1bee25a7",
+  "robot:I0-M2-R3-T0_g2:hand.urdf": "d4ce1c52d25ae4b92507400af577fd2fbe9d0435e20535823f222820652a6f09",
+  "robot:I0-M2-R3-T0_g2:hand.xml": "8630c500b39aec059b9853755775bb806d194a9346dcf341d44a7b4dea090978",
+  "robot:I0-M2-R3-T0_g2:template.npz": "0481b0c8537674409069ca28b7dcb217a897eb4da2f298e2739822e6d068499a",
+  "robot:I0-M2-R3-T4_g0:hand.json": "2989c7a9654e81c806862590affc35acf021a23e69d7fe30a9ed3101fea025be",
+  "robot:I0-M2-R3-T4_g0:hand.urdf": "deab3b7a2fc42d93de0ffb74da40ae3627fae489166de3a2d404c1d541e9e5fb",
+  "robot:I0-M2-R3-T4_g0:hand.xml": "ff74ab52b9b09e7a92eb86095ec0e56972743b61cc1288f5d02f26a5b43c5405",
+  "robot:I0-M2-R3-T4_g0:template.npz": "46720dd3827b1c1afe18771cd8285686a8e28c5e2499f5c3a0460f8f6fbd8f43",
+  "robot:I0-M2-R3-T4_g1:hand.json": "ff6a739a51790f31a5e60fc9fac0d66964ad4d49ace76b1f0f0491a2a41f219a",
+  "robot:I0-M2-R3-T4_g1:hand.urdf": "96d1c732aa55dc9c60ea9cdcc266d929759b93789eabbc78e0115d1ab0836e4e",
+  "robot:I0-M2-R3-T4_g1:hand.xml": "6850b8f8a1ffa950fd75f5e23842f62571b1c3658854b679ebe90c90d589caab",
+  "robot:I0-M2-R3-T4_g1:template.npz": "2e111853e4a0557c02d8448244ebd227ca7a79ee6a52de50b20ec00dc9e3b496",
+  "robot:I0-M2-R3-T4_g2:hand.json": "5f749b6a5575c7abca3bcfba09c4c4d608939f920240cef233f480033e2ec655",
+  "robot:I0-M2-R3-T4_g2:hand.urdf": "5a8f2dc214f5e16f079733a5b3ed380b62b6fa091c83be6d534e76f505268b62",
+  "robot:I0-M2-R3-T4_g2:hand.xml": "3a5702392b446f4942410ab7f74b1d867379bcb609b899fa98de2e55df4cd2e1",
+  "robot:I0-M2-R3-T4_g2:template.npz": "d4fe76664bbdae8f29dc75dc459d938893782bd6a48fbf1890ba97185c1164ca",
+  "robot:I0-M2-R3-T4_g3:hand.json": "43949e1800ffafb7dce8a888603b81b5a3171dc24eb26b21c6ec3fc2f39dc051",
+  "robot:I0-M2-R3-T4_g3:hand.urdf": "df1bb3861b31f97ce0aef1037f297a26324d8701771362b476dd613f84e5a0db",
+  "robot:I0-M2-R3-T4_g3:hand.xml": "4cdc4590cfbeebdf3d3b1af510dd275e59c6c8cb92bd94c319976adc387d947d",
+  "robot:I0-M2-R3-T4_g3:template.npz": "70a1e69d9fe425f2dee23b8572c5556054c735c8dda78f7a8f8ddccc450c31d8",
+  "robot:I0-M2-R3-T4_g4:hand.json": "1c56c3d1df8374b1cffc9978e5d6074081a71edb335790e02131ecaa608109a5",
+  "robot:I0-M2-R3-T4_g4:hand.urdf": "b1e6763283730c73e5e0c15f8775fdc1134d7291bf1181a90b90af84e88439b1",
+  "robot:I0-M2-R3-T4_g4:hand.xml": "e88b3386304a6541fcfd34c6779e4e71c670432464509e5c2b0f82dfd9eb424b",
+  "robot:I0-M2-R3-T4_g4:template.npz": "1e10a5719fcf5198b51bb56989045e699be4d9087cfcf817f481301a21282ef3",
+  "robot:I0-M2-R3-T4_g5:hand.json": "30be5866aa081827d25bba2a25a0c7b6ca4ffb14262a08185147abb6e8d2e970",
+  "robot:I0-M2-R3-T4_g5:hand.urdf": "9939b45e61ec9bfaf26285014d28b4bd41d6bb0b4d437b0046315a5f52cd99a2",
+  "robot:I0-M2-R3-T4_g5:hand.xml": "d6acd52022557ad76f48f6a434a9ddcd217f3a6de18162612a0010ea18972429",
+  "robot:I0-M2-R3-T4_g5:template.npz": "cf64afa3bab3b081a923f1cfac61a7d60c33b90a72fa9c59937c9865d10e3293",
+  "robot:I0-M2-R3-T4_g6:hand.json": "3c383595358c1a6499eb6494bcb4464d46b48d94683c84161d4b10432558489a",
+  "robot:I0-M2-R3-T4_g6:hand.urdf": "41a4cf88d93ab1cf47e1cbf002b77d1c62151abe5231411038f5d2884a04d5d9",
+  "robot:I0-M2-R3-T4_g6:hand.xml": "3d43fbeb8f240e332375765388f7cc46944d19182b3a3c8fccb761180ae4a6fe",
+  "robot:I0-M2-R3-T4_g6:template.npz": "9d1e56a3d120939134a1076f24a2c4e76432ced738e0748c4fc7f9e6d15be93a",
+  "robot:I0-M2-R4-T3_g6:hand.json": "c0bbf4d6ebf5b952037e98d575f3a6fb718dbe55ddd41f18a4217b41e0e5a7f8",
+  "robot:I0-M2-R4-T3_g6:hand.urdf": "6c54e15d343a759588c8cbcb74e433be6f762baed5a89421d6ecf8ea15708125",
+  "robot:I0-M2-R4-T3_g6:hand.xml": "2284bf89707dfc7763e7e6e31374906235308f830a18384aa69f852ce838fb8e",
+  "robot:I0-M2-R4-T3_g6:template.npz": "cbfebf9f4e940ae44ae572c459c72070e9a285b21dc70ac968919ea7fd21df35",
+  "robot:I0-M3-R3-T4_g0:hand.json": "096822fcaaa30d21894bee2070cc6fa6251fdab9d5ea32b275e4efd3bfb5829b",
+  "robot:I0-M3-R3-T4_g0:hand.urdf": "29fcd5c8b12e94d4778c9f7e98380dfb6aea2a9f071b909b3fcff2c9fac234b6",
+  "robot:I0-M3-R3-T4_g0:hand.xml": "e77ab6dd555120da7f11114b5d1a6c98642d517e973da96657764f2b3db0ae49",
+  "robot:I0-M3-R3-T4_g0:template.npz": "40218d8106dde0b3064dd1d5727b45366b8e43d84c7a649c2467a6438fb6acd6",
+  "robot:I0-M3-R3-T4_g1:hand.json": "f9ed660ef9a2471992c2c318816113ab60ab7bf2f0991ea722d8e7dea1d906cb",
+  "robot:I0-M3-R3-T4_g1:hand.urdf": "10039e6e183152ae17e035798d97d75efc9c083e014aa2b2c007d91e5c06d323",
+  "robot:I0-M3-R3-T4_g1:hand.xml": "73dfb58f5501e0d3e2fc1012913337edbdcf145719189f826dcc98e23c310f35",
+  "robot:I0-M3-R3-T4_g1:template.npz": "884985629c457e7406b45516d5d8070daf0893c732bd960bb0bf551b04cb13b6",
+  "robot:I0-M3-R3-T4_g2:hand.json": "4c5e6fd8ff19acf8e2d4115c357bc16f4b7a260a1b2ffd80a31db50d73b2afa0",
+  "robot:I0-M3-R3-T4_g2:hand.urdf": "d8329723028698b3cc1b395db1234aa54d5d9036da29803aaeca27f0dfe45abc",
+  "robot:I0-M3-R3-T4_g2:hand.xml": "ad507c9dfd8a11652eacc6b8e46e4b937faf8251599467462759a76ddf76bcdd",
+  "robot:I0-M3-R3-T4_g2:template.npz": "f425790819213e3642ce14fee04daaf2552ea797a67fcf2eb07437140a1d0987",
+  "robot:I0-M3-R3-T4_g3:hand.json": "066eb8a23e8340419dc98868b8db140ade1c13cadc227218db4397dc22f00cd7",
+  "robot:I0-M3-R3-T4_g3:hand.urdf": "9059d85c74abf805dc25a223a7c2ba628186f9b3ed2b298330a113bc22a626eb",
+  "robot:I0-M3-R3-T4_g3:hand.xml": "100e89d05d330e160f31ce7170279f1272c52766ef04bd4db29a17ac1305edcf",
+  "robot:I0-M3-R3-T4_g3:template.npz": "12906114e934433e3110b85231196b627713e96d0480716a4b93182facb4a617",
+  "robot:I0-M3-R3-T4_g4:hand.json": "be87648a7dc5730c1bc15255f803f626e87ba783f8e3a2b56d13ab73a4a605aa",
+  "robot:I0-M3-R3-T4_g4:hand.urdf": "5d75d1d7c9d7d6ea1c696282a87a8ad30b5c7188550784a8c6946170274dfe2d",
+  "robot:I0-M3-R3-T4_g4:hand.xml": "9ec3a50fbbfb005b7eb9bdaa33a33d85d97a8ac3e49b88f2d9c8c8a719102383",
+  "robot:I0-M3-R3-T4_g4:template.npz": "44dc0252750526be5135625fac3e6938125ab0578f488b0b6691c3123a5733b8",
+  "robot:I0-M3-R3-T4_g5:hand.json": "f514bf042a8317b5fa72712ccd102cc69d6f5cc76fa8a9d8877266da596f4ea8",
+  "robot:I0-M3-R3-T4_g5:hand.urdf": "4dc55acdcc53d01426ac57b32fdcac1da0c56cef587a5ede1270f5631c44ed13",
+  "robot:I0-M3-R3-T4_g5:hand.xml": "2ebb5e8ee455805dcf4da281fe75b7aff4f219943a6a6b9e3bfdc1bae696eda1",
+  "robot:I0-M3-R3-T4_g5:template.npz": "5f1375d4a4b6a9bd56ba258c3146a13754b8eb77b4c5550c741cda4026f72906",
+  "robot:I0-M3-R3-T4_g6:hand.json": "7c43c677ede8ee6fb2cce76ef124ef524b5a18bf1273e7ffef97c1b50ef28766",
+  "robot:I0-M3-R3-T4_g6:hand.urdf": "14c77f4f7240eaa3a2ec10d7c305ce146d8b58b75d75d9cbb666a3efa41bcdb0",
+  "robot:I0-M3-R3-T4_g6:hand.xml": "a64d0c2e07b0fd0fcf952150fa92e869b6338f5772119283664dd76a61f2d2a6",
+  "robot:I0-M3-R3-T4_g6:template.npz": "746014c4db2e87ab10ff1cd28dff12a08f7f4c393d8580e1bc859a3d80807d8c",
+  "robot:I0-M3-R4-T2_g3:hand.json": "d68e00a28f9bfcd10f8fffe8a2f5ee8c4da8ce15d88150f03c72bb4588473b45",
+  "robot:I0-M3-R4-T2_g3:hand.urdf": "f05950a4034ed8cae5f29d3748b63415b9c7fd9dee079dd07799fe092d56e86b",
+  "robot:I0-M3-R4-T2_g3:hand.xml": "7e34062cd2c935176c70510b0e7ec83e8cff5b91fbef05eb7ce99ff15a7ff6a9",
+  "robot:I0-M3-R4-T2_g3:template.npz": "8b983b71533b50b44e6a4ecbf29ab93ad6b95a6f733b19dfe42dacbc0f22cdb9",
+  "robot:I0-M4-R3-T2_g0:hand.json": "1dabc33a1745a677a0e5bb50e68e979aa01b773da92af1ac76b83759c4bb4d73",
+  "robot:I0-M4-R3-T2_g0:hand.urdf": "93d4e4b0d78ded10d868eb384c03ff65cc86ba5a3d8320195a0cc5d4bbfacee0",
+  "robot:I0-M4-R3-T2_g0:hand.xml": "d04aa246627c1bf6ef614c4ca7216ceb151f31b3048f98fcdfc227b1e967a939",
+  "robot:I0-M4-R3-T2_g0:template.npz": "3ffd3354881e6a235eaa9e56e5d2c15857514437da58052de3e52038ad678baf",
+  "robot:I0-M4-R3-T2_g1:hand.json": "2f4993f04b41c391a2273f5b7b71a2b622eacb2162c731dfb4d7a9610fcd12bd",
+  "robot:I0-M4-R3-T2_g1:hand.urdf": "31f8fbc42c72cc3d4b979994b35cfbfa4317155896d12fc5052098856c2e6c07",
+  "robot:I0-M4-R3-T2_g1:hand.xml": "8c0b56451394fd2a8013cd0184bde8a046ce5ed15ca1c749b9817ee968889837",
+  "robot:I0-M4-R3-T2_g1:template.npz": "ecaac91e4078c548f04fce586861d15134f8d87a83eb30384415fa0423ac7ccf",
+  "robot:I0-M4-R3-T2_g2:hand.json": "a02718bfc8be78aa015b11bca9f369916733d4d9fb3d518995b2761018028561",
+  "robot:I0-M4-R3-T2_g2:hand.urdf": "549efa1a4c0ec850c36412b9cc8e87e1ffe81a626e20ae2e53f1d5c1de751ea9",
+  "robot:I0-M4-R3-T2_g2:hand.xml": "c5ad08bf576ac29621f0a9cc8b4408270be55e0c1ad5091d381bd3362fb8c119",
+  "robot:I0-M4-R3-T2_g2:template.npz": "a87e16bb284a735153d8e0c81a3b8f86f5d034a89a633f98eca9469160545cae",
+  "robot:I0-M4-R3-T2_g3:hand.json": "d922751b74771c659605c9b7bbc5d3f409aaa64d807a5d55927f724c0462a22e",
+  "robot:I0-M4-R3-T2_g3:hand.urdf": "1dfbaaa8fa54979567dccf9892e0627d7521ac9b709bb665e5170a3ea996bf47",
+  "robot:I0-M4-R3-T2_g3:hand.xml": "f55b3129dcab625974e38e229a923efe34accb2bb273e9621e0574c435ae9b8d",
+  "robot:I0-M4-R3-T2_g3:template.npz": "6d3d63052dc4509cd8df30c4308bac2538fcbf81d164fb6522426de09963e7e3",
+  "robot:I0-M4-R3-T2_g4:hand.json": "a9e3b40ce5badbb4f7d3f5a9b61351dc3d9f0bf3f5d7b6653dc8b460c31c283e",
+  "robot:I0-M4-R3-T2_g4:hand.urdf": "31da2cd7cc071d71b9588d51c1296f9d840118ad8878706164cdd1d3eba2c392",
+  "robot:I0-M4-R3-T2_g4:hand.xml": "587ecf4b46ab9ed5e05e2cb598eedde0d5b89beff0d3f299650c0162c81c45c9",
+  "robot:I0-M4-R3-T2_g4:template.npz": "05801c1b250ebbb30025a5a56c5832dc7b6514752c711935726ccd14f217ae5a",
+  "robot:I0-M4-R3-T2_g5:hand.json": "3816b7d6e61319d4d8c9f95394db98928b6e4954a06de4009351a3a23cffa8fc",
+  "robot:I0-M4-R3-T2_g5:hand.urdf": "67de29bde7472951170e0b0ee5f65d182a9610426b9e06533b5d91164a07f8de",
+  "robot:I0-M4-R3-T2_g5:hand.xml": "ef71c2bece55ea219c02293a8101404487e29c815a2615fc182e92f7bf586e83",
+  "robot:I0-M4-R3-T2_g5:template.npz": "47c2af2b58f3c390867320249e9b1c08b23f9eef529aa6b43eb425760b074ef4",
+  "robot:I0-M4-R3-T2_g6:hand.json": "5385d97de35ef42acba2741558d58d695fb643d0dfc6c2b2f5d93dfeaf0ac250",
+  "robot:I0-M4-R3-T2_g6:hand.urdf": "a9f7ce2ef5f6e7aff5df0774f740fa3fe44ed8c42a8b588427e5fa4b4ce1cda9",
+  "robot:I0-M4-R3-T2_g6:hand.xml": "98ef199271f5836d5d3fd09495ba73b0167a8e8dd835fc77e0ba074a9f60f718",
+  "robot:I0-M4-R3-T2_g6:template.npz": "cf0d5b30f29a3fe98d8e5a5fe5425e68d7ca72122091adb6a9db0e18ec6f359a",
+  "robot:I0-M4-R3-T4_g0:hand.json": "47fae938aa4402cd2395fa8aa7b0fb428bb33c9cdc3303fdaee8d1f9c6cfa68a",
+  "robot:I0-M4-R3-T4_g0:hand.urdf": "ecc0e8a3b0e19996839ba8c39b1547106db2d9f298b47a36a19749b2113aa458",
+  "robot:I0-M4-R3-T4_g0:hand.xml": "ece35b0e5c281c30c1659f794ddb26c73044a3718895d1977520ab65052dd984",
+  "robot:I0-M4-R3-T4_g0:template.npz": "8f257794640c5e79524f739391069d8cf9de82ff13314343f3700c905867d59a",
+  "robot:I0-M4-R4-T4_g0:hand.json": "2775a4753a6c15f3bc452000308410d23b5800f8667a37e83b3e95aa63866593",
+  "robot:I0-M4-R4-T4_g0:hand.urdf": "3f503338c051ec268a8943ea2c860bfe91d5a03f84de0057bb6e4c81eb453cb6",
+  "robot:I0-M4-R4-T4_g0:hand.xml": "03e763e29e4dbad0a1cba7ed8dea616e5be3b79ae0638cbf25034b4fec89e1f5",
+  "robot:I0-M4-R4-T4_g0:template.npz": "7248034d5c5efca066b981bea28c1f4ce3257cc5564e5f595aa0aa7bad5ca588",
+  "robot:I0-M4-R4-T4_g1:hand.json": "9edca8c9c005cd4a952d8577d2e8e8f28de3beeebe617f48c106861ea16f5433",
+  "robot:I0-M4-R4-T4_g1:hand.urdf": "1499671e5ef715e6432a52b2743e42d9ecfefde14d8dc139645858a33835235b",
+  "robot:I0-M4-R4-T4_g1:hand.xml": "47dbd5c94f2f06a17bd02e02571211ade47497beb085ca152e32a22da38e4db0",
+  "robot:I0-M4-R4-T4_g1:template.npz": "a756be2820d4acb11ee943df6fc4c4705d656e66ca0f4b2e58177af4254ae0ec",
+  "robot:I0-M4-R4-T4_g2:hand.json": "9165d00c8836fabeb103a69b2c29a3fcdc240323406f9b0c98141d6008ac73b4",
+  "robot:I0-M4-R4-T4_g2:hand.urdf": "603f93c2cc7bfda7956e297d6b5837115fae7f91d10c4afd1bb134d52116e5e9",
+  "robot:I0-M4-R4-T4_g2:hand.xml": "10cc9f65350a00a150a54c2ff07fbe1774cd8cb4c0d5c2d629c2163b5370295c",
+  "robot:I0-M4-R4-T4_g2:template.npz": "466467b3472b1eecce1eb40c7e34fde6bcc467fc3681851c237b482be67d5a62",
+  "robot:I0-M4-R4-T4_g3:hand.json": "08abb7696c21b16b70eca5df8b3db3405d2365e5714857e04bde2f29acf432ac",
+  "robot:I0-M4-R4-T4_g3:hand.urdf": "191a419205492908c310dcea6fcef5fefe5c4579f2aef9ded2ecda688555f59c",
+  "robot:I0-M4-R4-T4_g3:hand.xml": "ee0410fb68e1c80ef43c3534763e2fb9081c4f0f25ff8fe02c8ecab656d07ae4",
+  "robot:I0-M4-R4-T4_g3:template.npz": "410c6e6d511043375a90d97052ac5966db1468e01b51771a85370cf9f4f1a880",
+  "robot:I0-M4-R4-T4_g4:hand.json": "a15800c40dbc4fb6ed91f4614e3cc3b91ce30492583d7ded3435b8f0f615b986",
+  "robot:I0-M4-R4-T4_g4:hand.urdf": "aed2d5f493c2921e49b3abf977fda217cfec0be9b8d69bd6d48a0f76ca10dc03",
+  "robot:I0-M4-R4-T4_g4:hand.xml": "45241c8f3fff55339dca35d4086a593b143de138827555b8898c94879c09d1c9",
+  "robot:I0-M4-R4-T4_g4:template.npz": "2ff729207ef580c2d4fd94492fcc377b2be3f8a8c1ceb715e47baeaba4782c22",
+  "robot:I0-M4-R4-T4_g5:hand.json": "eed17bb67794901f5a11c44f8fb9e5fdc5f60d666dbd981045526db5205cee8d",
+  "robot:I0-M4-R4-T4_g5:hand.urdf": "af520b222267a2467b0ca8dd634e8629500c52a02df3f72216349551656996da",
+  "robot:I0-M4-R4-T4_g5:hand.xml": "a5f1e4c4df36124c698328424395f48b1aa6691505457daea094e834e1fb5c12",
+  "robot:I0-M4-R4-T4_g5:template.npz": "af58776b8de769eabf5be241db3ac54e5af0cef485f50bd76d037019fb73229a",
+  "robot:I0-M4-R4-T4_g6:hand.json": "71013b6a0b5e955dbbc8a8a4d5338ed99e36b6863cebc595b9736fb6af2548d2",
+  "robot:I0-M4-R4-T4_g6:hand.urdf": "34c58f194e6b74b03007c4f4c96fc90aeff8982e2e4cfc4514c6b4db4015f7aa",
+  "robot:I0-M4-R4-T4_g6:hand.xml": "ee16c61374bc01f9ba4c4cb1705f87bf9700ffa2b1d9800c07c0a78cebb7c32c",
+  "robot:I0-M4-R4-T4_g6:template.npz": "50880301f1795c9e48f4f13e1f42a9deaa17f57e25f67892fc3f1a59689678cd",
+  "robot:I2-M0-R0-T3_g5:hand.json": "2165bf3c97ba4a5641283eda7d8b7a6056dcf732e4afcc0272e77eb2c8b34632",
+  "robot:I2-M0-R0-T3_g5:hand.urdf": "e2e22f2f2d3ae8ce2d96c6740a93fd942a6649f75eacf4455b59f40d61a813bc",
+  "robot:I2-M0-R0-T3_g5:hand.xml": "57ed902348cb077a25774b0e25c05a06de3fbf3b52c83939fb545319f2c6175b",
+  "robot:I2-M0-R0-T3_g5:template.npz": "ec8b9dd39a50ed3f2e93726df26d6d6860af503f1d3f4ec6f540585bdd028fc8",
+  "robot:I2-M3-R2-T0_g5:hand.json": "8a6195ac9d8a445a137783a9433e159776cf5bde16a94c1024f99c26e215794f",
+  "robot:I2-M3-R2-T0_g5:hand.urdf": "16985885b4ea310f0dc9d5438871a5b6d0c636a7e7db4c60335886e1100e3a62",
+  "robot:I2-M3-R2-T0_g5:hand.xml": "409677e2cfd38f6fbd5de09c662a93e4c2f1b4aa6b42df39460a016b1a19a477",
+  "robot:I2-M3-R2-T0_g5:template.npz": "45235a46262c6f981e2d7b15bae8e34862b50c1dc41a03a030b379dc392a2606",
+  "robot:I2-M3-R2-T2_g0:hand.json": "7d93e71dd7da828deb36cb39f0ea4338dbbd9e8d2df104727ca532d00f7dba27",
+  "robot:I2-M3-R2-T2_g0:hand.urdf": "2606c4352a996c1556e3838426b32e568c7548a26d54adb0d7806ab8e7d21a6b",
+  "robot:I2-M3-R2-T2_g0:hand.xml": "84c4810da8ef45ebb9b6bc0b3a0f0a3c389130d3fff917774087452b211e2547",
+  "robot:I2-M3-R2-T2_g0:template.npz": "6f19c9be001b6854ad3cb380848fbbb48f684c962d9219c4b1f1b8b54a60e367",
+  "robot:I2-M3-R2-T2_g1:hand.json": "01c25bac231ddd893b0eb0230a937827c18bf767ae4f08892ba7fe7e441e9b5f",
+  "robot:I2-M3-R2-T2_g1:hand.urdf": "35d7db1918565a2827db2af8509e1e69388623db497f9eb515604141a065382d",
+  "robot:I2-M3-R2-T2_g1:hand.xml": "8e4cbec82e6a4305828b7007aad3930ce6677d1000525837eb036d12c700a99a",
+  "robot:I2-M3-R2-T2_g1:template.npz": "b5195f80299070098bcb48d23854d5084e29e90b600492b32a73fb7281ea1ecf",
+  "robot:I2-M3-R2-T2_g2:hand.json": "098f4b4e805ef0310644b1ed43eabe7b87b32e119e49c25da96a36f89891148e",
+  "robot:I2-M3-R2-T2_g2:hand.urdf": "79dbe89e9bd31fea723b1c384a3ac0b0252556995374e3dcac7553f8d480b2e3",
+  "robot:I2-M3-R2-T2_g2:hand.xml": "c26b1a94a1e05e99435565d7af1535abd125c130b1f1d6138c8ad9f313b5d558",
+  "robot:I2-M3-R2-T2_g2:template.npz": "3c29ed44288833202241dcff0904906b16ad4d9ce31dc7623ce02049fdcee58f",
+  "robot:I2-M3-R2-T2_g3:hand.json": "bf0e1c494de3b81bf208ce145fa70e5c3565d791f458e5559e62b928681cb705",
+  "robot:I2-M3-R2-T2_g3:hand.urdf": "def255833354ed810035e69d81687d54f41a87e8cf7129493d1831e614e47033",
+  "robot:I2-M3-R2-T2_g3:hand.xml": "e6a00f6484531330a46f41d3407ee805acd2998d207f4bc4d2280f148711fbbe",
+  "robot:I2-M3-R2-T2_g3:template.npz": "2ab16e9baf6d17b4890acb0c787942d05ccb5417471873b6e6c2bec79439de12",
+  "robot:I2-M3-R2-T2_g4:hand.json": "add915ee5d6285933d8b9a090821816d33f5c6f4d0bce5ef9508bd1112de64d6",
+  "robot:I2-M3-R2-T2_g4:hand.urdf": "4ae26031a776d35d9c459d7e55187e6dc43bbfef9a35de22bc88cf4f3e29ba6e",
+  "robot:I2-M3-R2-T2_g4:hand.xml": "0e0a5a98f06ec45ca402bd4be8ca3fdc6dc1caac8fb4380ff0a9081be7b3bc35",
+  "robot:I2-M3-R2-T2_g4:template.npz": "ce1d0e9798b97adb4cb6ec891ca44b539a6c4803a5b8a00d57d06de047e646a0",
+  "robot:I2-M3-R2-T2_g5:hand.json": "57ef0e7a9bced34e93614500ef6d902dfd39a60fa2a30c6d6c777e8fe8bf0b50",
+  "robot:I2-M3-R2-T2_g5:hand.urdf": "5e7d541b1384949d54d0015340be95c610750e5b27c86631f9c2a599f8522077",
+  "robot:I2-M3-R2-T2_g5:hand.xml": "2635139957c37fd7c6816cd0d9834d433c03b36a7a493771287bc994dc504083",
+  "robot:I2-M3-R2-T2_g5:template.npz": "bf76d7f903f2e030e6b6e2c5577da12a9b513b6a1622fd2013c4cf99cb57a192",
+  "robot:I2-M3-R2-T2_g6:hand.json": "d50d9890991dcd3379e2653959b2d169f56844aaa9f3b8363fba16d3c3de4044",
+  "robot:I2-M3-R2-T2_g6:hand.urdf": "f1305fb4f06be92d5fe51621812ca23d2df42cf546ad50722198f781a2719177",
+  "robot:I2-M3-R2-T2_g6:hand.xml": "35efbae58019a3a6712730f2d8020394ffe1cb87db693dd62699b3ce2c6cf202",
+  "robot:I2-M3-R2-T2_g6:template.npz": "2f2e72e2053aafedfb7f2ee5b96dfb7f930cf0002c2b17b5e36dec0160a8f6ba",
+  "robot:I2-M3-R3-T2_g0:hand.json": "359d3155c3c91ba0d7afcd24759ad724a687e004a7010b0f9295e81b13045846",
+  "robot:I2-M3-R3-T2_g0:hand.urdf": "8eb3afb71de0708e5e086822b39af8d2bd97ed90afa24bbb55a8e9e5db36aa10",
+  "robot:I2-M3-R3-T2_g0:hand.xml": "915e64f8f50dae8007e862ddf4677b61d235f6176577143c1765ec9b4f524d79",
+  "robot:I2-M3-R3-T2_g0:template.npz": "02734c84906f3ddf1849f1195af490b725413b5ca0794dfc5b87a0f997f8aad7",
+  "robot:I2-M3-R3-T2_g1:hand.json": "c7e567d25f0f0a8d0d3cef59423329a9135aae54613ec403bc372bc22be314c8",
+  "robot:I2-M3-R3-T2_g1:hand.urdf": "cd376d061628a724de174be6d192d1ebbf2c02e539d700fe065bf8d426e8a7c6",
+  "robot:I2-M3-R3-T2_g1:hand.xml": "965f44001ce35e95969f4c7a6a2e9d815716bb78b1ce969daaecfe335166d341",
+  "robot:I2-M3-R3-T2_g1:template.npz": "af1ba72a0d19af20c426e80d23f3b52dee888f107f0d2cdba6eb2f8950f235d9",
+  "robot:I2-M3-R3-T2_g2:hand.json": "28215fb379c97c140194d392edd2d805d57f461331eb42204f798c3eda5cbccb",
+  "robot:I2-M3-R3-T2_g2:hand.urdf": "8873641bf85e45fc96debab8a53b91759356a510b954ec4fe64134febc994799",
+  "robot:I2-M3-R3-T2_g2:hand.xml": "4f5a3acd772252083eaa28832d5d0d0f11f055461e59b3158451978944ba3a63",
+  "robot:I2-M3-R3-T2_g2:template.npz": "3dfe7a90aed7987b751eb2cc26a1a366d57b7a9ac4ef70a3ff41f73bc5de3215",
+  "robot:I2-M3-R3-T2_g3:hand.json": "b4578b63a2e8ee0a0ddb79f7bdac4cf4600beb36cfb193fb37e47b6f0fecf4d3",
+  "robot:I2-M3-R3-T2_g3:hand.urdf": "cefdb8ba497ed4d675484d791f18b89f9d75f245261febc6a7ccb0ab122f269b",
+  "robot:I2-M3-R3-T2_g3:hand.xml": "66827c8b07766cb6ea8a8dc28336039d1942c1d95c5dad1d911123b12bc3cad1",
+  "robot:I2-M3-R3-T2_g3:template.npz": "94a23e8e6a08c09fe0c5402318690a30c19af1548d2d2d9f9998e43d2cb6fbd7",
+  "robot:I2-M3-R3-T2_g4:hand.json": "d25799f2504cc7f753ccb2273d49c875828cda14fccab226ab4efdea7d23f898",
+  "robot:I2-M3-R3-T2_g4:hand.urdf": "fa9006892d27bc56735058c304c98e91e897e7e408e1ca3744a60fe1ad06605e",
+  "robot:I2-M3-R3-T2_g4:hand.xml": "3e5bbedd22e329976fcd18567828f7c25e8d365819e77b58b4cc5fcbe6376acf",
+  "robot:I2-M3-R3-T2_g4:template.npz": "c46423dd60683a80d5840c5cf6961e3ba44a441d5f93eaf2a6486a1e4389c93e",
+  "robot:I2-M3-R3-T2_g5:hand.json": "5a2c3d0a571e8b8c3a3155fca9f2ba2a12148dd2bbc8507bb7420cde14c18308",
+  "robot:I2-M3-R3-T2_g5:hand.urdf": "7743b72f1b9d4720abbea8495448f11baee7857e20653f57e8ab3bec2e3d2fed",
+  "robot:I2-M3-R3-T2_g5:hand.xml": "099fb19b874b6f175719c24fe32135970cf3b8e51acd173019dc01e3a9b0e162",
+  "robot:I2-M3-R3-T2_g5:template.npz": "6698ab512061d75394b7e4db311359ab357084c9fc9799f49d9bda471b200c5c",
+  "robot:I2-M3-R3-T2_g6:hand.json": "d122c3eeb6b2e8c180e75f3d6a916e2c4b5e16af088c1e7cee1a4c4f2c636ade",
+  "robot:I2-M3-R3-T2_g6:hand.urdf": "08353a30d6038a415fc521bf341af1fd46db257be6b78aee2491da863c5da3fc",
+  "robot:I2-M3-R3-T2_g6:hand.xml": "e6442e92d6c1a34de97df930731667ccf7dbe57d45e5d3317113c3b5670435ee",
+  "robot:I2-M3-R3-T2_g6:template.npz": "b6ab9e761192a4ff71f66d7ee2573ca40448b9222e28c3f1b3eb07d8756a2365",
+  "robot:I2-M4-R2-T3_g0:hand.json": "3fde1329802b10de4fe749c24e7985e0cdb7128ce49f003c2ca1788c8afa5722",
+  "robot:I2-M4-R2-T3_g0:hand.urdf": "a5c06656e512a01fdb73af26f53310bdf66832735ad2beff194cc6c8d7f2d63c",
+  "robot:I2-M4-R2-T3_g0:hand.xml": "0b34ca0758fb77d7eaea506bf7764891724bbcbb6e3d241aadef9b1a45878ca0",
+  "robot:I2-M4-R2-T3_g0:template.npz": "3938e87ac4085780635b97f696054a1b0d0ba86e6248bf30fd788eba072eee86",
+  "robot:I2-M4-R2-T3_g1:hand.json": "53e52df08fc727f82e949a02cbb0a0418c42efbcd4505aab9e611d8227a0e3ea",
+  "robot:I2-M4-R2-T3_g1:hand.urdf": "e39249890a10ac7256aa13fa887b1f294f0ea3bc64ffca23a3c19dc42a5815e4",
+  "robot:I2-M4-R2-T3_g1:hand.xml": "e65c6db58af272a25bf4b24a11f3ad5e9e6b848ff1cd8dfb5542186e34da9e75",
+  "robot:I2-M4-R2-T3_g1:template.npz": "374a60f6a24f8ef44ee003e4faa40bce27bac35670117c6852c4914b25256961",
+  "robot:I2-M4-R2-T3_g2:hand.json": "9330fe3c2e948bf37dda5fc486cde546bd6e777918c2cb81f5aae023010d8116",
+  "robot:I2-M4-R2-T3_g2:hand.urdf": "5e9aad3bde98577131db7feb5560b039044f42be3fe9c5750f5fd7e3c315a106",
+  "robot:I2-M4-R2-T3_g2:hand.xml": "b76849e3bb1b943976c220cb02c934d4c0f1c902180d8a615cb499f784ee05dc",
+  "robot:I2-M4-R2-T3_g2:template.npz": "3551f9128b3a2b74b5fe983ec2b4ae881e6d30c48a84d789f38fe2038d8a1f25",
+  "robot:I2-M4-R2-T3_g3:hand.json": "a187245bfc42ba57c6d81f426dd9ce82fcd96c3baaca6975c4f701c975a94a4d",
+  "robot:I2-M4-R2-T3_g3:hand.urdf": "7e45f7dd33ed0a3b01787ff1acaf92fc2bfcee94f26b58ec4d9572d339c40c6b",
+  "robot:I2-M4-R2-T3_g3:hand.xml": "378497efade77216d465113c9174bf5d42624513fc251076e816115b03de718c",
+  "robot:I2-M4-R2-T3_g3:template.npz": "3d7468bd3fd8ef95a0f0c9306aeede433927b52926aef1e484b4058e6f8c8bc4",
+  "robot:I2-M4-R2-T3_g4:hand.json": "6dea239f44e25aa8779b9b414c44304a4ce22032a10d61727507c20e4695c7f5",
+  "robot:I2-M4-R2-T3_g4:hand.urdf": "f8d0de2c4a7115a91e44b73f7970a1a8c38584ce56ad7065dc005aa147af25a9",
+  "robot:I2-M4-R2-T3_g4:hand.xml": "0777b9edb30fec52d1e5f217416be8a78ce36e972e6b21261c1129e30335dea6",
+  "robot:I2-M4-R2-T3_g4:template.npz": "a663f249209080fb147ac362ded0afdbe199f12e170670e98cd97a86d063fc77",
+  "robot:I2-M4-R2-T3_g5:hand.json": "6a1cc4eefa38e8fe043f16065baeab4fefd11310611b57bb3702f0e6c538a648",
+  "robot:I2-M4-R2-T3_g5:hand.urdf": "05741ebcedfc20658bc8378f359e3742ac7431498f56d0ab01959a36b31c42e4",
+  "robot:I2-M4-R2-T3_g5:hand.xml": "1d68a2e93f8e1ce8bc45e4f90592b5ac57864d43521eb55581fcc44fab7cf2eb",
+  "robot:I2-M4-R2-T3_g5:template.npz": "9673a1db8c87aae2f4c38b2dc434fd8813fa70f2bbd516cfb6c77654a61aa2d6",
+  "robot:I2-M4-R2-T3_g6:hand.json": "6bbab106969b9aa31cbe0fb7ae5ccedabdff5ca9964787ca34a09c27201360c2",
+  "robot:I2-M4-R2-T3_g6:hand.urdf": "25853762d56f78e3f6494ddbabc2728fd16af9fb32af76a0202c552c836039bb",
+  "robot:I2-M4-R2-T3_g6:hand.xml": "17e9e04f0d359fc4e29799f1a402729dd656a9027c70c95d83ab094b030a07a7",
+  "robot:I2-M4-R2-T3_g6:template.npz": "905b6774e2f1f441f572d665351b15381a45fb568a031587771de6b556bc115a",
+  "robot:I2-M4-R2-T4_g5:hand.json": "0141273d17e2a307f4cf6d8c81f16ac944143f205fe3c4a8c6c27ec28240c1b8",
+  "robot:I2-M4-R2-T4_g5:hand.urdf": "567b4ffc4cceb61e9808f857b058d4e7e8ef59eedf66320c23d9fc7f5c8298d6",
+  "robot:I2-M4-R2-T4_g5:hand.xml": "f930631d706b6415a4bd52e70baf8c36984c9daba99483902e91730b33ede1d4",
+  "robot:I2-M4-R2-T4_g5:template.npz": "dec8b452ac05e299c646ffcdb87c6dcd3b9bfdbc51f791becdcc22511b481096",
+  "robot:I2-M4-R3-T2_g0:hand.json": "85fa53e1b884063d616b94987a078fd22ef4579b2cd867b9c013f88a78aee333",
+  "robot:I2-M4-R3-T2_g0:hand.urdf": "586f2f04a99bf6c75be0e3ce79446429165c7c33924cafac0da49b6512c87f65",
+  "robot:I2-M4-R3-T2_g0:hand.xml": "17248003fc0eb3638c062cd72bd93fa1657f0127d10a1ef7d7db7c0bffde4a36",
+  "robot:I2-M4-R3-T2_g0:template.npz": "cc9409e95ebb50a110349f3440a8c2d938d4fff949d1b8fc4876be22edec14fa",
+  "robot:I2-M4-R3-T2_g1:hand.json": "2b2bf9372a159712ad2c3a20c794ad5f1b055d219f604e12c5c77abf8ba8b731",
+  "robot:I2-M4-R3-T2_g1:hand.urdf": "f5817a6d32914beb0a7cf7272202eaef0fb049cedc6f9fca85085e279779e136",
+  "robot:I2-M4-R3-T2_g1:hand.xml": "827fdf9f421441f85f233388ecf22ecc33dc2fba49ac60a9e4fc478c6083bec4",
+  "robot:I2-M4-R3-T2_g1:template.npz": "439e9562e908f7e8140c4285370874bd6609d2310229f7f6dadbe0152f6ed4cf",
+  "robot:I2-M4-R3-T2_g2:hand.json": "32a105f9f796ab2a67414725af1cca6e0f4879740cb48466515c33ea7e41b048",
+  "robot:I2-M4-R3-T2_g2:hand.urdf": "78d0f22aaaa67ad72b34f1834d3b8ee70b947574ec11cd7ce71942a9c53186fe",
+  "robot:I2-M4-R3-T2_g2:hand.xml": "7473eb37514015332813a0fc344e8df7b652c8896f9fabc12ec28d11eaaf195d",
+  "robot:I2-M4-R3-T2_g2:template.npz": "0d93851f210301edcc6eedcc6833d2e732f7d48f01113d4a52a768f86fef5b89",
+  "robot:I2-M4-R3-T2_g3:hand.json": "efaca1d8451338f2303e78e2412006d7c30ec3baf684496217560dd89d8593e2",
+  "robot:I2-M4-R3-T2_g3:hand.urdf": "fcdc19cf6153dacb07ead19080d2f9a5169d47efc609a884575bab5895ce63ab",
+  "robot:I2-M4-R3-T2_g3:hand.xml": "772f53e96fdc95bb2b0cab63f14c7d615f4347adb033d710c53e017a27d10d82",
+  "robot:I2-M4-R3-T2_g3:template.npz": "24ca30f1b73551274497603582c7d57dedc2872476d063337c898d72d0b27710",
+  "robot:I2-M4-R3-T2_g4:hand.json": "a1526a897e0749c681e9384d477248ddbeab24629f0b2fc6c99b08be05e95d64",
+  "robot:I2-M4-R3-T2_g4:hand.urdf": "8660c866418eb648590648100f83d65be327431d46e0a148d236652b87fe10c4",
+  "robot:I2-M4-R3-T2_g4:hand.xml": "a0913688aa3a247cb67cacf1679c9d3a3641293d39179fff8d6bc0a2505674be",
+  "robot:I2-M4-R3-T2_g4:template.npz": "95fc20ccb8aa3bf49b8bb2dfd24dae32d7b7feca7bcce61a6a4930811d4146c9",
+  "robot:I2-M4-R3-T2_g5:hand.json": "cfa2e1935fa4ac92f6da9020bd6d6b1a6e5ac7d0976e527e6c39cb4b0dcab73b",
+  "robot:I2-M4-R3-T2_g5:hand.urdf": "7245420dbd7b679db71e2e667fa13c206faef2805ca360b4b5b7d099a8bd0450",
+  "robot:I2-M4-R3-T2_g5:hand.xml": "2f917c79db757c66220671b78b5e6b93ab7e758e6909e4d76f0108b21484e475",
+  "robot:I2-M4-R3-T2_g5:template.npz": "2c2615b954505b074a0d9d9ebacacab18d276b5d3e40162722c52392feaed5c9",
+  "robot:I2-M4-R3-T2_g6:hand.json": "332bd22626834b85e4e47a7217f9a4c92f4c5558fcd3b303b1bc6b655c00f048",
+  "robot:I2-M4-R3-T2_g6:hand.urdf": "2adc1c2642d3f9a5d6daf5ac987413fc246b5a74a6fa45fc258da42d89b99886",
+  "robot:I2-M4-R3-T2_g6:hand.xml": "c32693f825f8a83624aa476cfd344ec0c86405561c043a4d1549e1119a0c9e46",
+  "robot:I2-M4-R3-T2_g6:template.npz": "7947ced5129e5a25e50794942d4a238cde1cfad2f9a54aa3b4b6cc2762e7dbe2",
+  "robot:I2-M4-R4-T2_g0:hand.json": "15c093bfff25a8c2f1b1a473d6d1e62716b378b1fb4ab0bd9100be6d2c9c876a",
+  "robot:I2-M4-R4-T2_g0:hand.urdf": "661e7b0e436a710d765d32410f085af38bdb07cdc0cbc52b37ed062cd1b9f8e5",
+  "robot:I2-M4-R4-T2_g0:hand.xml": "b43062aec15640419dee938d5c76ae01c23b8a64efd96ac293dd0c8952ddb3a9",
+  "robot:I2-M4-R4-T2_g0:template.npz": "47dfe89e2b0a9ab8eeb3d032bcffb47e9a33023fb48934dc5493f911a61dfe43",
+  "robot:I2-M4-R4-T2_g1:hand.json": "2a4a1d048b06cfa072c049f2bc7af324b7908adc4e7fb1a92e8e88ceb10c3ab5",
+  "robot:I2-M4-R4-T2_g1:hand.urdf": "426bb92919709065bd209c4ea59d144dd95919532793cc78c71ef5f090c5556c",
+  "robot:I2-M4-R4-T2_g1:hand.xml": "234dd4d3355b6c11d7e050b3e5a2b1bba93c683c99fcdf456490d3c41ffd9faf",
+  "robot:I2-M4-R4-T2_g1:template.npz": "af4ef6f2fb1c3cb151adba8c775b46af7e6091ea9a2d0952e191c199b38342d4",
+  "robot:I2-M4-R4-T2_g2:hand.json": "d09b3c1523402da79426160b05262a5ef1e738ecc8f26180a3a9160af7c222ca",
+  "robot:I2-M4-R4-T2_g2:hand.urdf": "186b40c58d8d37737de2c69023ebc3cd5ec9355bccc5b74f28bb3fa034171e4f",
+  "robot:I2-M4-R4-T2_g2:hand.xml": "0704d9186da982e84dea5473eb5757b778439c29db4c0fd37b35b970c7e3fdbb",
+  "robot:I2-M4-R4-T2_g2:template.npz": "91dba29716c14461df2c4102f73ea221ba6ac40681e0068b512779c432a81c41",
+  "robot:I2-M4-R4-T2_g3:hand.json": "232d140c1061d3488ccd3df190aa8933d688f8a0084f083ca10e569cb8f538a2",
+  "robot:I2-M4-R4-T2_g3:hand.urdf": "61152ab46bd89b1462cbd25661c313aa849f818b1f89b9bafeb9a7537690902c",
+  "robot:I2-M4-R4-T2_g3:hand.xml": "05a46fa13d448d5d044bee1cc8633003b35c6b9391fb14c0b42f19425207df42",
+  "robot:I2-M4-R4-T2_g3:template.npz": "863b4fddf8c0e3cf57047ba58bb755ac7326e10315438e81f0f8fcf4310d1d8b",
+  "robot:I2-M4-R4-T2_g4:hand.json": "05996ae6cc3635b14ea11f5dc242b4c8c2fcfc464888baa9f8fef8d6bc729d4c",
+  "robot:I2-M4-R4-T2_g4:hand.urdf": "6572e65c93d17ced4e4db79611db1cdd365d5400c72a278fd8ca1ddae019dcee",
+  "robot:I2-M4-R4-T2_g4:hand.xml": "a93238b901500b8a9527d73e1ea53487320ed42c5d4d41995bee0f054ef87627",
+  "robot:I2-M4-R4-T2_g4:template.npz": "27a02e926a13cd711bfe13ef8a174c12ba8e6013ecf8f7bc904bb10cdad1a808",
+  "robot:I2-M4-R4-T2_g5:hand.json": "2ea45553dc63d32a464b2b44e1359c221e84696f5f715f8258921c6ea7f01ae8",
+  "robot:I2-M4-R4-T2_g5:hand.urdf": "85fe91c997eb03e8f2dbdeff9ef7cb6fed16e64e5e8d88b1ff4bd7d4bd0f27a5",
+  "robot:I2-M4-R4-T2_g5:hand.xml": "6a800190c8e00607be056e83fa2c80492bd4b77cf2d2ba9a1196c14174b46ba3",
+  "robot:I2-M4-R4-T2_g5:template.npz": "4261e65bb7547210bfdac12e240853d22f67d0746236a152f74daa65403414f1",
+  "robot:I2-M4-R4-T2_g6:hand.json": "fa2fd9782a16a41d77cdd1612c4aeff73e071ee3c3e171d6c28c1486578a2582",
+  "robot:I2-M4-R4-T2_g6:hand.urdf": "05531b15622f69ac5f27d26de8bb0df180f36f9d4198237035e54eb785b1eb82",
+  "robot:I2-M4-R4-T2_g6:hand.xml": "5437b04cd594762c124ecce64724d22b513c6b1e930f451ebdb2493d29e25adc",
+  "robot:I2-M4-R4-T2_g6:template.npz": "db78fb82d61b289de33a1381c06d92d6ea7c195eab8cea1ae696499c29104046",
+  "robot:I4-M0-R0-T2_g1:hand.json": "f38f2a36326fab4af9a2dd1a408331e6a610f56be9cb935f176bf3cebd676c83",
+  "robot:I4-M0-R0-T2_g1:hand.urdf": "3294919d0629835bf4acd2e891f5c5c630cf5cb4dd51c5a4bf9bc0f87ec83578",
+  "robot:I4-M0-R0-T2_g1:hand.xml": "606dff29682039c74351a8c3afbf25b7377ca0d9032f4003678692b756158ec8",
+  "robot:I4-M0-R0-T2_g1:template.npz": "c36a31991ec44385c4244dbc48ced7f7361db62c531fbd84f580ca5e192e3266",
+  "robot:I4-M2-R4-T2_g0:hand.json": "08b78eaac3e08b385904147c924ca53a7d5b55e1d1fb72d24bf5f0febe1608f5",
+  "robot:I4-M2-R4-T2_g0:hand.urdf": "771e8fa48a5907711ed8e2e21355c85e7c429591abb1a22828ddf857a3979ee7",
+  "robot:I4-M2-R4-T2_g0:hand.xml": "a706d68583b05085bb06ad2cb902627041f0c50b16694a9a0e58c4ead69e07c5",
+  "robot:I4-M2-R4-T2_g0:template.npz": "6ce5c7571dad8543be0ae28eb27336fc5981c037c44b63ce8bde4893f4960b52",
+  "robot:I4-M2-R4-T2_g1:hand.json": "7683c4476fd84195dbf573397a39ac7496968957bb33b07a7baa28a3eaebb87e",
+  "robot:I4-M2-R4-T2_g1:hand.urdf": "91b985b6361fd5d1dd93948281b9d8530de1a7789d82915aa42111c40cc393b4",
+  "robot:I4-M2-R4-T2_g1:hand.xml": "3268a365eb4ec60e444fd1d9d3b79c0ca87525d0d78af06ad11248c661f5ff91",
+  "robot:I4-M2-R4-T2_g1:template.npz": "cbd969fd53b2cf2358ed76fb41480441a334d8553f827f85f86efee9605b1098",
+  "robot:I4-M2-R4-T2_g2:hand.json": "6ceef953ba772354a6710937ad053ff6653bff47e03db2d8dd1aac102989dd5d",
+  "robot:I4-M2-R4-T2_g2:hand.urdf": "2963d642bc19e8c498750c91fa4af9d10f759d1accfb87cee8cc683d0b776b7e",
+  "robot:I4-M2-R4-T2_g2:hand.xml": "ee4cfb49805cc1878eb9044e5b84bcde59e8844945322fedf88e8726d01452ba",
+  "robot:I4-M2-R4-T2_g2:template.npz": "250cd0cdd10ec4b81a22761a2a48a9e05dffdbc78d92245d1f6f5a51045d259e",
+  "robot:I4-M2-R4-T2_g3:hand.json": "254fcd4dc7e296a51459c0586416a0d64b680bfbacaa9887905eb71305b491f3",
+  "robot:I4-M2-R4-T2_g3:hand.urdf": "4d5d4199c8005522b63245a79d3b00d64f8489f36b8205f0ff3d3e69de487f14",
+  "robot:I4-M2-R4-T2_g3:hand.xml": "6b0872305e278f0dc7209ea59220ac4d0b1d94ad6af54f9be14c3cc1ec159851",
+  "robot:I4-M2-R4-T2_g3:template.npz": "dfbff9727250cac7e35086a19642e3d536726784ef4cd4f7eefe74e3474db82f",
+  "robot:I4-M2-R4-T2_g4:hand.json": "95f3d80289af0f004ea8f83b28650cbeadb9c0484b47c5e334d1544dc3ec928a",
+  "robot:I4-M2-R4-T2_g4:hand.urdf": "59d00efbb49a568ed9227a7a398547d2de27db5663cf82abccab7eb63d061f4c",
+  "robot:I4-M2-R4-T2_g4:hand.xml": "543ba5a29914bee8b5e4a1da047abdabd0687ab8d3de1603f929b60d8b63290b",
+  "robot:I4-M2-R4-T2_g4:template.npz": "86cdd4a7faf5d281cdef3c99d7d100131bfb4c126f583275746d9848063927c8",
+  "robot:I4-M2-R4-T2_g5:hand.json": "ea195610da84994b17f6cebf7a82dee9cdb9e57f0c544446515442e267f291a5",
+  "robot:I4-M2-R4-T2_g5:hand.urdf": "a6c96e53b1c92f25ef9885b6f74006795a1fbbf492510f52eaf11b077ba6ae1a",
+  "robot:I4-M2-R4-T2_g5:hand.xml": "00859b6afdaa7ef4fbb315fb49a01aaf3c9d0991e58ad3fdcdf968f32bc3929d",
+  "robot:I4-M2-R4-T2_g5:template.npz": "2b1f95a1dc25677b3fc88348dbc27497f3b351c8babe199ea427b48af90e47f3",
+  "robot:I4-M2-R4-T2_g6:hand.json": "5e20caf0cd83ede46a0cfa0f1598d649fdc7fd3719b8156d89dec7ea319ceaed",
+  "robot:I4-M2-R4-T2_g6:hand.urdf": "ba00bc8cee37a76c29d4c0a89d677bba1938a4ad7c0590d307f6eaecd0e87bf2",
+  "robot:I4-M2-R4-T2_g6:hand.xml": "c336afa6bf00e2b6c1b3ca1abfba742941bf82e24dad89daf395c265a03fc49a",
+  "robot:I4-M2-R4-T2_g6:template.npz": "63ba609c7b55b7a428b9d069b611f48275d53d5be04edcdadc2b4e5079e1340b",
+  "robot:I4-M2-R4-T4_g0:hand.json": "415ec29994c0712d2707d6033a131755b1d8d82ea0fa54aced4ebc65cc83a662",
+  "robot:I4-M2-R4-T4_g0:hand.urdf": "999971b86587e79e087e32a0543abfd82c893b1fc426600790205958224f2884",
+  "robot:I4-M2-R4-T4_g0:hand.xml": "f9ad91ac3fba30afdcf58e289471c9e0c20baaed3577ae9bfdc22c837a689855",
+  "robot:I4-M2-R4-T4_g0:template.npz": "ff4a8e8f1d670061fbe4cfdf77e6e43ad19a89de93eac69efec9b8c7078afac9",
+  "robot:I4-M2-R4-T4_g1:hand.json": "3820550312833b3cff7cbda9990404fdde08f9262c48eb34f55fd97dd2c95236",
+  "robot:I4-M2-R4-T4_g1:hand.urdf": "fedbb33ba7d7fee3eb1e5af46bc4f67855c3264655b0cb26813f223f1380316d",
+  "robot:I4-M2-R4-T4_g1:hand.xml": "37801e0efff2bf8e4b5ffc490556051c51d6134e09d7d13d43932dccbe9c4225",
+  "robot:I4-M2-R4-T4_g1:template.npz": "7bb5c13fab710e1f2d217a3558ad1a8927acf58d6296a74489106162b4bca091",
+  "robot:I4-M2-R4-T4_g2:hand.json": "93a5cae027e8c53c1205aef2e8605555c4dd0ff2f5d6f8864dd3b81e1cc2edbc",
+  "robot:I4-M2-R4-T4_g2:hand.urdf": "f64cd2d280d2f7245301cdb4119291406a5f2a9fb7fee6deb99d5bf45d8e7d9c",
+  "robot:I4-M2-R4-T4_g2:hand.xml": "f4004c24830c392c9526932c990abb59e117a7747bd3a67bdd62881bdc3f70f3",
+  "robot:I4-M2-R4-T4_g2:template.npz": "b5edf6092623b50f8dcecc9d6caad82ddc0098fe8e80893a1145839e406b273d",
+  "robot:I4-M2-R4-T4_g3:hand.json": "3a4d3d0e07955336989a06d0833c9e99bc767a7a7b567d832fec80dbd3d01955",
+  "robot:I4-M2-R4-T4_g3:hand.urdf": "c7ed22afce230072faf2e0af16a02217185c089420d144f93feb7611aded1e12",
+  "robot:I4-M2-R4-T4_g3:hand.xml": "dbc704a90ee0804debdd1f8b3b70c2fadfa84dba055199f0f345d3dd36187e11",
+  "robot:I4-M2-R4-T4_g3:template.npz": "826c69dedcf97ab3835f2f7a910d22961031febf069ab34523021cd8c87b66be",
+  "robot:I4-M2-R4-T4_g4:hand.json": "c30896e535ac6167434ded5d7612fc00666aef7a8be78343e6c3af0df6bd8c13",
+  "robot:I4-M2-R4-T4_g4:hand.urdf": "bc4474d2f4ebba33b8149d9aea6ba70166eee01e56a2646755c016c35f811f0d",
+  "robot:I4-M2-R4-T4_g4:hand.xml": "4c0967fff65ef977a1eaa999e5de30bc78746406bd92c2f8eb6df2e11bd33913",
+  "robot:I4-M2-R4-T4_g4:template.npz": "d755d58300ec37fff89dbe8ce4efb3cc0ec28385105d4c8d6c8e181d062ff23c",
+  "robot:I4-M2-R4-T4_g5:hand.json": "dc04394c52c8037c47b9a57fdc113afb30a538ca24a32aadf029ce47fc8be9cc",
+  "robot:I4-M2-R4-T4_g5:hand.urdf": "6be245cebb592e083f252166e9cb407f66b23499b14fe3fda6ea4315b624064e",
+  "robot:I4-M2-R4-T4_g5:hand.xml": "1eb1932abb47d81e1215092d0750ecca0d23405c554ed57e93338a74ac3ad1e1",
+  "robot:I4-M2-R4-T4_g5:template.npz": "00f6c668fac25c94f315f82a4e6a2d6e64f1573e41b5f6a2edbe341d8a1a5cdc",
+  "robot:I4-M2-R4-T4_g6:hand.json": "60b70d7022919853b0b64b633459970123451d527af919153103dd37cd0b2104",
+  "robot:I4-M2-R4-T4_g6:hand.urdf": "9b97e48505407456d52c30023712c65eb93e43d652cd025a00064d10ea9db5f2",
+  "robot:I4-M2-R4-T4_g6:hand.xml": "8f2807c51b6d13853cdc944797a0e51b0eb6c5184cf05bb39f128849529e973f",
+  "robot:I4-M2-R4-T4_g6:template.npz": "49b2dd0decba5b6bdc5f0085fe702990d4c30814900de4c40b7704be4ae30239",
+  "robot:I4-M3-R0-T0_g0:hand.json": "1c5dadd6d46e3e29b3d9a688d37fd1832a27f47ea66d52771aa9df7a54615ac2",
+  "robot:I4-M3-R0-T0_g0:hand.urdf": "2c6098c30793d8ba016547f1954a1abfe997a4bb88bc1fc4aa1c784a97134839",
+  "robot:I4-M3-R0-T0_g0:hand.xml": "82476d9dd36ce43435e9f31abde024dd6f2476dd5cd4fb7d762082279e902075",
+  "robot:I4-M3-R0-T0_g0:template.npz": "fddf96bd1c5ca7eca4de7c58a51652016d033e428df61f2a937c27be95e5607c",
+  "robot:I4-M3-R0-T3_g6:hand.json": "1a22182c0f8b675ab5d2ac73d0a38ad5f5be581c7d88a067e4aa5a5880e037d3",
+  "robot:I4-M3-R0-T3_g6:hand.urdf": "5cc98cc62b1c48e4f25ee43a39abfac6730706f4daf71029c5330bf365ba7016",
+  "robot:I4-M3-R0-T3_g6:hand.xml": "5eaba85c3e29710732cd804d07e895dfa752ea3d2237bd6cedd3b0c11b55df76",
+  "robot:I4-M3-R0-T3_g6:template.npz": "5bdc985c9856f0834f3773c55d98949aafe5d9a6551bb2743250f1862d1f64c6",
+  "robot:I4-M3-R4-T4_g0:hand.json": "b5f5c5dc48f196ad618407137e2163b1b5fabfedc80159c355510c337ad29d54",
+  "robot:I4-M3-R4-T4_g0:hand.urdf": "4efaa5fb598f903451f51da589c1548d6137375c47db594c56cfedb46ca76236",
+  "robot:I4-M3-R4-T4_g0:hand.xml": "21394a8fb14a2dda2a89db55740b1dbe6202477e864a58e38db56e759af8d23d",
+  "robot:I4-M3-R4-T4_g0:template.npz": "8036cc4eaf46bb1b14851ad7b925b94515278733b4faf6f4b9760bde3c4dae18",
+  "robot:I4-M3-R4-T4_g1:hand.json": "5b2e2d822c6138a0c9935df45bb196dfc78be42609804613995a86de5a8f57b9",
+  "robot:I4-M3-R4-T4_g1:hand.urdf": "e7c30fcee52eb176c73bc585857e0da1a4e76f727dd741f1f18fbb3da1e53881",
+  "robot:I4-M3-R4-T4_g1:hand.xml": "9368e4dd2fd30017fdc0d79a4f88a90a3089c62d4b7f694ee5432c6e5faae045",
+  "robot:I4-M3-R4-T4_g1:template.npz": "26957757c138a2dc9b4f24b0ccd6b832222eb0faeea00b34b049c241388a01d5",
+  "robot:I4-M3-R4-T4_g2:hand.json": "b8461e635a99016fab0f93fb16e81c9efe865c93480389452b48d9fb58273b5d",
+  "robot:I4-M3-R4-T4_g2:hand.urdf": "f150a83609cab4d2eed142fbf3c4584fbfad4bdafb5c796da24584f02690ef7c",
+  "robot:I4-M3-R4-T4_g2:hand.xml": "dbfe96d4fd8f38609552d271532a5edaedb528fd5512ef5cc27d0cb4c0a60b2a",
+  "robot:I4-M3-R4-T4_g2:template.npz": "24ecfbba6fcd2ef695c298bf630a83851e0db1eca78647881295aa644763b6cc",
+  "robot:I4-M3-R4-T4_g3:hand.json": "d8b4960e304963498bd368be18930dc407692429c125c2c9d315a0780f192d13",
+  "robot:I4-M3-R4-T4_g3:hand.urdf": "d28e56d53348686891151a7f54e8bec9d6ef307fc5a7a9fa19d81d3bdf52ae26",
+  "robot:I4-M3-R4-T4_g3:hand.xml": "a1c5e981312c5fbca73c1fc582e6af395bbfb1cce03b0ab7b246bbdc26838737",
+  "robot:I4-M3-R4-T4_g3:template.npz": "a0fd662e43bb4d29feb8537c0664ad02ae680793a4f6510ef937bd9789ee3256",
+  "robot:I4-M3-R4-T4_g4:hand.json": "c2d5199e115db4281607e4de09a9f787d813392a40db932ee0001a99a66a2daf",
+  "robot:I4-M3-R4-T4_g4:hand.urdf": "5a4d887bae8c35a927555d0e7515119a40856d65cd8879f4e950191c8d5d14ab",
+  "robot:I4-M3-R4-T4_g4:hand.xml": "cb9bbfd4a3afe8c932863708832c7e04c736554831540ec4ec07217229f65bfd",
+  "robot:I4-M3-R4-T4_g4:template.npz": "c49806aba6b449ec90c6a6d76276218473f5e2401ea649714950ea57a057a874",
+  "robot:I4-M3-R4-T4_g5:hand.json": "7264e4a9e2d63ade758be9310f13d2fdb3f36bff553836225a81dff40f54fd1f",
+  "robot:I4-M3-R4-T4_g5:hand.urdf": "0c946b301b7c217952acdd26615ee1616b798a7687aa75c47192b83fa8592acd",
+  "robot:I4-M3-R4-T4_g5:hand.xml": "7a02bc244fe38aa3befb88c393ac51b37c2a584f5cd171de55ed668ca5aaef68",
+  "robot:I4-M3-R4-T4_g5:template.npz": "0ff65b37b2dd07544c8a42f3bb13825c92b5a65d74e76de879a9ceca3b39f629",
+  "robot:I4-M3-R4-T4_g6:hand.json": "747389a5cda01d9e7714d527c360d54d47651d8aca92fed694898b2990e8f4cc",
+  "robot:I4-M3-R4-T4_g6:hand.urdf": "e6ddf05559d612e423799206df9604b6d4e3b61d3f4e0ba245556279efd0b26f",
+  "robot:I4-M3-R4-T4_g6:hand.xml": "1d40026c7b2a4a614cc37240796d0bc3829d25c6dfbeaff12f4c1277cd7886f5",
+  "robot:I4-M3-R4-T4_g6:template.npz": "c1b1935bd33aadc28723946350c8a1bb404f5c2bb4a2f474ec8186671a340d27",
+  "robot:I4-M4-R0-T3_g0:hand.json": "f0425cf269f44848290d52e7ca453c3a0599c48e1d7485e20f9d4dbd680b0c21",
+  "robot:I4-M4-R0-T3_g0:hand.urdf": "9b53fefa289c1259833d4c56d0139e49595f04df1a6ca2d3e816983829e68f4b",
+  "robot:I4-M4-R0-T3_g0:hand.xml": "85b2eb932f33bbcf1f14412fa5cc4165fcde2a9153c2415fd35f554c6580a034",
+  "robot:I4-M4-R0-T3_g0:template.npz": "7b56a123d89e96d797e3f875590c83f20abe2f84ddc489c464b9b7bc1565c471",
+  "robot:I4-M4-R3-T4_g0:hand.json": "431db6e7c9163fe970be963173b5d4065dbfaef33064dd2bd28068dff38625b3",
+  "robot:I4-M4-R3-T4_g0:hand.urdf": "ebb7acf01f2e6e7c7dcdd58cd92eb760530c1f7605e61be3350f7491a08cbe25",
+  "robot:I4-M4-R3-T4_g0:hand.xml": "0437b5c8adc325f74083c02f670d6a020cc1e64feffea72cba96a9b11782fb2c",
+  "robot:I4-M4-R3-T4_g0:template.npz": "6c0a9121a358bbb40439d027b4bbc94bc7097231c5cac22a51480930ab779185",
+  "robot:I4-M4-R3-T4_g1:hand.json": "d16ee2e3f5d3c7cb10af65aef974c9c590250f423d64105856b288183197453d",
+  "robot:I4-M4-R3-T4_g1:hand.urdf": "8c42a3f99b927632195cf0a8c74e0907fe40f7748cf24a91fffb3f97d6d2bc79",
+  "robot:I4-M4-R3-T4_g1:hand.xml": "9c76fc7f43ad520b84ca984a9c2701222251d41ccbb5924fc190cce2436ed7a7",
+  "robot:I4-M4-R3-T4_g1:template.npz": "6e3cf4c711aa9cd6fd712ca4092c4b7f3333862650710de3aad73f8a52b4ae9c",
+  "robot:I4-M4-R3-T4_g2:hand.json": "1b41b7799a8bc7a9f0053afaf697a538867da3f96bb46a3147b86a500e91ea94",
+  "robot:I4-M4-R3-T4_g2:hand.urdf": "4429cbff1ff6ec6d84fc969f3f9296eef38dad3e1a9a0a40b467283f0afe8ad2",
+  "robot:I4-M4-R3-T4_g2:hand.xml": "38aff5612e9821cd50e6656c2db8ac895defa86894284fadf4be69570ccdd2a7",
+  "robot:I4-M4-R3-T4_g2:template.npz": "844e165f57df4491871217e68ab2351f9676b8ded421a3c8e3e6b919d2243ce9",
+  "robot:I4-M4-R3-T4_g3:hand.json": "05089624d7c8d1e80cea304fa98613c8292b761603ac6dd1f1045c934bf19be7",
+  "robot:I4-M4-R3-T4_g3:hand.urdf": "e52a8dd62ee85e810c063e6748c8d15aacc8037af47ae3a0b9cb98a60adf4239",
+  "robot:I4-M4-R3-T4_g3:hand.xml": "d137f01d7cb48f0f008506de6ad1dbdd8b964142f4e0f37f98834b2fda958723",
+  "robot:I4-M4-R3-T4_g3:template.npz": "e2c5cfaa244242ae3c7fefb8e22e4602013ebb6bab2a28358de4ad138081080c",
+  "robot:I4-M4-R3-T4_g4:hand.json": "fa4ada30538f9e15949da5421bc09ac4119dd87b96d2292c5397cb49fa42d18e",
+  "robot:I4-M4-R3-T4_g4:hand.urdf": "1e73a59137a4efdeb123277a59bcb695290b462f9f113697e9ef696a9abf1529",
+  "robot:I4-M4-R3-T4_g4:hand.xml": "47a1d6a04b739545a09159e5ab7dc5c0f5c09bf3e07ffd44b15fd08c2cdf1677",
+  "robot:I4-M4-R3-T4_g4:template.npz": "3bfa4b5f4c8ef2b5cbf8de40cd47b60946a500eeb9a2c2d314a9bce90bb6775d",
+  "robot:I4-M4-R3-T4_g5:hand.json": "a223525e557cee554b1e63e04ab75b6329b4a461e4b2b00102038cfc08be7491",
+  "robot:I4-M4-R3-T4_g5:hand.urdf": "21d7df14214ad546a89407f739521aec817858f84c5f2c8bcecfd331261cf8dd",
+  "robot:I4-M4-R3-T4_g5:hand.xml": "30a95f9191cb1c094943d364e6805afe017266483c2e7465fee56149ed6168f4",
+  "robot:I4-M4-R3-T4_g5:template.npz": "2679421c9b149133a7c668362f0dae466bb40341bcad8bf0827d79ec496aa590",
+  "robot:I4-M4-R3-T4_g6:hand.json": "9db091bca3d6db0e825f946ba3a68d1e8d755e7f3c7c57f56eb8a86ffbd0da09",
+  "robot:I4-M4-R3-T4_g6:hand.urdf": "08cdbc825142881df76ba6034a649cfa131a372f262779c3fd25b7af2f6eec33",
+  "robot:I4-M4-R3-T4_g6:hand.xml": "8664c9fd4c1debd1639c7c5f087ea7cc92bdb0ceb3291856ce7779e573d85117",
+  "robot:I4-M4-R3-T4_g6:template.npz": "0ca76435cb739543e21708b7c16bc6f275ea2797991acbf495685f820e39a4a0",
+  "robot:allegro_right:coords_npz": "64ef865e2615516cce8debaebdcc8f490066ed5a0f105d18dea0c5935a68f997",
+  "robot:allegro_right:template": "d86b08ea7a848b828e73aee8410cc9f39a43428532fbc9f33b48fbedbe026cfe",
+  "robot:allegro_right:urdf": "642c0d5c19e4d25e9bdd77b2be9fc457ac0e5b95bf3e894287c2103f686dad89",
+  "robot:barrett:coords_npz": "a530cd2f755d2aff278b6d7703f6bb86da9ebb25590d02fe21ebb081a06e47c4",
+  "robot:barrett:template": "22fbef3da42b71ef78e8aef8dc0e4e50cd05975cefc5bfa2d3db8e4197fe1888",
+  "robot:barrett:urdf": "b397756f15ac6d82d2f496e0744675186c0cfa6985901d9321053e438e8e8d0b",
+  "robot:wujihand_right:coords_npz": "d9bdbab94f3fcdf44b7d3e9daaab24e7d88272759d2478fafc07a5c81905a82a",
+  "robot:wujihand_right:template": "51ac6c21c1d9cf59edddd18d72fef44ebd8277a6caed3da6e897ff707d025fef",
+  "robot:wujihand_right:urdf": "6b875977a0b000c4c4c0696fc3198e861a97cdc66965d996584999a3f03c7c68",
+  "system:cf2_s0:ckpt": "303e16a3d4989507925e91bfb91569108df990705a3a2582486bce40b5b02528",
+  "system:cf2_s1:ckpt": "5bd1f5d173720d7da8db6f3671fb4f4ac91626811ecf4cb7e83558910ea4e52c",
+  "system:cf2_s2:ckpt": "38dd80ae7e2704cc081af94e99eecddeb93132807a6bd0ddbed09d520b829bba",
+  "system:cf3d_s0:ckpt": "1482eee84bc54239612aff3046b133877549def6c17e70ef0789ebd17ce02c8e",
+  "system:cf3d_s1:ckpt": "040e1103c572469f0c0febba90b637be62fa6eeef16713ee9fc42424828bc48c",
+  "system:cf3d_s2:ckpt": "1afa24086d5180b50b23a3c78e55c3b5d86b99eea5cc9827abf4015040b756cf",
+  "system:cf3e_s0:ckpt": "282f36ffc6945b692af0b9116c7d6534e03b04e4402cf67acc9adb4b5890060b",
+  "system:cf3e_s1:ckpt": "d8cefa260129e9e5e11e65c36aa512562b64f3bd761966813f6ce68ee695c257",
+  "system:cf3e_s2:ckpt": "18779b4816a51e7ec295cb77db7a7a120d0b86742b44c80779c96d0af898bd84",
+  "system:d1_s0:ckpt": "4c69a7d793c61ca6923c3ae08686685c3376882ee1497220ee30035cc3377431",
+  "system:d1_s1:ckpt": "1e6213139e4df24dee86c9102b045de48836fd3a600adbe67c0d272a2d1e52ea",
+  "system:d1_s2:ckpt": "128721ffa7c1d7d5011d90452abc233f6be436b40035316aa9d9e3b3d741d1e7",
+  "system:d1bv_s0:ckpt": "b81a21a692a7342ffad03ffc41a278af70db1ed49f46b64ee7e8dec1b836546a",
+  "system:d1bv_s1:ckpt": "6761a20acfc5041d4111aa1c119bb338592270d811e8b457e5a3fa944e22c9d1",
+  "system:d1bv_s2:ckpt": "62b162cab6d97d7f5c66682726b16cafe5fce8c171e31a6a13bc9369320d0a23",
+  "system:d1long_s0:ckpt": "64770a1044301db0f09e6464424c6a7a6ca0f6b48bce056eeddf1bc4257f3ca6",
+  "system:d1long_s1:ckpt": "7a998833075c13037d4fbe8d2ecea660b11aa819278cad499b6ce626efa7d4e4",
+  "system:d1long_s2:ckpt": "df080c0b3d6c186f03bbb9828c5c3373dc32c587cf4201e8cf8192330664ebe7",
+  "train:multifamily_10x/allegro_right_train_extra_s303.npz": "71a4e636c8e05eb095a14615d0ad91b4f151bc83c91f419b74333d3cfdc4a2c1",
+  "train:multifamily_10x/barrett_train_extra_s303.npz": "180a721e61a7cff5d74db2d046552b0092e183aff705ec06a9f5b0098c637749",
+  "train:multifamily_pilot/allegro_right_train.npz": "64ef865e2615516cce8debaebdcc8f490066ed5a0f105d18dea0c5935a68f997",
+  "train:multifamily_pilot/barrett_train.npz": "a530cd2f755d2aff278b6d7703f6bb86da9ebb25590d02fe21ebb081a06e47c4",
+  "train:train/I0-M2-R2-T0_g0.npz": "d93970d8db3d8b4d1e8c3f601ef54dec7bd514d25aca079e7a1f8b7eed952946",
+  "train:train/I0-M2-R3-T0_g2.npz": "cc73735ed99b02c75272f2fa411fd71c760b2512d43687834b44737da5ab1eea",
+  "train:train/I0-M2-R4-T3_g6.npz": "a1e2c02dfb0dd0398d6fcd93b1a87d37b3e49bab5d4f75bf2164e7b6d9199dd7",
+  "train:train/I0-M3-R4-T2_g3.npz": "db739054b0862bf5a45eaa7d661ac34a27782a2bbe0da4842eb630610699814c",
+  "train:train/I0-M4-R3-T4_g0.npz": "6f448f856ff84465e78ef02fe21ed8bb4c72f7847312a0901d227c3b6f03fe08",
+  "train:train/I2-M0-R0-T3_g5.npz": "c321057326adc58a9ab76391294091fa24dcdb85c0c580ea9717347fdfccc583",
+  "train:train/I2-M3-R2-T0_g5.npz": "a9977ccd8e07c922991c0c1943c231561e74fb8df0f69a2d6f3e9a45e9d59c35",
+  "train:train/I2-M4-R2-T4_g5.npz": "1a0417f9a1fae8f87168833bf6e649138ee8d69ca5e2d991be1576aede9ebc78",
+  "train:train/I4-M0-R0-T2_g1.npz": "cbf66c76aa13bcb502094ae81fe3c3d49e0f76d0986501fec4b82965da0be3fb",
+  "train:train/I4-M3-R0-T0_g0.npz": "0e9b23e146ff0ae23575b1b092958e635977259cdbbf91375a9c2e24037f1091",
+  "train:train/I4-M3-R0-T3_g6.npz": "11e595d0224a699cea213cb133b19ba77f5128ab95f3113dcdfe27d070e00ea9",
+  "train:train/I4-M4-R0-T3_g0.npz": "acdf84c3e6dd1c33c96d97ba6915ebc326dacf9a582ec7e4317cf7efacbd7e9a",
+  "crossbody_example_bank:allegro": "64ef865e2615516cce8debaebdcc8f490066ed5a0f105d18dea0c5935a68f997",
+  "crossbody_example_bank:barrett": "a530cd2f755d2aff278b6d7703f6bb86da9ebb25590d02fe21ebb081a06e47c4",
+  "crossbody_example_bank:wuji": "d9bdbab94f3fcdf44b7d3e9daaab24e7d88272759d2478fafc07a5c81905a82a",
+  "crossbody_example_bank:I0-M2-R2-T3_g0": "a3caf9844d30323f635ddecec6ac946c516cd5a53b6709e8fde464ad3b3ee3be",
+  "crossbody_example_bank:I0-M4-R3-T2_g0": "650d5418032634bc67550263fe77bc78c50caa766ecc244dca74ec8ad2d0e747",
+  "crossbody_example_bank:I2-M3-R2-T2_g0": "bb2b60db343f9974af8530a0e8c98fea20faa615dfbbaf4dea810c897a251fc7",
+  "crossbody_example_bank:I2-M3-R3-T2_g4": "4aeb3ec203b79875850a4333c986d61a8eeff3e0f721e81d2162042d6b61c0a0"
+ },
+ "surface_sampling": "hand_frame",
+ "surf_idx_sha16": "7b0dd5d5cf93a3cc",
+ "surf_idx_sha16_without_wuji": "de586da4001001af",
+ "tpl_sha16_per_robot": {
+  "allegro_right": "1a84e685bb9b9c33",
+  "barrett": "fe09d688519df38f",
+  "I0-M2-R2-T0_g0": "7b04ce0e190540b7",
+  "I0-M2-R3-T0_g2": "02631a40a88b919a",
+  "I0-M2-R4-T3_g6": "907019273727cf06",
+  "I0-M3-R4-T2_g3": "460949385b5f7fa5",
+  "I0-M4-R3-T4_g0": "969dc2af9f944aad",
+  "I2-M0-R0-T3_g5": "7d9c1d5828e9497a",
+  "I2-M3-R2-T0_g5": "1f397db28c0a51b7",
+  "I2-M4-R2-T4_g5": "03cf4db3857d785e",
+  "I4-M0-R0-T2_g1": "a3094f1d1203d2e0",
+  "I4-M3-R0-T0_g0": "995bd1a9319a6309",
+  "I4-M3-R0-T3_g6": "0c1055854c030d56",
+  "I4-M4-R0-T3_g0": "ec930ac1e0a11e3f",
+  "I0-M2-R2-T3_g0": "f37c66ea4a83d7bc",
+  "I0-M4-R3-T2_g0": "8aed068c91d382d5",
+  "I2-M3-R2-T2_g0": "94742be159a9a822",
+  "I2-M3-R3-T2_g4": "cc6ab951f9e87499",
+  "I0-M2-R0-T4_g0": "cb9fcf00c0917609",
+  "I0-M2-R0-T4_g1": "a2420312939836ab",
+  "I0-M2-R0-T4_g2": "9affa8f86c5db326",
+  "I0-M2-R0-T4_g3": "dd9828013df9d14a",
+  "I0-M2-R0-T4_g4": "d4caaca445451a95",
+  "I0-M2-R0-T4_g5": "a638e79f74ca322f",
+  "I0-M2-R0-T4_g6": "099028198fd4cad0",
+  "I0-M2-R2-T3_g1": "42a73b5c278d564d",
+  "I0-M2-R2-T3_g2": "1e82a11431cd5dfd",
+  "I0-M2-R2-T3_g3": "0b3d2144e5a45b7a",
+  "I0-M2-R2-T3_g4": "ef6d3a98f0debce6",
+  "I0-M2-R2-T3_g5": "1dfb1079dec1fded",
+  "I0-M2-R2-T3_g6": "afa7a4cde547d907",
+  "I0-M2-R3-T4_g0": "7f5c809d8ce521f2",
+  "I0-M2-R3-T4_g1": "35c21a6419df7a1d",
+  "I0-M2-R3-T4_g2": "218f1469cc4a1e4a",
+  "I0-M2-R3-T4_g3": "ae5056d131a8e5a1",
+  "I0-M2-R3-T4_g4": "655f1f663d2dc5dc",
+  "I0-M2-R3-T4_g5": "c2933d7d7a4a66f3",
+  "I0-M2-R3-T4_g6": "d785736f96dc5a6d",
+  "I0-M3-R3-T4_g0": "1391372fa7713cf7",
+  "I0-M3-R3-T4_g1": "c001046895ed1a90",
+  "I0-M3-R3-T4_g2": "9eef045d75732304",
+  "I0-M3-R3-T4_g3": "a4ec3ed2366439d5",
+  "I0-M3-R3-T4_g4": "9ac3624229ce749a",
+  "I0-M3-R3-T4_g5": "187aaebc8345bca3",
+  "I0-M3-R3-T4_g6": "7c500e49d2497366",
+  "I0-M4-R3-T2_g1": "60ee4e8d6bd3fdf2",
+  "I0-M4-R3-T2_g2": "b32e5086384ea88a",
+  "I0-M4-R3-T2_g3": "85e772796e614948",
+  "I0-M4-R3-T2_g4": "f0559acdcf9bbe79",
+  "I0-M4-R3-T2_g5": "411ffd6c4589581c",
+  "I0-M4-R3-T2_g6": "c996ca7e6bd0f2e0",
+  "I0-M4-R4-T4_g0": "586c40ed48cde66b",
+  "I0-M4-R4-T4_g1": "f2fdf665b9c76dc9",
+  "I0-M4-R4-T4_g2": "9ec81248d1f91733",
+  "I0-M4-R4-T4_g3": "6e019d5feb46c07e",
+  "I0-M4-R4-T4_g4": "3172afbbf49632d5",
+  "I0-M4-R4-T4_g5": "a7955f4cb8d37d06",
+  "I0-M4-R4-T4_g6": "bd91a9327c5ed796",
+  "I2-M3-R2-T2_g1": "7d2a517d64477a76",
+  "I2-M3-R2-T2_g2": "0c3bd836e1d5ae6f",
+  "I2-M3-R2-T2_g3": "e4cd0ded7b0a4604",
+  "I2-M3-R2-T2_g4": "39ee9e27e70a881a",
+  "I2-M3-R2-T2_g5": "98b1b5c663479526",
+  "I2-M3-R2-T2_g6": "bf91f15051905c51",
+  "I2-M3-R3-T2_g0": "5724c34eb5f972ef",
+  "I2-M3-R3-T2_g1": "68911c0e877ea119",
+  "I2-M3-R3-T2_g2": "b51c8e876a2fa019",
+  "I2-M3-R3-T2_g3": "b76bfe7e50756e6f",
+  "I2-M3-R3-T2_g5": "09b88e0ab3e56f7b",
+  "I2-M3-R3-T2_g6": "9db2c8ac818dccba",
+  "I2-M4-R2-T3_g0": "f6c248625da78da0",
+  "I2-M4-R2-T3_g1": "f11e410caae0ad2b",
+  "I2-M4-R2-T3_g2": "cd67e1a1cdfd96b1",
+  "I2-M4-R2-T3_g3": "95048ee741a0640f",
+  "I2-M4-R2-T3_g4": "1bb2669edc7bc97b",
+  "I2-M4-R2-T3_g5": "716325fd7310bda7",
+  "I2-M4-R2-T3_g6": "c5654900a2f0f805",
+  "I2-M4-R3-T2_g0": "913d1104b364e822",
+  "I2-M4-R3-T2_g1": "a991c7f8abbac72e",
+  "I2-M4-R3-T2_g2": "f5a5ab48cbea3f32",
+  "I2-M4-R3-T2_g3": "666b98a65803c505",
+  "I2-M4-R3-T2_g4": "8b8aec079694c123",
+  "I2-M4-R3-T2_g5": "e8402f4c9b2a9f27",
+  "I2-M4-R3-T2_g6": "8ef9976303b75b6c",
+  "I2-M4-R4-T2_g0": "d8d170c4fbedd843",
+  "I2-M4-R4-T2_g1": "2dc6bf343114bcf3",
+  "I2-M4-R4-T2_g2": "6426f81853252862",
+  "I2-M4-R4-T2_g3": "27f2bb6df2867ae7",
+  "I2-M4-R4-T2_g4": "417ee27d31d1fa33",
+  "I2-M4-R4-T2_g5": "dba0515ee57aaa37",
+  "I2-M4-R4-T2_g6": "e5cc0fa344456910",
+  "I4-M2-R4-T2_g0": "731bfa8cb75f8666",
+  "I4-M2-R4-T2_g1": "451292368be3dcff",
+  "I4-M2-R4-T2_g2": "535e33368bd193c1",
+  "I4-M2-R4-T2_g3": "03e268fccfbeb91e",
+  "I4-M2-R4-T2_g4": "94c3ea235529f972",
+  "I4-M2-R4-T2_g5": "3239ae70f31b917e",
+  "I4-M2-R4-T2_g6": "a46473ee1cd0d986",
+  "I4-M2-R4-T4_g0": "51f0657d7f914c29",
+  "I4-M2-R4-T4_g1": "720a97700d181792",
+  "I4-M2-R4-T4_g2": "d79cc340933f73e8",
+  "I4-M2-R4-T4_g3": "63bdb4b4ff8482a6",
+  "I4-M2-R4-T4_g4": "a2fdd1f353d829fc",
+  "I4-M2-R4-T4_g5": "7335550c5749e453",
+  "I4-M2-R4-T4_g6": "3fc234ad0bba56fd",
+  "I4-M3-R4-T4_g0": "5e2d27aa5b48ccf1",
+  "I4-M3-R4-T4_g1": "24358f94640eb9c8",
+  "I4-M3-R4-T4_g2": "c10353819cf915ba",
+  "I4-M3-R4-T4_g3": "91b1b84b5f907892",
+  "I4-M3-R4-T4_g4": "cc0079fd127e1e92",
+  "I4-M3-R4-T4_g5": "44bbd7e2484e9452",
+  "I4-M3-R4-T4_g6": "217fa7bc9d5bdd37",
+  "I4-M4-R3-T4_g0": "580eb5be3fa7affb",
+  "I4-M4-R3-T4_g1": "de3a1b919a76df14",
+  "I4-M4-R3-T4_g2": "1b43b373c8557db6",
+  "I4-M4-R3-T4_g3": "9aee083dfaa7925a",
+  "I4-M4-R3-T4_g4": "766ac0a69681fb14",
+  "I4-M4-R3-T4_g5": "00bd992c037823f2",
+  "I4-M4-R3-T4_g6": "4984c697a6a865b3",
+  "wujihand_right": "c63e831f12ef82d6"
+ },
+ "joint_coords_per_robot": {
+  "allegro_right": 16,
+  "barrett": 8,
+  "I0-M2-R2-T0_g0": 4,
+  "I0-M2-R3-T0_g2": 5,
+  "I0-M2-R4-T3_g6": 9,
+  "I0-M3-R4-T2_g3": 9,
+  "I0-M4-R3-T4_g0": 11,
+  "I2-M0-R0-T3_g5": 5,
+  "I2-M3-R2-T0_g5": 7,
+  "I2-M4-R2-T4_g5": 12,
+  "I4-M0-R0-T2_g1": 6,
+  "I4-M3-R0-T0_g0": 7,
+  "I4-M3-R0-T3_g6": 10,
+  "I4-M4-R0-T3_g0": 11,
+  "I0-M2-R2-T3_g0": 7,
+  "I0-M4-R3-T2_g0": 9,
+  "I2-M3-R2-T2_g0": 9,
+  "I2-M3-R3-T2_g4": 10,
+  "I0-M2-R0-T4_g0": 6,
+  "I0-M2-R0-T4_g1": 6,
+  "I0-M2-R0-T4_g2": 6,
+  "I0-M2-R0-T4_g3": 6,
+  "I0-M2-R0-T4_g4": 6,
+  "I0-M2-R0-T4_g5": 6,
+  "I0-M2-R0-T4_g6": 6,
+  "I0-M2-R2-T3_g1": 7,
+  "I0-M2-R2-T3_g2": 7,
+  "I0-M2-R2-T3_g3": 7,
+  "I0-M2-R2-T3_g4": 7,
+  "I0-M2-R2-T3_g5": 7,
+  "I0-M2-R2-T3_g6": 7,
+  "I0-M2-R3-T4_g0": 9,
+  "I0-M2-R3-T4_g1": 9,
+  "I0-M2-R3-T4_g2": 9,
+  "I0-M2-R3-T4_g3": 9,
+  "I0-M2-R3-T4_g4": 9,
+  "I0-M2-R3-T4_g5": 9,
+  "I0-M2-R3-T4_g6": 9,
+  "I0-M3-R3-T4_g0": 10,
+  "I0-M3-R3-T4_g1": 10,
+  "I0-M3-R3-T4_g2": 10,
+  "I0-M3-R3-T4_g3": 10,
+  "I0-M3-R3-T4_g4": 10,
+  "I0-M3-R3-T4_g5": 10,
+  "I0-M3-R3-T4_g6": 10,
+  "I0-M4-R3-T2_g1": 9,
+  "I0-M4-R3-T2_g2": 9,
+  "I0-M4-R3-T2_g3": 9,
+  "I0-M4-R3-T2_g4": 9,
+  "I0-M4-R3-T2_g5": 9,
+  "I0-M4-R3-T2_g6": 9,
+  "I0-M4-R4-T4_g0": 12,
+  "I0-M4-R4-T4_g1": 12,
+  "I0-M4-R4-T4_g2": 12,
+  "I0-M4-R4-T4_g3": 12,
+  "I0-M4-R4-T4_g4": 12,
+  "I0-M4-R4-T4_g5": 12,
+  "I0-M4-R4-T4_g6": 12,
+  "I2-M3-R2-T2_g1": 9,
+  "I2-M3-R2-T2_g2": 9,
+  "I2-M3-R2-T2_g3": 9,
+  "I2-M3-R2-T2_g4": 9,
+  "I2-M3-R2-T2_g5": 9,
+  "I2-M3-R2-T2_g6": 9,
+  "I2-M3-R3-T2_g0": 10,
+  "I2-M3-R3-T2_g1": 10,
+  "I2-M3-R3-T2_g2": 10,
+  "I2-M3-R3-T2_g3": 10,
+  "I2-M3-R3-T2_g5": 10,
+  "I2-M3-R3-T2_g6": 10,
+  "I2-M4-R2-T3_g0": 11,
+  "I2-M4-R2-T3_g1": 11,
+  "I2-M4-R2-T3_g2": 11,
+  "I2-M4-R2-T3_g3": 11,
+  "I2-M4-R2-T3_g4": 11,
+  "I2-M4-R2-T3_g5": 11,
+  "I2-M4-R2-T3_g6": 11,
+  "I2-M4-R3-T2_g0": 11,
+  "I2-M4-R3-T2_g1": 11,
+  "I2-M4-R3-T2_g2": 11,
+  "I2-M4-R3-T2_g3": 11,
+  "I2-M4-R3-T2_g4": 11,
+  "I2-M4-R3-T2_g5": 11,
+  "I2-M4-R3-T2_g6": 11,
+  "I2-M4-R4-T2_g0": 12,
+  "I2-M4-R4-T2_g1": 12,
+  "I2-M4-R4-T2_g2": 12,
+  "I2-M4-R4-T2_g3": 12,
+  "I2-M4-R4-T2_g4": 12,
+  "I2-M4-R4-T2_g5": 12,
+  "I2-M4-R4-T2_g6": 12,
+  "I4-M2-R4-T2_g0": 12,
+  "I4-M2-R4-T2_g1": 12,
+  "I4-M2-R4-T2_g2": 12,
+  "I4-M2-R4-T2_g3": 12,
+  "I4-M2-R4-T2_g4": 12,
+  "I4-M2-R4-T2_g5": 12,
+  "I4-M2-R4-T2_g6": 12,
+  "I4-M2-R4-T4_g0": 14,
+  "I4-M2-R4-T4_g1": 14,
+  "I4-M2-R4-T4_g2": 14,
+  "I4-M2-R4-T4_g3": 14,
+  "I4-M2-R4-T4_g4": 14,
+  "I4-M2-R4-T4_g5": 14,
+  "I4-M2-R4-T4_g6": 14,
+  "I4-M3-R4-T4_g0": 15,
+  "I4-M3-R4-T4_g1": 15,
+  "I4-M3-R4-T4_g2": 15,
+  "I4-M3-R4-T4_g3": 15,
+  "I4-M3-R4-T4_g4": 15,
+  "I4-M3-R4-T4_g5": 15,
+  "I4-M3-R4-T4_g6": 15,
+  "I4-M4-R3-T4_g0": 15,
+  "I4-M4-R3-T4_g1": 15,
+  "I4-M4-R3-T4_g2": 15,
+  "I4-M4-R3-T4_g3": 15,
+  "I4-M4-R3-T4_g4": 15,
+  "I4-M4-R3-T4_g5": 15,
+  "I4-M4-R3-T4_g6": 15,
+  "wujihand_right": 20
+ },
+ "start_noise": {
+  "xyz_std": 0.005,
+  "rot_std_deg": 5.0,
+  "joint_frac": 0.05
+ },
+ "val_start_seed": 12345,
+ "success": [
+  10.0,
+  15.0
+ ],
+ "repo": {
+  "head": "e74bd0b8848ead43341f2c6760d4c36fd3a937b3",
+  "dirty_files": 168
+ },
+ "gpu": "NVIDIA GeForce RTX 3090",
+ "pool4": null
+}

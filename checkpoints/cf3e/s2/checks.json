@@ -1,0 +1,25 @@
+{
+ "psi_frozen": true,
+ "packing_matches_two_stage_max_abs": 0.0,
+ "motion_grad_pos_norm": 0.007439128588885069,
+ "motion_grad_normal_norm": 9.002261322166305e-06,
+ "motion_grad_logit_norm": 0.0,
+ "motion_grad_contact_params_norm": 0.024913189932703972,
+ "motion_grad_decoder_params_norm": 0.28014713525772095,
+ "motion_grad_on_invalid_slots": 0.0,
+ "fd_grad_pos": 0.007450580596923828,
+ "autograd_grad_pos": 0.007439128588885069,
+ "contact_grad_decoder_params_norm": 0.0,
+ "contact_grad_contact_params_norm": 2956.891357421875,
+ "init_losses": {
+  "motion": 1.2010457515716553,
+  "pos": 1723.751708984375,
+  "normal": 8.466846466064453,
+  "exist": 0.695601224899292,
+  "total": 1732.9140625
+ },
+ "fd_rel_err": 0.0007691223445568653,
+ "trained_model_heads_zero_init": true,
+ "note": "path checks on a copy with small random output heads; trained model unchanged (zero-init heads)",
+ "pass": true
+}
