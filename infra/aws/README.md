@@ -4,7 +4,7 @@ Goal: prove the infrastructure works before any real training. No model code run
 
 ## One-time, in the AWS console (you)
 1. IAM → Users → create `getkite-runner`, attach an inline policy with the contents of `iam-policy.json`, create an access key.
-2. Service Quotas → EC2 → request **All G and VT Spot Instance Requests** = 16 (vCPUs).
+2. (Optional) Claude can request the Spot quota itself: the policy allows it.
 3. Claude environment settings (Edit "Wire-Enabled") → add variables
    `GETKITE_AWS_ACCESS_KEY_ID`, `GETKITE_AWS_SECRET_ACCESS_KEY`, `GETKITE_AWS_REGION` (e.g. `us-east-1`).
    Then start a new session.

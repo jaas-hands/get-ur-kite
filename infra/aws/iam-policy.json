@@ -18,13 +18,20 @@
     {
       "Sid": "S3ProjectBuckets",
       "Effect": "Allow",
-      "Action": ["s3:*"],
-      "Resource": ["arn:aws:s3:::getkite-*", "arn:aws:s3:::getkite-*/*"]
+      "Action": [
+        "s3:*"
+      ],
+      "Resource": [
+        "arn:aws:s3:::getkite-*",
+        "arn:aws:s3:::getkite-*/*"
+      ]
     },
     {
       "Sid": "S3List",
       "Effect": "Allow",
-      "Action": ["s3:ListAllMyBuckets"],
+      "Action": [
+        "s3:ListAllMyBuckets"
+      ],
       "Resource": "*"
     },
     {
@@ -50,7 +57,11 @@
       "Effect": "Allow",
       "Action": "iam:CreateServiceLinkedRole",
       "Resource": "*",
-      "Condition": {"StringEquals": {"iam:AWSServiceName": "spot.amazonaws.com"}}
+      "Condition": {
+        "StringEquals": {
+          "iam:AWSServiceName": "spot.amazonaws.com"
+        }
+      }
     },
     {
       "Sid": "RemoteCommandsAndLookups",
@@ -64,7 +75,9 @@
         "servicequotas:GetServiceQuota",
         "servicequotas:ListServiceQuotas",
         "pricing:GetProducts",
-        "sts:GetCallerIdentity"
+        "sts:GetCallerIdentity",
+        "servicequotas:RequestServiceQuotaIncrease",
+        "servicequotas:ListRequestedServiceQuotaChangeHistoryByQuota"
       ],
       "Resource": "*"
     }
