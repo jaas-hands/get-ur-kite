@@ -969,3 +969,744 @@ Reading: J1 is less harmful than the two-stage system on Wuji and slightly reduc
 **3. Cross-body (start-distribution test; separate diagnosis), normal-compatible scoring.** Aggregate success: J1 0.9%, two-stage 0.8%, true contacts 0.8%, no movement 0.3%; compat_mm 42.6 / 42.9 / 41.9 / 47.2. Per target, J1 = two-stage within noise (64 pairs each). Optimizer found solutions for 44.7% (§33), unchanged. Cross-body failure unchanged.
 
 Conclusion: J1 answers the source question positively (similar or better than the corrected two-stage reference, internal contacts as accurate as the standalone translator). Wuji and cross-body remain failures, as separate diagnoses. No further runs launched.
+
+## 43. Frozen transfer benchmark v1 (J1) and direct_worldaux_v1 (2026-11-18, runs/transfer_benchmark_v1, runs/direct_worldaux_v1, runs/transfer_benchmark_v1_direct)
+
+**Task A (benchmark, no training).** `scripts/decoder/benchmark/transfer_benchmark.py` + `configs/decoder/benchmark/transfer_v1.json`; everything pinned by sha256 in manifest.json (surf_idx 6e9d3d5a912a0086). Reproduces §42 exactly. Exact-goal sanity 0 mm; 0 record overlap with training. Near-goal J1 corr_mm / compat_success: Allegro 6.31/.884, Barrett 6.31/.880, LEAP 8.30/.647, held-out LEAP 8.85/.570, Wuji 13.44/.226 (no movement 14.19/.200; J1 − no movement corr −0.75 [−1.32, −0.14], compat +.026 n.s.). LEAP morphology spread: SD 0.98 mm over 12 source variants, 0.19 over 4 held-out. Contact stage on Wuji 1.91 mm (as good as source) → Wuji failure is in the movement stage. Cross-body 768 cases: optimizer found solutions for 44.7%; success J1 0.9% (found 2.0%), two-stage 0.8% (1.8%), no movement 0.3% (0.6%). Pool 4 (external hand) not run: only collision primitives available. Report: runs/transfer_benchmark_v1/report.md.
+
+**Task B (direct_worldaux_v1, one 50k run).** z-only trunk → intent tokens (+ start-wrist world pose) → GET; training-only world-frame contact head on the trunk (never feeds motion). Code `src/getkite/decoder/direct_worldaux.py`, `train_direct_worldaux.py`, config `configs/decoder/scratch/direct_worldaux_v1.json`. All checks pass; 64-example overfit success 1.0. At scale the motion path never learned: source val success 0.128→0.130 (best step 35k) vs no movement 0.123 (J1 0.586); training goals 0.117 (J1 0.619) — failure to fit. Wrist moves 0.02 mm at deployment. Trunk gradient from motion 0.02–0.06 vs contact 1.3–111; trunk clip active 100% of steps. Aux contacts 3.4–3.8 mm (count acc .95–.98), worse than J1 internal (1.9–2.25). Matched benchmark: direct ≈ no movement on every pool (corr_mm −0.04 to −0.17 mm; success differences ≤ .016); cross-body success 0.26% = no movement. Outcome: aux learned, motion not improved. Recommendation: keep J1; no evidence that a direct path helps transfer. Report: runs/transfer_benchmark_v1_direct/report.md. No further runs launched.
+
+## 44. Track D: frozen-trunk direct-decoder diagnostic (2026-11-19, runs/direct_frozentrunk_d1)
+
+Trunk + aux head + z stats loaded from direct_worldaux_v1 best (35k steps) and frozen (bit-identical; sha unchanged at end). Fresh token projection / pose conditioning / GET with v1's seed and initial weights. Motion loss only, v1/J1 decoder optimiser, lr schedule identical to v1 (50k horizon), stopped at 10k (11 GPU-min). All checks pass (labels / aux have 0 effect on motion; frozen grads none; mixed batch 1.2e-7; decode 1.8e-7). Result: identical to v1 at every step. Val success .130/.128/.128 at 2.5k/5k/10k (v1 .128/.128/.128, J1 .154/.221/.283, no movement .123). Training-goal success .113–.115 (no movement .110). Wrist error equals no movement. Train motion loss matches v1 to 3 decimals. Aux contacts 3.68 mm, unchanged. z-permutation probe: intent tokens change 0.65 / 0.71, wrist residual 0.0006 against a near-constant 0.02 → the motion network ignores the intent tokens. Reading: contact-gradient dominance / trunk drift is not sufficient to explain the failure; consistent with §21/§36 (world-frame abstract intent is not turned into wrist-frame corrections). Redirect attention to feature/state alignment and motion architecture; no intervention launched. Report: runs/direct_frozentrunk_d1/report.md.
+
+## 45. G1 LEAP-diversity scaling (option b) (2026-11-19, runs/g1_leapdiv50k_hf, runs/transfer_benchmark_v1_g1)
+
+J1 recipe unchanged. Source LEAP 12 → 48 train-split hands (48 distinct topologies, 2–4 fingers, 4–16 DOF), 417 records each (J1 1,667) from the existing seed-0 pool. Allegro/Barrett nominal 20k each. 60,016 goals. Wuji excluded. All 52 LEAP hands (incl. held-out) validated: adapter/HandBank/MuJoCo FK, limits, coverage, contact reproduction. Manifest/validation in configs/decoder/g1/. Best step 47.5k on unchanged source val; 36 GPU-min. Source ≈ J1 (Allegro/Barrett/LEAP corr 6.32/6.27/8.30). Held-out LEAP 8.76 vs 8.85 (n.s.). **Wuji corr 12.61 vs J1 13.44 (−0.83 [−1.22, −0.42]), compat success .290 vs .226 (+.064 [.022, .108]), vs no movement .200 (+.090 [.046, .134]); corr success .162 vs no movement .118 (+.044 [.004, .082]).** Wuji wrist R² still ≈ 0 / negative. Cross-body unchanged (0.78% / found 1.75%). Single seed; Wuji is a development set. Seed repeats are needed before any claim; G2 is not started.
+
+Also 2026-11-19: Shadow Hand E3M5 downloaded (Menagerie 370c439, Apache-2.0; ~/code/uni-kite/external_assets) and reserved, not integrated. Inventory, adapter plan, Allegro/Barrett one-variant prototype estimate and the proposed intent–geometry alignment intervention are in docs/next_steps_2026-11-19.md.
+
+## 46. Seed repeats J1 vs G1 (2026-11-19, runs/{j1_joint50k_hf,g1_leapdiv50k_hf}_s{1,2}, runs/transfer_benchmark_v1_seeds)
+
+Four extra runs (J1 and G1 at training seeds 1 and 2), recipes unchanged, selected on source val. Benchmarked with seed 0
+on the identical frozen v1 pools (config transfer_v1_seeds.json); seed 0 reproduces §43/§45 exactly. Summary script:
+scripts/decoder/benchmark/seed_summary.py (across seeds: mean ± SD of run means, n = 3; G1 − J1 is a paired bootstrap
+within a seed pair; no pooling of examples, no seed selection).
+
+- **Source and held-out LEAP: G1 ≈ J1.** Paired differences are n.s. in all pairs; the single exception is seed-0
+  Allegro compat −.026, which does not repeat. Held-out LEAP corr: J1 9.01 ± 0.21, G1 8.95 ± 0.17.
+- **Wuji, G1 vs J1:**
+  - corr_mm: J1 15.14 ± 1.51, G1 13.91 ± 1.23. G1 lower in 3/3 pairs (−1.23 ± 0.39).
+  - compat_success: J1 .157 ± .061, G1 .233 ± .054. G1 higher in 3/3 (+.075 ± .036).
+  - corr_success: J1 .073 ± .030, G1 .118 ± .043. G1 higher in 2/3.
+- **Wuji, against no movement** (no movement: corr 14.19, corr success .118, compat .200):
+  - J1 is significantly worse in seeds 1 and 2.
+  - G1 s0 is better, s1 is n.s., and s2 is worse on contact error.
+  - Wrist error is worse than no movement in all six runs.
+  - Contact stage is 1.87–1.96 mm in all runs.
+  - So §45's "beats no movement on Wuji" was a seed-0 effect. The robust finding is that G1 is better than J1 on Wuji;
+    neither reliably beats no movement.
+- Wuji translation R² is negative in every run.
+- Cross-body success is about 0.7% for both methods.
+
+**Conclusion (2026-11-19):** LEAP diversity consistently improves Wuji relative to J1, but neither configuration demonstrates reliable unseen-family control across seeds.
+
+Report: runs/transfer_benchmark_v1_seeds/report.md. G2, the direct intervention and further training are held pending
+the user's decision.
+
+## 47. Wuji references, W1 wrist-transfer proposal, Shadow kinematic validation (2026-11-19)
+
+**Conclusion carried from §46.** LEAP diversity consistently improves Wuji relative to J1, but neither configuration
+demonstrates reliable unseen-family control across seeds.
+
+**References on the frozen near-goal Wuji pool** (runs/wuji_references_v1, `scripts/decoder/benchmark/wuji_references.py`;
+same records and starts, verified against the seed benchmark):
+
+| system | corr mm | corr success | compat success | wrist mm | access advantage |
+|---|---|---|---|---|---|
+| no movement | 14.19 | .118 | .200 | 7.96 | – |
+| KITE released (wujihand_right head, EMA) | 3.16 | .954 | .992 | 4.06 | trained on Wuji (own head), jointly with ψ, far more samples; Wuji records are from KITE's own generator distribution (record overlap with KITE's training data cannot be checked; buffers not released) |
+| optimizer (Adam, 300 steps, 4 restarts) | 6.50 | .648 | .996 | 8.90 | raw target contacts, Wuji's exact FK and surface, iterative test-time optimisation of the compat objective; no correspondence |
+| J1 / G1 (3 seeds, §46) | 15.14 ± 1.51 / 13.91 ± 1.23 | .073 / .118 | .157 / .233 | 9.88 / 9.46 | – |
+
+- KITE released − no movement: corr −11.03 [−11.54, −10.50]; compat success +.792.
+- KITE positive control on source val: Allegro 4.09 mm / .916, Barrett 3.70 / .920 (reproduces §11).
+- The optimizer finds compatible solutions for 99.6% of near-goal Wuji records. Its wrist is not the goal's (8.9 mm), so
+  the goals are reachable from the start.
+
+**W1 proposal (not launched).** docs/w1_wrist_transfer_proposal.md. One change from c3_raw50k_cf8_10x_wrist_hf:
+`start_joint_frac` 0.05 → 0 (fingers at goal), true contacts, wrist-only perturbation. Measured budget 2,810 ex/s on a
+2080 Ti, about 1.3–1.4 GPU-h.
+
+Pre-launch control (runs/w1_wrist_transfer_eval_pre): the existing true-contact decoder with fingers at goal corrects
+the source wrist (−2.0 to −3.6 mm vs no movement) but worsens Wuji's (+2.38 [+1.96, +2.81] mm, trans R²_id −.75).
+
+**Shadow adapter, kinematic validation passed** (external_assets/shadow_adapter, scripts/decoder/shadow/):
+- URDF written from Menagerie E3M5 with the palm as root, forearm and wrist removed, WRJ fixed at 0.
+- J1 is a mimic of J2: 18 coordinates, 22 joints.
+- FK, our parser vs native MJCF: 2.3e-10 m over 259 configurations, 23 links. MuJoCo's own URDF import vs MJCF:
+  4e-12 m.
+- Mimic exact; tendon J0 = 2·J2 exact; limits exact.
+- Asset note: 2 × J2 max (3.14159) exceeds the J0 actuator ctrlrange 3.1415 by 9e-5 rad (rounding in the MJCF).
+- Pending: KITE surface template. KITE's registry key `shadowhand` points to a DRO URDF that is not on disk, so a path
+  override is needed. Also pending: primitives, coverage, contact reproduction, self-collision, 500 eval goals.
+- No decoder has seen Shadow.
+
+## 48. Direct-decoder follow-ups: durable z-probe with token statistics, learned-anchor diagnostic A1 (2026-11-19)
+
+Status document: docs/direct_decoder_status_2026-11-19.md (kept separate from W1).
+
+**z-shuffling probe made durable** (`scripts/decoder/diagnostics/direct_zperm_probe.py`; outputs in
+runs/direct_zperm_probe/). Rerun at the benchmark starts (val_start_seed) and at the original seed-0 starts; both
+reproduce the reported numbers. Token statistics at the first GET block:
+- Intent token norms 9–11, robot tokens 12–19.
+- Per-token motion-loss gradient (Track D): intent 7.8e-6, root 6.5e-6, joint 2.0e-5, surface 4.4e-7.
+- So H2 (intent tokens scaled away or gradient-starved) is weakened. Attention mass has not been measured.
+
+**A1 learned-anchor diagnostic** (one 10k run as approved; runs/direct_anchor_a1, report.md there).
+- Design: Track D with the intent tokens replaced by 6 learned world-frame anchors plus 3-vectors. They are transformed
+  exactly into the start wrist frame and encoded in J1's contact-token layout (Fourier on the learned positions only).
+  Motion loss only.
+- Caveat: the frozen trunk saw contact supervision in v1, so this tests the combined spatial-slot interface.
+- Checks pass; frozen sha unchanged.
+- **Fails by the gate.** Val success .131 vs no movement .123 and Track D .128. The wrist moves ≤0.08 mm; wrist error
+  equals no movement. Training motion loss is identical to D.
+- Anchors spread to 297 mm within an example and 203 mm across examples, but stay about 300 mm from the contacts and
+  about 0.5 m from the start wrist.
+- Anchor-head gradient reaches 5e-2, about 10× D's intent projection.
+- This does not rule out alignment. Untested factors: anchor initialisation far from the hand, the 10k budget, and the
+  cold start under motion-only loss.
+- Selected checkpoint best.pt (step 10k) preserved. No further direct training launched.
+
+## 49. W1 wrist-transfer diagnostic result (2026-11-19, runs/w1_wristonly_true50k_hf, runs/w1_wrist_transfer_eval)
+
+One run with the documented settings: `start_joint_frac` 0, true contacts, otherwise c3_raw50k_cf8_10x_wrist_hf.
+Preempted once and resumed. Selected checkpoint best.pt at step 47.5k (source val .739 / 6.08 mm); preserved with
+last.pt. Report: runs/w1_wristonly_true50k_hf/report.md.
+
+**Source** (fingers-at-goal evaluation):
+- W1 learns: vs no movement, corr −5.1 to −7.6 mm and wrist −1.7 to −3.3 mm.
+- W1 vs the fingers-at-goal control raw_ref: contact realisation equal (success n.s.), but wrist error +0.26 to
+  +0.33 mm on every source pool (CIs exclude 0).
+- So removing finger noise did not improve the source wrist mapping.
+
+**Wuji:**
+
+| system | corr mm | corr success | compat success | wrist mm |
+|---|---|---|---|---|
+| W1 | 11.58 | .260 | .414 | 8.77 |
+| no movement | 13.59 | .164 | .266 | 7.96 |
+| raw_ref | 15.57 | .108 | .204 | 10.33 |
+| KITE released | 2.83 | .980 | .992 | – |
+
+- W1 − no movement: corr −2.01 [−2.61, −1.41]; corr success +.096; compat success +.148 [.098, .200]; wrist mm +0.81
+  [+0.47, +1.16]; translation R²_id −.25.
+- Predeclared wrist rule: not met ("fails" literally). Contact realisation: significant improvement over no movement and
+  over the control.
+- Reading: partial transfer. The wrist-only-trained correction realises Wuji contacts better than not moving, without
+  recovering the goal wrist pose.
+- Single seed. Not comparable with J1/G1's finger-perturbed ψ-input Wuji numbers.
+
+**Recorded status (2026-11-19):** partial contact transfer to Wuji under fingers-at-goal, true-contact conditions. The predeclared wrist-tracking result is retained: **failed** (Wuji wrist translation error above no movement, +0.81 mm; translation R²_id −.25).
+
+## 50. W1 checks before new training (2026-11-19, runs/w1_checks_eval; evaluation only)
+
+Script: scripts/decoder/benchmark/w1_checks_eval.py. Same records and wrist-only starts. Report:
+runs/w1_checks_eval/report.md.
+
+**Check 1, wrist only vs full.** Degenerate: W1's joint head last layer is about 3e-11. The joint target is always 0,
+so the zero-initialised layer gets zero gradient; W1 moves no fingers and wrist-only equals full.
+
+Added for context, the control's fingers move 0.007–0.023 rad (0.5–0.9% of range) when starting at the goal. On Wuji
+its wrist-only prediction is still worse than no movement (compat success .214 vs .266). The control's Wuji harm is
+its wrist; W1 vs control wrist-only on Wuji: compat success +.200, corr −3.96 mm.
+
+**Check 2, frozen translator contacts** (set_bridge_zworld_c3_20k_b, source-trained) vs true contacts:
+
+| Wuji | corr mm | corr success | compat success | wrist mm |
+|---|---|---|---|---|
+| translator | 11.74 | .252 | .412 | 8.79 |
+| true | 11.58 | .260 | .414 | 8.77 |
+| no movement | 13.59 | .164 | .266 | 7.96 |
+
+- Translator − no movement: compat success +.146 [.096, .196], corr success +.088 [.040, .136], wrist +0.83 mm.
+- Source costs of the translator: corr success −.04 to −.08.
+
+**Verdict.** The Wuji contact gain survives both checks; the failed wrist-tracking result persists. Proposed (not
+launched): W1 seeds 1 and 2, settings fixed, about 2.7 GPU-h.
+
+## 51. Direct track: layer-wise z-sensitivity and the T1 translation-only proposal (2026-11-19; separate from W1)
+
+**Layer probe** (direct_zperm_probe.py --layers; runs/direct_zperm_probe/probe_layers_val_start_seed.json):
+- Intent tokens stay fully z-dependent in Track D, v1 and A1.
+- Root-token z-dependence plateaus at 0.35–0.47 after blocks 1–3, vs J1 0.32 → 1.41.
+- Final root-token across-goal SD 0.14–0.16 vs J1 0.72; wrist output SD 0.002–0.005 vs J1 0.60.
+- So the movement path stops responding in the intent → root propagation (blocks 1–3) and in the root head.
+
+**T1 proposal** (docs/t1_translation_diagnostic_proposal.md; code src/getkite/decoder/translation_diag.py; config
+configs/decoder/scratch/t1_translation_allegro.json):
+- One Allegro, one base goal, rigid world translations ±10 cm (20k train, 2k fresh val), translation-only 5 mm starts.
+- Direct GET (v1 architecture, motion loss only) vs a z + start-pose network; same root target.
+- Checks pass for both. Ridge z → target position 0.0017 mm on validation.
+- Budget measured: ≈ 20 GPU-min total for 10k steps each.
+- Not launched.
+
+## 52. T1 translation-only result (2026-11-19, runs/t1_translation_allegro; direct track)
+
+One Allegro, one base goal, rigid world translations ±10 cm (20k train / 2k fresh val), translation-only 5 mm starts,
+10k × 256 each. Report: runs/t1_translation_allegro/report.md.
+
+| | val translation mm | slope | R²_id | per-axis Pearson r |
+|---|---|---|---|---|
+| z + start-pose network | **0.10** | 1.00 | 1.00 | – |
+| direct GET | **6.17** | .36 | .35 | x .89, y .46, z .22 |
+| no movement | 7.91 | – | – | – |
+| ridge z → target position (reference) | 0.0017 | – | – | – |
+
+- The GET's training subset equals validation (6.24 mm) and it plateaus from about 5k steps.
+- Predeclared reading: partial. The network learns; the GET learns a correlated but scaled-down (36%), anisotropic
+  correction.
+- The GET's intent → root bottleneck persists even for pure translation of one hand, where the target is linear in z.
+- Cause within the GET not established. Single seed; no further training.
+
+## 53. T1 layer probe: where the direct GET loses the translation (2026-11-19; evaluation only)
+
+Script scripts/decoder/diagnostics/t1_layer_probe.py; output runs/t1_translation_allegro/layer_probe.json.
+
+On T1 (one Allegro, pure translation), cross-fitted linear R² (x / y / z) of the required start-wrist-frame
+translation:
+
+| stage | R² x / y / z |
+|---|---|
+| intent tokens at GET input | .60 / .11 / .02 |
+| root token after blocks | .72–.78 / .18 / .01–.02 |
+| head output | .78 / .20 / .05 |
+
+- Root-token attention on intent: .35–.49.
+- So the GET blocks and head pass on what the intent tokens hold. The loss is at **intent-token formation** (additive
+  z-projection + start world-pose feature), which encodes target − start mainly along x.
+- The z + start-pose network (concatenation → MLP) reaches 0.10 mm.
+
+Multi-family checkpoints, root attention on intent tokens: Track D / v1 / A1 .09–.24 vs J1 .45–.66 in blocks 1–3. Weak
+routing there; cause vs consequence not established.
+
+Consistent with §21: combining z's world-frame target with the separately encoded start pose is the failure point.
+
+## 54. W1 seeds 0/1/2 (2026-11-19; W1 track, separate from the direct track)
+
+Seeds 1 and 2 use the identical W1 config (fingers at goal, wrist-only 5 mm / 5° starts, true contacts). Checkpoints
+were selected on source validation: s0 47.5k, s1 50k, s2 47.5k. Evaluation is unchanged (wrist_transfer_eval.py +
+w1_checks_eval.py). Summary: runs/w1_seeds_summary.md (scripts/decoder/benchmark/w1_seed_summary.py). Per-seed values,
+mean ± SD (n = 3); no seed selected, no pooling. The fingers-at-goal control (raw_ref) has seed 0 only. All three seeds
+have joint head ≈ 0 (≤ 4e-11) and zero finger movement, so all three are wrist-only by construction.
+
+Wuji near-goal (unseen by our decoder, seen by KITE's encoder ψ), n = 500:
+
+| | no movement | raw_ref s0 | W1 s0 | W1 s1 | W1 s2 | W1 mean ± SD |
+|---|---|---|---|---|---|---|
+| corr mm | 13.59 | 15.57 | 11.58 | 12.73 | 11.44 | 11.92 ± 0.71 |
+| corr success | .164 | .108 | .260 | .170 | .276 | .235 ± .057 |
+| compat success | .266 | .204 | .414 | .316 | .416 | .382 ± .057 |
+| wrist mm | 7.96 | 10.34 | 8.77 | 8.93 | 9.12 | 8.94 ± 0.17 |
+| translator compat success | – | – | .412 | .302 | .410 | .375 ± .063 |
+
+- **W1 − no movement on Wuji.** Contact error is lower in 3/3 seeds (−1.67 ± 0.71 mm). compat_success is higher in
+  2/3 (CI excludes 0), and s1 sits at the boundary (+.050 [.000, .100]). corr_success is higher in 2/3; s1 is +.006
+  (not significant).
+- **W1 − raw_ref on Wuji.** W1 is better on all four metrics in 3/3 seeds. This compares against a single control
+  seed.
+- **Wrist error on Wuji is worse than no movement in 3/3 seeds** (+0.98 ± 0.17 mm). The predeclared wrist-tracking
+  test fails in every seed.
+- **Translator contacts.** Translator-vs-true differences on Wuji are small in every seed (compat −.002 / −.014 / −.006,
+  CIs include 0). Translator − no movement on compat is significant in 2/3; s1 is +.036 [−.014, +.086].
+- **Source.** W1 is ≈ raw_ref on source validation and held-out LEAP. Paired differences are mixed in sign across
+  seeds; held-out LEAP wrist error is +0.26 ± 0.14 mm (2/3 significant). With translator contacts, source compat
+  success drops by .03–.07.
+
+Reading: partial wrist-only contact transfer to Wuji under fingers-at-goal conditions. It replicates in direction
+across seeds, but the magnitude varies (s1 about a third of s0/s2), and the wrist-tracking test fails in all three.
+No further training.
+
+## 55. Morphology-diversity test D1 / D3, seed 0 (2026-11-20; runs/d1_prim50_hf, runs/d3_prim800_hf, runs/transfer_benchmark_v1_dlevels)
+
+Plan: docs/morphology_diversity_proposal.md. G1 recipe unchanged, plus one family "prim": procedurally generated primitive
+hands (box palm, capsule phalanges; kite_data.prim_hand / build_prim, seed 20261119; 2–5 fingers, 2–4 joints per finger,
+4–19 DOF, 497 distinct layouts in 900 bodies). The Wuji/Shadow layout (5 fingers × 4 joints) is excluded by construction.
+Records follow KITE's kite_code recipe. D1 = 50 bodies × 400 records; D3 = 800 bodies × 25 records; both have 20k prim
+records. Source val = G1 val + 500 prim records (identical for D1/D3). Held-out bodies P0800–P0849 are evaluation only.
+All 900 bodies pass validation (adapter/MuJoCo FK, limits, coverage, contact reproduction ≤ 1.3e-7 m, every finger has
+≥ 1 surface token; 14 bodies had their FPS token list repaired, scripts/decoder/dlevels/repair_prim_fps.py). Wuji is
+absent from all D-level training/val/robot lists; ψ is frozen. Shadow is not evaluated.
+
+Selected on source val: D1 step 50k, D3 step 47.5k. Benchmark = frozen transfer_v1 protocol, same pools/starts; D0 = G1 s0
+(reproduces §45 exactly: Wuji corr 12.61, compat .290).
+
+| pool (n) | metric | no movement | D0 (G1) | D1 (50) | D3 (800) |
+|---|---|---|---|---|---|
+| source Allegro (500) | corr mm / compat succ | 11.55 / .338 | 6.32 / .858 | 6.31 / .864 | 6.38 / .860 |
+| source Barrett (500) | corr mm / compat succ | 14.45 / .248 | 6.27 / .882 | 6.14 / .874 | 6.22 / .894 |
+| source LEAP (504) | corr mm / compat succ | 13.93 / .226 | 8.30 / .643 | 8.40 / .621 | 8.44 / .667 |
+| held-out LEAP (500) | corr mm / compat succ | 14.98 / .172 | 8.77 / .578 | 8.88 / .588 | 8.91 / .574 |
+| held-out prim bodies (500; training-log eval) | contact mm / succ | 14.71 / .110 | – | 5.96 / .756 | 5.58 / .818 |
+| **Wuji near-goal (500)** | corr mm | 14.19 | 12.61 | 9.36 | **8.35** |
+| | compat success | .200 | .290 | .562 | **.666** |
+| | corr success | .118 | .162 | .346 | **.456** |
+| | wrist mm | 7.96 | 8.81 | 7.14 | **6.94** |
+
+Paired bootstrap on Wuji (95% CI):
+- D3 − D0: corr −4.26 [−4.71, −3.81] mm; compat success +.376 [+.326, +.424]; wrist −1.87 [−2.20, −1.53] mm.
+- D1 − D0: corr −3.25 [−3.72, −2.78]; compat success +.272 [+.222, +.322].
+- D3 − D1: corr −1.01 [−1.23, −0.78]; compat success +.104 [+.062, +.146]; wrist −0.20 [−0.35, −0.06].
+- D3 − no movement: wrist −1.02 [−1.27, −0.77] mm (G1 was +0.85 worse than no movement).
+
+Source and held-out LEAP: all D-level differences n.s. except source LEAP compat D3 − D1 +.046 [+.012, +.081] and source LEAP
+wrist D1 − D0 +0.12 [+0.01, +0.24] mm. Cross-body (pool B) unchanged in kind.
+
+Reading: adding generated bodies gives a large Wuji gain without costing source or held-out LEAP accuracy, and more
+distinct bodies (800 vs 50, same record count) adds more. Wuji is now at the held-out-LEAP level (corr 8.35 vs 8.91). Caveats:
+single training seed; Wuji is a development set, inspected here; family share changes (prim takes 25% of batches, G1
+families 33% → 25%), so D1/D3 vs D0 is not a pure "bodies added" comparison (D3 vs D1 is clean). Not a claim of broad
+universality: one unseen family. Next steps need approval: seeds 1/2 of D1/D3; D2; Shadow (reserved final target).
+
+## 56. D1 / D3 seed repeats (2026-11-20; runs/{d1_prim50_hf,d3_prim800_hf}_s{1,2}, runs/transfer_benchmark_v1_dlevels_seeds)
+
+Configs identical to §55 except `seed` (as the G1 seeds). Each selected on source val (D1 s1/s2 50k, D3 s1/s2 50k).
+Benchmark: transfer_v1 protocol; G1, D1, D3 at seeds 0/1/2 in one job; paired by seed. Mean ± SD of run means (n = 3).
+
+| Wuji near-goal (500) | no movement | D0 (G1) | D1 (50 bodies) | D3 (800 bodies) |
+|---|---|---|---|---|
+| corr mm | 14.19 | 13.91 ± 1.23 | 9.42 ± 0.36 | 9.47 ± 0.99 |
+| compat success | .200 | .233 ± .054 | .565 ± .056 | .547 ± .103 |
+| corr success | .118 | .118 ± .043 | .348 ± .055 | .352 ± .090 |
+| wrist mm | 7.96 | 9.46 ± 0.66 | 7.11 ± 0.04 | 7.19 ± 0.23 |
+
+- **Generated bodies vs G1 on Wuji: replicates, significant in 3/3 seeds for both levels.** D1 − D0 corr −4.49 ± 1.08 mm,
+  compat success +.332 ± .062; D3 − D0 corr −4.44 ± 0.34, compat success +.314 ± .056; wrist −2.3 mm for both.
+- **vs no movement: D1 and D3 better in 3/3 seeds on corr, compat success and wrist** (G1: wrist worse in 3/3, corr/compat
+  better only in s0). The wrist failure of §45/§46/§54 is gone with generated bodies.
+- **D3 vs D1 (more distinct bodies, same records): does NOT replicate.** corr +0.05 ± 0.93 mm, compat success −.018 ± .117;
+  s0 favours D3, s1 and s2 favour D1. §55's "800 > 50" was a seed-0 effect. Within this design, 50 bodies give the gain.
+- Source Allegro/Barrett/LEAP and held-out LEAP: no consistent change (all mean differences ≤ 0.14 mm, ≤ .024 success;
+  significance scattered, no metric 3/3 in one direction except small Allegro/Barrett corr gains for D1 that are 2/3 and 1/3).
+
+Reading: adding a family of generated primitive bodies robustly improves transfer to Wuji (unseen by our decoders, seen by
+KITE's ψ) to about held-out-LEAP level on contact error, without cost on the training families. The number of distinct
+bodies between 50 and 800 does not matter detectably at this record budget. Remaining caveats: family-share confound
+(D vs G1 also lowers each original family's batch share 33% → 25%), one body draw (generator seed), one unseen family;
+Wuji is a development set. Shadow (reserved final target) not evaluated; it needs approval.
+
+## 57. Shadow evaluation, reserved final target (2026-11-20; runs/transfer_benchmark_v1_shadow; approved by the user)
+
+Config configs/decoder/benchmark/transfer_v1_shadow.json: the 9 systems of §56 (G1, D1, D3 at seeds 0/1/2, already selected on
+source val; nothing re-selected), plus pool 4 = Shadow near-goal. transfer_benchmark.py gained an opt-in `"shadow_pool": true`
+(default off, so earlier configs are unchanged). Shadow: 500 evaluation-only records (shadow_eval.npz,
+scripts/decoder/shadow/make_shadow_records.py; kite_code recipe; K = 2–6), same fixed-start protocol and seed as Wuji. Shadow
+is **unseen by our decoders and by KITE's ψ**. It has coupled J1 = J2 finger joints (decoder adapter uses <mimic>; 24 joints,
+18 coordinates), which the generator does not make, and a 4/4/4/5/5 layout that the generator excludes. 0 record overlap with
+training. Checks: goal sanity 0.0 mm / 1.000 (adapter FK reproduces the contacts; a divide-by-zero warning from a zero joint
+axis in the URDF parser is on a fixed joint and does not affect FK); pools 1–3 reproduce §55/§56 exactly (e.g. Wuji G1 s0
+12.61 / .290, D3 s0 8.35 / .666).
+
+Shadow near-goal (500), mean ± SD over seeds (n = 3; per seed in brackets):
+
+| | no movement | D0 (G1) | D1 (50 bodies) | D3 (800 bodies) |
+|---|---|---|---|---|
+| corr mm | 13.97 | 14.48 ± 1.64 [12.58 15.39 15.47] | 10.45 ± 0.41 [10.46 10.03 10.86] | 10.56 ± 1.43 [9.33 10.21 12.12] |
+| compat success | .228 | .218 ± .074 | .417 ± .040 | .429 ± .109 |
+| corr success | .138 | .121 ± .031 | .249 ± .037 | .252 ± .092 |
+| wrist mm | 7.96 | 9.40 ± 0.62 | 8.23 ± 0.31 | 8.11 ± 0.50 |
+| pre-clamp limit violation | 0 | .179 | .126 | .129 |
+
+Paired bootstrap (95% CI), per seed:
+- **D1 − D0 and D3 − D0: better in 3/3 seeds on corr mm, compat success, corr success and wrist mm, all CIs excluding 0.**
+  corr −2.1 to −5.4 mm; compat success +.12 to +.29; wrist −0.7 to −1.7 mm.
+- **vs no movement:** D1 better on corr, compat and corr success in 3/3; D3 in 3/3 on corr and compat, 2/3 on corr success
+  (s2 +.016, n.s.). G1 is worse than no movement on corr in 2/3 (s1, s2). **Wrist: neither D level beats no movement**
+  (D1 n.s., n.s., +0.62 worse; D3 −0.34 better, n.s., +0.66 worse); G1 is worse in 3/3 (+0.7 to +1.9 mm).
+- **D3 vs D1:** s0 favours D3, s2 favours D1, s1 n.s. on every metric, as on Wuji (§56). No body-count effect.
+
+Reading: the generated-body gain carries to Shadow, the first hand unseen by both our decoder and ψ, with coupled joints. It is
+smaller than on Wuji (corr −4.0 mm vs −4.5; compat .42 vs .56; Shadow stays above the held-out-LEAP level, 10.5 vs 8.9 mm), and
+the wrist gain stops short of beating no movement. The family-share confound of §56 applies here too (control C1, §58). One
+external family, one generator seed: not a claim of broad universality. Shadow was evaluated once with frozen systems; it stays
+reserved (no selection or tuning on it).
+
+## 58. Family-share control C1: one generated body (2026-11-20; runs/c1_prim1_hf{,_s1,_s2}, runs/transfer_benchmark_v1_c1)
+
+Question: is the D-level gain (§56, §57) due to body variety, or to batch rebalancing (each original family 33% → 25%) / adding
+any generated hand? C1 = D1 with the prim training records replaced by **one body** × 20000 records (P0000, the first body by
+index, not chosen: 2 fingers, 8 DOF; split train_ctrl1 with a fresh seed, disjoint from P0000's val rows;
+configs/decoder/dlevels/record_plan_ctrl1.json). Everything else is identical to D1 at the same seed (diffed): 4 families × 25%,
+20000 prim records, same val / robots / extra_eval / steps. Sampler check: families allegro / barrett / leap / prim with 1 / 1 /
+48 / 1 robots. Selected on source val: s0 42.5k, s1 45k, s2 42.5k (source val includes 500 records of P0000–P0049, which C1 only
+partly sees, so C1's val key is lower; selection only). Benchmark: transfer_v1 + Shadow pool (§57), G1 / C1 / D1 at seeds 0/1/2,
+paired by seed; pools reproduce §56/§57 exactly.
+
+| mean ± SD (n = 3) | no movement | D0 (G1) | C1 (1 body) | D1 (50 bodies) |
+|---|---|---|---|---|
+| Wuji corr mm | 14.19 | 13.91 ± 1.23 | 12.26 ± 1.21 | 9.42 ± 0.36 |
+| Wuji compat success | .200 | .233 | .308 | .565 |
+| Wuji corr success | .118 | .118 | .163 | .348 |
+| Wuji wrist mm | 7.96 | 9.46 | 8.29 | 7.11 |
+| Shadow corr mm | 13.97 | 14.48 ± 1.64 | 12.71 ± 2.01 | 10.45 ± 0.41 |
+| Shadow compat success | .228 | .218 | .289 | .417 |
+| Shadow corr success | .138 | .121 | .160 | .249 |
+| Shadow wrist mm | 7.96 | 9.40 | 8.90 | 8.23 |
+| held-out LEAP corr mm / compat | 14.98 / .172 | 8.95 / .565 | 9.13 / .546 | 8.97 / .577 |
+
+Paired by seed (95% CI):
+- **D1 − C1 (variety, shares fixed): D1 better in 3/3 seeds on Wuji corr (−1.9, −4.5, −2.1 mm), compat success (+.20, +.37,
+  +.20), corr success and wrist (−0.9, −1.8, −0.9 mm); on Shadow corr (−0.4, −4.8, −1.6) and compat (+.07, +.22, +.10) 3/3,
+  corr success 2/3, wrist 1/3.**
+- **C1 − G1 (rebalancing + one generated body):** smaller and less consistent. Wuji corr −1.3, −0.5 (n.s.), −3.2 mm; compat
+  2/3; wrist 3/3 (−0.6 to −2.1 mm). Shadow corr 3/3 (−0.6 to −3.0), compat 3/3 (+.06 to +.08), wrist 2/3 better, s1 worse.
+- C1 vs no movement: wrist not better in any seed on Wuji or Shadow (Wuji s1 +0.93, Shadow s1 +2.26 mm worse).
+- Source / held-out LEAP: C1 ≈ G1 (held-out LEAP corr +0.33 mm in s0 only); no 3/3 effect.
+
+Split of the gain over G1 (mean corr mm): Wuji 4.49 = 1.65 from C1 (≈ 37%) + 2.83 from going 1 → 50 bodies (≈ 63%);
+Shadow 4.03 = 1.77 (≈ 44%) + 2.26 (≈ 56%). On compat success, C1 recovers .075 of .332 on Wuji (≈ 23%) and .071 of .199 on
+Shadow (≈ 36%).
+
+Reading: **the gain is mainly body variety.** Rebalancing plus a single generated body gives a partial, seed-variable gain;
+with batch shares and record count fixed, 50 bodies beat 1 body in 3/3 seeds on both unseen hands. Caveats: the single body is
+one draw (a 2-finger body unlike Wuji/Shadow; a 5-finger single body might recover more, so C1 cannot separate "variety" from
+"layout similarity to the target"); 50 vs 800 bodies remains indistinguishable (§56, §57); one generator seed.
+
+## 59. Morphology-diversity follow-ups: second body draw, layout-resemblance controls, records per body (2026-11-20; runs/{d1b_prim50_hf,c5_prim1x5f_hf,n5_prim50no5f_hf,r4_prim50x1600_hf}{,_s1,_s2}, runs/transfer_benchmark_v1_followups)
+
+Questions left by §58: does the D1 gain replicate on a second generator draw; is it layout resemblance to the 5-finger targets
+rather than variety; are records per body limiting? Four arms, each = D1 at the same training seed with ONLY the generated-body
+data changed (configs from scripts/decoder/dlevels/make_followups.py, diffed against D1: only train / robots / out_dir / _note
+differ; 4 families × 25%, model, loss, steps, starts, selection rule unchanged):
+- **D1b** second body draw: `build_prim hands --n 900 --seed 20261121` + records with the same plan and seed → $GETKITE_DATASET/prim_b;
+  bodies P0000–P0049 × 400, its own val rows and held-out bodies. Validation 900/900 pass (configs/decoder/dlevels/prim_b_validation.json;
+  2 redraws; finger counts 2/3/4/5 = 277/204/247/172; 481 topologies).
+- **C5** one 5-finger body: P0003 (the first 5-finger body by index in draw A, not chosen) × 20000 fresh records (train_ctrl5). Pairs with C1.
+- **N5** 50 bodies with no 5-finger layout: the first 50 non-5-finger bodies of draw A (P0000–P0064, configs/decoder/dlevels/no5f_bodies.json) × 400.
+- **R4** records per body ×4: draw A P0000–P0049 × 1600 fresh records (train_r4; 80000 prim records vs 20000).
+Record validation for ctrl5 / r4 passes (prim_{ctrl5,r4}_validation.json). Data job: slurm/prim_followup_data.sbatch.
+Selected on source val: D1b 40k/50k/47.5k, C5 47.5k/45k/47.5k, N5 47.5k/50k/50k, R4 50k/50k/47.5k. Benchmark: transfer_v1 +
+Shadow pool, 21 systems (G1, C1, D1, D1b, C5, N5, R4 × seeds 0/1/2), paired by seed; G1 / C1 / D1 reproduce §57/§58 exactly.
+Summary: scripts/decoder/benchmark/followup_summary.py → configs/decoder/dlevels/followup_summary.txt.
+
+| mean ± SD (n = 3) | no mvmt | G1 | C1 (1 body, 2f) | C5 (1 body, 5f) | N5 (50, no 5f) | D1 (50) | D1b (50, draw B) | R4 (50 × 1600) |
+|---|---|---|---|---|---|---|---|---|
+| Wuji corr mm | 14.19 | 13.91 ± 1.23 | 12.26 ± 1.21 | 12.49 ± 0.47 | 9.64 ± 0.77 | 9.42 ± 0.36 | 9.61 ± 0.50 | 9.45 ± 0.29 |
+| Wuji compat success | .200 | .233 | .308 | .320 | .529 | .565 | .525 | .547 |
+| Wuji corr success | .118 | .118 | .163 | .165 | .333 | .348 | .325 | .349 |
+| Wuji wrist mm | 7.96 | 9.46 | 8.29 | 8.10 | 7.26 | 7.11 | 7.16 | 7.03 |
+| Shadow corr mm | 13.97 | 14.48 ± 1.64 | 12.71 ± 2.01 | 14.32 ± 0.41 | 10.58 ± 1.07 | 10.45 ± 0.41 | 11.14 ± 1.30 | 10.29 ± 0.51 |
+| Shadow compat success | .228 | .218 | .289 | .210 | .411 | .417 | .359 | .439 |
+| Shadow corr success | .138 | .121 | .160 | .102 | .265 | .249 | .218 | .273 |
+| Shadow wrist mm | 7.96 | 9.40 | 8.90 | 9.10 | 8.15 | 8.23 | 8.39 | 7.97 |
+| held-out LEAP corr mm / compat | 14.98 / .172 | 8.95 / .566 | 9.13 / .546 | 9.16 / .535 | 9.03 / .554 | 8.97 / .577 | 9.01 / .578 | 9.05 / .569 |
+
+Wuji = near-goal pool, unseen by our decoder, seen by KITE's encoder (ψ); Shadow = near-goal pool, unseen by both (§57).
+Paired by seed (95% CI excludes 0; counts out of 3 seeds):
+- **D1b replicates D1's gain on a second body draw.** D1b − G1: better in 3/3 seeds on all four metrics on Wuji (corr −3.6, −4.2,
+  −5.1 mm) and Shadow (corr −2.7, −2.9, −4.4 mm); D1b − C1: 3/3 on Wuji (all four) and Shadow corr / compat. D1b − D1: no
+  consistent difference (Wuji corr −0.3, +0.8, +0.1; Shadow −0.6, +2.4, +0.2 mm; D1b worse in s1 only, better in s0).
+- **One 5-finger body is no better than one 2-finger body.** C5 − C1: Wuji mixed (corr 1 better / 2 worse); Shadow worse in 2/3
+  on corr and compat (C5 Shadow ≈ G1). D1 − C5: D1 better in 3/3 seeds on all four metrics on both Wuji (corr −3.4, −2.8,
+  −2.9 mm) and Shadow (corr −3.6, −4.8, −3.2 mm).
+- **50 bodies without any 5-finger layout recover the gain.** N5 − C1 and N5 − C5: better in 3/3 seeds on corr, compat and corr
+  success on Wuji and Shadow (wrist 3/3 on Wuji, 2/3 / 3/3 on Shadow). D1 − N5: no consistent difference (Wuji corr +0.4,
+  −1.4, +0.4; Shadow +0.9, −1.7, +0.4 mm).
+- **Records per body ×4: no consistent change** on Wuji (all metrics mixed) or on Shadow corr / compat (1/3 better, 0 worse);
+  Shadow wrist better in 3/3 (−0.27, −0.24, −0.29 mm), which brings it to no-movement level (7.97 vs 7.96), not below it.
+- Source val / held-out LEAP: all arms within ~0.3 mm of each other; the only 3/3 effect is D1 − C5 on Barrett source corr
+  (−0.38, −0.26, −0.21 mm).
+
+Reading: **the transfer gain comes from training on many generated bodies, it replicates on a second body draw, and it does not
+depend on having 5-finger bodies in training or on a single body resembling the target.** 50 non-5-finger bodies ≈ 50 mixed
+bodies, while one 5-finger body ≈ one 2-finger body ≈ partial gain at most. More records per body (1600 vs 400) adds no
+consistent gain at 50k steps. Caveats: both draws come from the same generator design (no coupled joints; Shadow has them);
+"first by index" picks one 5-finger body, not a sample of them; N5 still contains 4-finger bodies; Shadow wrist is still not
+better than no movement for any arm; 3 seeds per arm; nothing selected or tuned on Wuji or Shadow.
+
+## 60. Wrist diagnostics (Phase 0) and coupled-joint generator (Phase 1) (2026-11-21; docs/coupling_and_wrist_proposal.md)
+
+### 60a. Phase 0 wrist diagnostics (evaluation only; runs/wrist_diag_v1)
+
+Script: scripts/decoder/benchmark/wrist_diag.py (slurm/wrist_diag.sbatch). Reads transfer_benchmark_v1_followups/per_example.pt
+(saved predictions, fixed starts, goals, records), so no model is re-run; W-c rebuilds the bank and pool records and checks that
+the fixed starts equal the saved ones (they do). Systems: G1, C1, D1, D1b, N5, R4 × seeds 0/1/2, by seed, never pooled.
+Translations are in the start-wrist frame. Shadow's palm frame: x across the palm, y palmar normal, z distal (finger bases at
+z ≈ 0.095–0.099 m). The decision rule was written in the proposal before these were run.
+
+**W-a, per-axis translation (D1, seeds 0/1/2: R²_id per axis):**
+
+| pool | x | y | z | parallel / need |
+|---|---|---|---|---|
+| source Allegro (mean of seeds) | +.66 | +.54 | +.45 | .56 |
+| held-out LEAP (mean) | +.34 | +.35 | +.33 | .38 |
+| Wuji | +.21 / +.19 / +.18 | +.09 / +.18 / +.14 | +.20 / +.16 / +.22 | .31 |
+| Shadow | **−.21 / −.17 / −.34** | +.19 / +.18 / +.17 | **−.10 / −.15 / −.37** | .20 |
+
+Same signs across D1, D1b, N5 and R4 (12 runs): Shadow x negative in 12, y positive in 12, z negative in 10. On Shadow the
+correction along the palm normal transfers. The two in-plane axes (across the palm, along the fingers) are worse than not
+moving. The predicted step size is source-like (got RMS 5.95 mm vs need 5.0), so the direction is wrong, not the magnitude.
+
+**W-b, Shadow records with vs without a contact on a coupled distal link** (ff/mf/rf/lf distal; 191 / 309 records). D1
+wrist mm − no movement, paired 95% CI:
+- with a coupled-distal contact: −0.21 [−0.60, +0.21], −0.16 [−0.55, +0.25], +0.42 [−0.04, +0.89];
+- without: +0.25 [−0.10, +0.59], +0.29 [−0.03, +0.61], +0.75 [+0.40, +1.11].
+
+The records **without** coupled-distal contacts are the worse ones (all arms show this). Wuji, which has no coupling, shows the
+same direction for the same links (257 / 243 records; D1 −1.0 vs −0.65 mm). So the Shadow translation failure is **not
+concentrated on coupled-joint contacts**.
+
+**W-c, oracle split** (corr mm / compat success; D1 seeds 0/1/2):
+
+| pool | full decoder | decoder wrist + goal fingers | goal wrist + decoder fingers | no movement |
+|---|---|---|---|---|
+| source Allegro | 6.31 / 6.49 / 6.19 | 6.15 / 6.31 / 6.03 | 2.08 / 2.09 / 2.08 | 11.55 |
+| held-out LEAP | 8.88 / 9.08 / 8.95 | 8.52 / 8.71 / 8.55 | 3.98 / 4.08 / 4.02 | 14.98 |
+| Wuji | 9.36 / 9.10 / 9.81 | 9.14 / 8.92 / 9.58 | 2.83 / 2.81 / 2.88 (compat .91) | 14.19 |
+| Shadow | 10.46 / 10.03 / 10.86 | 10.28 / 9.85 / 10.68 | 2.44 / 2.41 / 2.43 (compat .91) | 13.97 |
+
+- The decoder's fingers transfer. Given the goal wrist, they realise Wuji and Shadow contacts to 2.4–2.9 mm (compat
+  success about .91), better than on held-out LEAP.
+- Almost all of the remaining error is the wrist, on every pool including the source hands: full ≈ decoder wrist + goal fingers.
+- The wrist is not compensating for fingers that can't be realised.
+- On Shadow, D1's wrist alone still reduces contact error vs no movement (−3.7, −4.1, −3.3 mm, CIs exclude 0), through
+  rotation. G1's does not (−1.65, +1.09, +1.27).
+
+**Decision rule outcome:**
+- Branch 1 (coupling as the cause) is **not met**: W-b shows no concentration on coupled-distal contacts, and W-c shows no compensation.
+- Branch 2 (size or proportion) is only partly met: two in-plane axes fail, not one. Shadow's in-plane dimensions are inside the generator's
+  ranges (outer-finger span 66 mm vs 36–71 mm for 4 long fingers; palm-to-finger-base about 97 mm vs 66–133; long-finger
+  length about 96 mm vs 68–138).
+- The evidence points mostly to branch 3, **a decoder-side wrist problem**: wrist translation in the palm plane does not
+  transfer to Shadow. A decoder-side W2 proposal is the next design step (not written or started).
+- Phase 1 proceeds on its own merits, but a Shadow wrist improvement is no longer an expected outcome of coupling.
+
+### 60b. Phase 1: coupled joints in the generator (code + data, CPU only; nothing trained)
+
+**Code** (pre-edit copies were kept in the session scratchpad):
+- `kite_data/prim_hand.py`: `sample_coupling(spec, seed)` uses its own RNG stream `[seed, index, attempt, crc32("couple")]`.
+  - A body is coupled with p = .5. In a coupled body, each finger with ≥ 2 flexion joints (thumb included) is coupled with p = .75: its last flexion joint (always the finger's last joint) follows the previous flexion joint, q = m·q_src, m ~ U(0.5, 1.2), offset 0, limits m × the source's.
+  - `FingerSpec.mimic`; `PrimSpec.n_dof` = independent coordinates; topology suffix `-cN`; MJCF `<equality><joint>`; hand.json joints carry `"mimic"`.
+  - Uncoupled bodies' hand.json and hand.xml are unchanged by the new code (the 50 D1 bodies reproduce byte for byte).
+- `kite_data/hand.py`: `HandJoint.mimic`. `fk` applies it, and `link_dof_ancestors` maps a coupled joint to its source coordinate, so the KITE joint mask is correct.
+- `kite_data/collision.py`: Collider sets coupled joints' qpos.
+- `kite_data/build_prim.py`: new `couple` subcommand. It builds from an existing validated draw: an uncoupled body is copied byte for byte; a coupled body gets a new hand.json and hand.xml, keeps the source template.npz and must pass the same validity gate (otherwise it is copied uncoupled).
+- `getkite/decoder/robots.py::leap_desc`: reads `"mimic"` into `Joint.mimic` and excludes it from coords. `RobotBank`'s existing one-level mimic support does the rest.
+- `scripts/decoder/dlevels/validate_prim.py`: check 5 is now coupling consistency (count = spec, same-finger independent source, limits, MJCF equality to 1e-7) instead of "no mimic"; MuJoCo check sets coupled qpos.
+- New: `scripts/decoder/dlevels/check_coupled_regression.py`, `slurm/prim_coupled_data.sbatch`, `scripts/decoder/dlevels/make_d1c.py`.
+
+**Tests:**
+- `get-ur-kite-dataset/tests/test_prim_coupling.py`, 5 tests: determinism and unchanged other features; limits; uncoupled descriptor unchanged; FK vs MuJoCo; Collider; joint mask.
+- `tests/decoder/test_prim_coupling.py`: decoder FK = generator FK on coupled bodies.
+- Dataset suite: 58 passed. Decoder: test_prim_coupling, test_surface_sampling and test_scratch pass, except the existing `test_decoder_and_psi_inputs_are_deployment_only`, which fails on GETScratch.forward's `intent_tokens` argument from the direct-decoder work. That failure predates this change.
+
+**Data:** `$GETKITE_DATASET/prim_c` comes from draw A + coupling, seed 20261119; records use draw A's plan, seed and regime.
+- 387 / 900 bodies are coupled (818 coupled joints; 1/2/3/… per body = 123/147/71/…). 0 were dropped by the gate.
+- Regression (configs/decoder/dlevels/prim_c_regression.json): pass. All 900 templates are byte-identical to draw A. The 513 uncoupled bodies are byte-identical, and all of their records are array-equal to draw A's.
+- Validation (prim_c_validation.json): 900 / 900 pass.
+  - adapter FK ≤ 1.0e-7 m; MJCF ≤ 1.7e-9;
+  - contact reproduction ≤ 1.3e-7 m; cover radius median 27.5 mm.
+  - The first run flagged 17 bodies on a rounding artefact in the MJCF-equality comparison, which is now tolerance-based. The re-run passes.
+- D1c training bodies P0000–P0049: 23 coupled (50 coupled joints). Held-out P0800–P0849: 26 (61).
+
+**D1c configs** (configs/decoder/scratch/d1c_prim50c_hf{,_s1,_s2}.json, from make_d1c.py): D1 with every `/prim/` path changed to `/prim_c/`, as for D1b. So train, val and the held-out generated bodies use prim_c; everything else is D1's.
+- Diffed: only train / robots / val / extra_eval / out_dir / _note differ.
+- CPU smoke test: families allegro / barrett / leap / prim = 1 / 1 / 52 / 100 robots in the bank (train + held-out); 111 mimic joints; 80,016 train and 2,004 val records.
+- **Not launched (Phase 2 needs the user's go-ahead).**
+
+## 61. W2: wrist-frame convention (2026-11-21; docs/w2_wrist_frame_proposal.md)
+
+### 61a. W2-a frame-relabelling test (evaluation only; runs/w2a_frame_relabel)
+
+Script: scripts/decoder/benchmark/frame_relabel_eval.py (slurm/frame_relabel.sbatch).
+- **Method:** the same physical task with every robot's base frame re-expressed by each of the 24 axis-aligned proper rotations: base-link template and base-child joint origins rotated by Qᵀ, start / goal wrist rotations → R·Q, and the output mapped back and scored in the original bank.
+- **Checks:** world template points are identical (max 6.0e-8 m); surface tokens are identical for all 24 frames; the identity frame reproduces the benchmark exactly.
+- **Systems:** G1 and D1, seeds 0/1/2.
+
+Translation R²_id: identity frame, then the median [min, max] over the 23 relabelled frames:
+
+| pool | D1 s0 | D1 s1 | D1 s2 | G1 (drop of median, s0/s1/s2) |
+|---|---|---|---|---|
+| source Allegro | +.55 → −.04 [−.19, +.07] | +.53 → −.08 [−.37, +.03] | +.58 → −.07 [−.22, +.09] | .88 / 1.29 / 1.27 |
+| source LEAP | +.38 → −.21 | +.37 → −.12 | +.39 → −.23 | 1.10 / 1.49 / 1.26 |
+| held-out LEAP | +.35 → −.19 | +.32 → −.10 | +.35 → −.21 | 1.04 / 1.38 / 1.18 |
+| Wuji | +.17 → −.24 | +.18 → −.08 | +.18 → −.24 | .59 / .54 / .10 |
+| Shadow | −.03 → −.35 [−.83, +.06] | −.04 → −.15 [−.40, +.05] | −.17 → −.37 [−.02, +.07]* | .72 / .38 / .35 |
+
+\* max +.07.
+- Rotation R²_id falls the same way (D1 Allegro .67 → .20 median).
+- Wrist mm rises from 5.2 to about 8.1 on Allegro, worse than no movement (7.95).
+- Source corr rises from 6.3 to about 10.7 mm.
+
+**Rule** (predeclared): the drop of the source Allegro / LEAP median is ≥ .20 in 3/3 D1 seeds (Allegro .58 / .61 / .65; LEAP .58 / .50 / .62), so the decoder is **frame-dependent**, and W2-b was launched as the proposal specified.
+- **The wrist mapping is tied to each training family's base-frame convention.** The same hand with its palm frame labelled differently loses all of its wrist translation and most of its rotation accuracy, even on the training hands.
+- Body variety (D1) roughly halves the dependence relative to G1 but doesn't remove it.
+- For Shadow, some relabellings give better contact error than its own frame (corr min 9.18 / 9.00 / 9.53 vs 10.46 / 10.03 / 10.86 mm). This fits the reading that its native frame convention is part of its wrist failure (§60a).
+
+### 61b. W2-b base-frame augmentation (training; launched 2026-11-21, results pending)
+
+One change from D1 at seeds 0/1/2: config `base_frame_aug = {"k": 32, "seed": 20261121}`. Each training example's robot is re-expressed in one of 32 fixed base frames (the identity + 31 uniform SO(3) draws), chosen uniformly per example. A pool of 32 fixed draws stands in for "uniform over SO(3)" (a GPU-memory choice).
+- **Implementation:** `robots.relabel_base` and `train_joint.frame_aug_bank` (an augmented bank of robots × 32 frames; block 0 is the identity, at the original indices). The training step remaps r → r + b·n_robots and R1, Rg → R·Q_b. Checks, evaluation and selection use the original bank. Default off, so existing configs are unchanged.
+- **Tests** (tests/decoder/test_frame_aug.py): world geometry is invariant, and the wrist-frame translation target rotates by Qᵀ. Both pass.
+- **GPU smoke** (60 steps, 2080 Ti): checks pass; 2.1 GB peak; 2,220 ex/s vs D1's 3,300.
+- **Configs:** w2b_frameaug_hf{,_s1,_s2} (make_w2b.py; diff vs D1 is base_frame_aug / out_dir / _note only).
+- **After training:** transfer_v1_w2b benchmark (G1 / D1 / W2-b), and the relabelling test re-run on W2-b (runs/w2b_frame_relabel), to check that the frame dependence is gone.
+- D1c (§60b) is training at the same time; its benchmark is transfer_v1_d1c.
+
+## 62. D1c: coupled-joint bodies (Phase 2; 2026-11-21; runs/d1c_prim50c_hf{,_s1,_s2}, runs/transfer_benchmark_v1_d1c)
+
+D1 at seeds 0/1/2 with prim P0000–P0049 taken from prim_c (§60b; 23/50 training bodies coupled, 50 coupled joints) instead of draw A; nothing else changed. Benchmark G1 / D1 / D1c, paired by seed (configs/decoder/dlevels/d1c_summary.txt). Counts are seeds whose paired 95% CI excludes 0 (D1c better / D1 better), out of 3.
+
+| pool | corr mm D1 → D1c (mean over seeds) | D1c vs D1 corr | compat D1 → D1c | D1c vs D1 compat | wrist mm D1 → D1c | D1c vs D1 wrist |
+|---|---|---|---|---|---|---|
+| source Allegro | 6.33 → 6.43 | 0/**2** | .862 → .860 | 0/0 | 5.18 → 5.27 | 0/1 |
+| source Barrett | 6.27 → 6.37 | 0/1 | .873 → .873 | 0/0 | 5.16 → 5.22 | 0/0 |
+| source LEAP | 8.49 → 8.49 | 0/0 | .612 → .623 | 0/0 | 6.00 → 6.01 | 0/0 |
+| held-out LEAP | 8.97 → 9.08 | 0/0 | .577 → .563 | 0/0 | 6.37 → 6.34 | 0/0 |
+| Wuji (unseen by our decoder, seen by KITE's encoder ψ) | 9.42 → 9.57 | 0/1 | .565 → .519 | 0/**2** | 7.11 → 7.08 | 0/0 |
+| Shadow | 10.45 → 10.45 | 1/1 | .417 → .428 | 1/0 | 8.23 → 8.10 | 1/0 |
+
+- **Primary (Shadow corr / compat): no effect.** Per-seed corr differences +.29 / +.51 / −.80 mm; compat −.03 / −.02 / +.09.
+- **Secondary (Shadow wrist):** 1/3 seeds better (s2, −.66 mm); translation R²_id −.06 / −.07 / −.00 (D1 −.03 / −.04 / −.17). Still not better than no movement (7.96 mm) in 2/3 seeds.
+- **Non-inferiority:** no pool is worse in 3/3 seeds, but D1c is worse in 2/3 on source Allegro corr (+.15 / +.15 mm) and on Wuji compat (−.05 / −.10). Small costs, no gain.
+- Both D1 and D1c still beat G1 3/3 on Wuji and Shadow (body variety, §56–§59).
+- **Reading:** adding coupled joints to the generator does not help Shadow. This agrees with Phase 0 W-b (Shadow's error is not on coupled-distal contacts) and §61a (the wrist failure is a frame-convention effect). D1c is not promoted; D1 stays the reference. Shadow has now been looked at for this comparison as well (§60 caveat).
+
+### 61c. W2-b results (runs/w2b_frameaug_hf{,_s1,_s2}, runs/transfer_benchmark_v1_w2b, runs/w2b_frame_relabel)
+
+Benchmark G1 / D1 / W2-b paired by seed (configs/decoder/dlevels/w2b_summary.txt). Counts = seeds whose paired 95% CI excludes 0 (W2-b better / D1 better), out of 3.
+
+| pool | corr mm D1 → W2-b | count | compat D1 → W2-b | count | wrist mm D1 → W2-b (no movement) | count | trans R²_id D1 → W2-b (per seed) |
+|---|---|---|---|---|---|---|---|
+| source Allegro | 6.33 → 8.09 | 0/**3** | .862 → .759 | 0/**3** | 5.18 → 6.22 (7.95) | 0/**3** | .55/.53/.58 → .38/.37/.38 |
+| source Barrett | 6.27 → 7.71 | 0/**3** | .873 → .780 | 0/**3** | 5.16 → 6.23 (8.02) | 0/**3** | .56/.54/.56 → .38/.37/.37 |
+| source LEAP | 8.49 → 9.90 | 0/**3** | .612 → .521 | 0/**3** | 6.00 → 6.70 (7.75) | 0/**3** | .38/.37/.39 → .25/.24/.26 |
+| held-out LEAP | 8.97 → 10.50 | 0/**3** | .577 → .457 | 0/**3** | 6.37 → 6.99 (7.96) | 0/**3** | .35/.32/.35 → .23/.22/.22 |
+| Wuji (unseen by our decoder, seen by KITE's encoder ψ) | 9.42 → 8.50 | **2**/0 | .565 → .621 | 1/0 | 7.11 → 6.95 (7.96) | **2**/0 | .17/.18/.18 → .22/.20/.26 |
+| Shadow | 10.45 → 8.81 | **3**/0 | .417 → .558 | **3**/0 | 8.23 → 7.21 (7.96) | **3**/0 | −.03/−.04/−.17 → +.16/+.17/+.20 |
+
+- **Primary (Shadow wrist mm, translation R²_id): W2-b better in 3/3.** Shadow's wrist now beats no movement in every seed (7.29 / 7.24 / 7.12 vs 7.96) and translation R²_id is positive in every seed. Shadow rotation: 1/3 better (s2), 0 worse.
+- **Secondary:** Shadow corr −1.05 to −2.48 mm and compat +.08 to +.24, 3/3. Wuji corr 2/3 better, compat 1/3.
+- **Non-inferiority: fails.** Source Allegro / Barrett / LEAP and held-out LEAP are worse in 3/3 seeds on every metric (corr +1.4 to +1.9 mm, compat −.09 to −.13, wrist +.6 to +1.2 mm, wrist deg +1.1 to +2.1°). W2-b still beats no movement everywhere.
+- **Relabelling re-test:** frame dependence is gone. The drop of the median over the 23 relabelled frames is source Allegro .06 / .06 / .04, LEAP .02 / .01 / .01 (D1: .58–.65, .50–.62), Shadow .00 / .00 / .02, Wuji .00 / .00 / .01. The predeclared "not frame-dependent" threshold (< .10) is met in 3/3. Max |world error| 6e-8 m.
+- **Training curves:** validation macro contact mm flattens in the last 10k steps in both D1 (6.26 → 6.21) and W2-b (7.81 → 7.74, 8.01 → 7.96, 7.65 → 7.55). So the source gap is not simply W2-b being stopped earlier under the same schedule, though a longer budget was not tested.
+- **Reading:** the training hands' accuracy depended partly on each family's fixed frame convention. That shortcut doesn't carry over to a hand with a different convention, which is Shadow's failure. Removing it (W2-b) makes the wrist mapping frame-invariant and fixes the Shadow wrist in 3/3 seeds, at a large in-distribution cost. W2-b is a trade-off, not a promotion; D1 stays the reference until a variant keeps source accuracy. Shadow has now been looked at for this comparison too (§60 caveat applies).
+
+## 63. CF: canonical palm frame from each hand's geometry (2026-11-22; docs/cf_canonical_palm_frame_proposal.md; implementation only, no training yet)
+
+Motivation (§61c): W2-b showed that removing frame-convention dependence fixes Shadow's wrist but costs accuracy on the training hands. CF gives every robot one consistent frame meaning, computed (not learned) from its description and template, so the decoder sees one convention everywhere.
+
+**Step 1 frame check** (configs/decoder/dlevels/cf_frame_check.json; slurm/cf_frame_check.sbatch). Gate: ≥ 90% of the 900 generated bodies within 30° of their known native frame, and every named hand sensible.
+- The first rule (A: palm centroid → distal centroid, plus curl) **failed**: .764 within 30°, and LEAP variants up to 49° apart.
+- Revised on geometry only (no decoder results, no Wuji / Shadow outcomes); four candidates are compared in the proposal.
+- **Rule E** (palm principal axes, picked and signed by the mean per-finger direction and the curl) passes: .919 within 30°, median 2.7°, p90 22.6°.
+- Named hands (canonical axis → closest native axis):
+  - Wuji: n = +x, a = +y, d = +z (≤ 8°).
+  - Shadow: n = −y, a = +x, d = +z (≤ 13°).
+  - LEAP mean: n = −z, d = +x.
+  - Barrett: n = +y, d = +z (16°).
+  - Allegro: n = +x, d = +y / +z (31°).
+- Exact invariance to relabelling holds (≤ 3e-15). Known weakness: one 2-finger LEAP variant (I0-M4-R0-T3_g0) gets d on a different palm axis (87° from the other 51 variants, which are within 17°).
+
+**Implementation:**
+- `robots.canonical_frame`, `robots.canonical_bank`.
+- `canonical.CanonicalFrame`: an evaluation wrapper that uses the canonical bank, maps R0 → R0·Q_r and the output R' → R'·Q_rᵀ, and re-expresses res_root in the caller's frame.
+- `train_joint`: config `canonical_frame` (default off, so existing configs reproduce; exclusive with base_frame_aug). Training uses the canonical bank with R1, Rg → R·Q_r; evaluation and selection go through the wrapper. Writes out_dir/canonical_frames.json.
+- `transfer_benchmark.load_system` wraps checkpoints whose config has canonical_frame.
+
+**Tests** (tests/decoder/test_canonical_frame.py, 3 tests, plus test_frame_aug.py): the frame is proper and relabel-invariant; generated bodies are near native; the wrapper maps frames back; world geometry is unchanged. All pass.
+
+**GPU smoke** (60 steps; out_dir runs/cf_dev/smoke): checks pass, 154 robots canonicalised, 1.2 GB peak, about 2,540 ex/s (D1 3,300). The relabelling test on the smoke checkpoint gives identical values under every relabelling (an implementation check, as expected by construction), and world error is 0.
+
+**Configs:** cf_canon_hf{,_s1,_s2} (make_cf.py; diff vs D1 is canonical_frame / out_dir / _note only). Benchmark configs/decoder/benchmark/transfer_v1_cf.json (G1 / D1 / W2-b / CF × 3). **Launched 2026-11-24** (user go-ahead), see below.
+
+**Launch (2026-11-24, 22:30 EST).**
+- **Fallback preserved first:** D1 at all three seeds (best.pt, config, provenance, checks), copied read-only with SHA256SUMS to runs/fallback_d1_reference_2026-11-24. No seed is chosen.
+- **Frozen for this experiment:** frame rule E, data, losses and training settings (D1 plus canonical_frame:true). Code, configs, frame check and proposal snapshot in runs/cf_freeze_2026-11-24 (read-only, SHA256SUMS).
+- **Jobs:** 2915 / 2916 / 2917 (kr-cf_canon_hf{,_s1,_s2}), time limit raised to 3 h to avoid a requeue (CF is about 1.3× slower than D1's 1 h 33 m). Watcher slurm/dlevels_watch.sh resubmits on failure.
+- **Auto-evaluation:** slurm/cf_chain.sh submits the transfer_v1_cf benchmark and the relabelling test (slurm/frame_relabel_cf.sbatch) once all three are DONE (log slurm/logs/cf_chain.log).
+- **Anomalous LEAP frame:** I0-M4-R0-T3_g0 (two fingers) gets d on a different palm axis (87° from the other 51 LEAP variants). It is part of training as is; the rule was frozen without patching it.
+
+**CF results (2026-11-25; runs/cf_canon_hf{,_s1,_s2}, runs/transfer_benchmark_v1_cf, runs/cf_frame_relabel; summary configs/decoder/dlevels/cf_summary.txt via scripts/decoder/benchmark/cf_summary.py).**
+Training ran 00:51–02:25 EST (best steps 47.5k / 45k / 50k, chosen on source validation). Paired within seed; "sig" = 95% CI excludes 0; 3 seeds, none chosen, no pooling.
+- **Relabelling test:** across 24 relabellings the largest spread of any metric is 0.002 (one example), world error 6e-8 m. CF is frame-invariant as built.
+- **Source (Allegro / Barrett / LEAP val):** CF ≈ D1. corr −0.05 / −0.05 / +0.09 mm, compat +.01 each; no significant corr or compat loss. Wrist rotation slightly worse (+0.14° Allegro, +0.18° LEAP, sig 2/3 each).
+- **Held-out LEAP:** corr +0.17 mm (+0.29 / +0.04 / +0.16; sig worse in seed 0 only), compat −.01 (n.s.), wrist rotation +0.15° (sig 2/3).
+- **Wuji** (unseen by our decoder, seen by KITE's encoder ψ): CF better than D1. corr −0.86 mm (sig 3/3), compat +.09 (sig 2/3), wrist −0.18 mm (sig 2/3). CF ≈ W2-b.
+- **Shadow** (evaluation only): CF better than D1. corr −1.53 mm (3/3), compat +.15 (2/3), wrist −0.80 mm (3/3), trans R²_id −.08 → +.11 (3/3). CF ≈ W2-b on contacts, W2-b slightly better on wrist mm (sig 2/3).
+- **Transfer beyond no movement:** CF and D1 both beat no movement on every pool and seed for contacts and wrist rotation. Shadow wrist translation is the exception: D1 does not beat no movement (+0.27 mm, worse in seed 2); CF does in 3/3 (−0.53 mm).
+- **Predeclared readout:** Primary 2 (Shadow wrist) holds 3/3. Primary 1 (non-inferiority, every seed) **fails by one seed** on held-out LEAP corr (seed 0, +0.29 mm). **Not promoted**; D1 stays the reference and the delivery default.
+
+**After CF (2026-11-25).** D1 and CF frozen read-only (runs/fallback_d1_reference_2026-11-24, runs/frozen_cf_2026-11-25).
+- **Diagnosis of CF's in-distribution cost:** not per-variant frame error (LEAP frames within 11° of their mean; CF − D1
+  does not track the angle). It falls on families with one fixed native convention (LEAP, generated bodies: source-val
+  generated +0.12 mm, held-out generated +0.26 mm).
+- **Training length:** both models were still improving when the 50k cosine schedule ended.
+- **Proposal:** CF2 = CF at 100k steps, with a D1-long control (docs/cf2_longer_training_proposal.md). Configs ready; not
+  launched.
+
+### 63c. A (100k steps) results (2026-11-25)
+
+A was launched (D1-long and CF-long, 3 seeds each); details and full numbers are in docs/cf2_longer_training_proposal.md,
+"A results", and configs/decoder/dlevels/cf2_readout/.
+- **CF-long vs D1-long:** Primary 1 holds and Primary 2 holds (Shadow wrist −0.94 mm, significant 3/3). Primary 3 (lower
+  contact error on every family, 3/3) fails: held-out LEAP +0.12 mm (3/3, not significant) and generated bodies (2/3 higher).
+- **CF-long vs frozen D1:** better on every family in 3/3 except held-out LEAP (2/3 significantly lower; seed 0 +0.014, not
+  significant).
+- **Relabelling invariance** holds exactly (spread 0).
+- **Not promoted under the predeclared rule.** B (body variety) is pending.
+
+### 63d. B (body variety, 100k) results (2026-11-25)
+
+- Body variety (414 LEAP hands, 800 generated bodies, same record budget) improved D1 on every family vs frozen D1 (held-out
+  LEAP −0.39 mm, Wuji −0.79 mm, held-out generated −0.84 mm; Shadow lower 2/3) but did not improve CF (CF-bv ≈ CF-long on
+  held-out LEAP; worse on Wuji / Shadow in 2/3). CF-bv fails all three primaries vs D1-bv.
+- D1-bv and CF-long tie on source; D1-bv better on held-out LEAP / held-out generated bodies; CF-long better on Shadow
+  (wrist significantly better 3/3, only model whose Shadow wrist beats no movement).
+- No CF model promoted under the predeclared rule; choice to the user. Details: docs/cf2_longer_training_proposal.md.
+
+### 63e. Held-out LEAP widened to 105 hands, and CF frame sensitivity (2026-11-25, evaluation only)
+
+- The 105-hand evaluation (transfer_benchmark_v1_leapval105) shows CF2's held-out LEAP gap to D1-long (+0.06 / +0.14 / +0.15 mm)
+  comes from hands whose canonical frame lies off the mean LEAP frame: ≈ 0 below 6°, +0.55 at 10–15°, +1.3 above 15°.
+  This reverses §63 diagnosis 1 (16 hands, too few).
+- Step 0 dose-response (frame of 45 low-angle hands rotated deliberately): +0.05 / +0.21 / +0.81–0.91 / +1.56–1.83 mm at
+  2.5 / 5 / 10 / 15°, 3/3 seeds. CF is causally sensitive to its own frame error. Plan: docs/cf_frame_jitter_proposal.md
+  (Step 1 CF-J, frame jitter in training; not launched).
+
+### 63f. CF-J, multi-pass and origin-shift checks (2026-11-25)
+
+- CF-J (CF2 + training-time frame jitter ≤ 15°): predeclared readout NOT MET. 105-hand CF-J − D1-long −0.11 / +0.09 / +0.17 mm
+  (seeds 1–2 significant); frame-angle sensitivity reduced (hands > 10° off: −0.3 to −0.8 mm vs CF2) but a gap remains on
+  low-angle hands; Shadow more seed-variable. Not promoted; item 8 dropped. docs/cf_frame_jitter_proposal.md.
+- Multi-pass inference: no help (pass 2 significantly worse on LEAP / held-out / Wuji / Shadow 3/3). Base-origin shift: all
+  models strongly sensitive (2 cm → +1.9 to +4.0 mm source). Canonical-origin design (CF-O, base CF2) drafted, not launched.
+  docs/multipass_origin_checks_proposal.md, docs/canonical_origin_proposal.md.
+
+### 63g. CF-O result (2026-11-26)
+
+CF-O (CF2 + canonical palm-centre origin) is exactly origin-invariant but fails its readout: Wuji and Shadow wrist +0.5 to +1.45 mm
+and contact +0.35 to +1.76 mm worse than CF2 (3/3 significant; Shadow wrist worse than no movement); held-out LEAP slightly worse.
+Likely reason: KITE's perturbations rotate about the native base origin, so that origin carries task information; moving it couples
+rotation and translation via a family-specific lever arm. Combined CF-O + variety run not launched (gate). docs/canonical_origin_proposal.md.
+
+### 63h. CF-O follow-up: rotation-centre test (2026-11-26, evaluation only, job 32469)
+
+Re-scored CF2 and CF-O with start rotation noise about the native origin, removed, or about the palm centre. CF-O's Wuji/Shadow
+wrist deficit persists without rotation (Wuji +0.61 to +1.13, Shadow +1.08 to +1.52 mm) and only shrinks with palm-centred
+rotation (Wuji +0.32 to +0.78, Shadow +0.51 to +0.95). The rotation-centre explanation (§63g reading) is refuted as the main cause.
+Details: docs/canonical_origin_proposal.md, "Follow-up". No retraining launched (no clear path).
+
+### 63i. CF-3 step 0: oracle per-hand frame (2026-11-26, evaluation only, job 32879)
+
+Mean training-LEAP frame substituted for rule E on the 105 held-out hands: CF2 −0.11 to −0.13 mm (sig); gap to D1-long goes from
++0.06/+0.14/+0.15 to −0.08/+0.01/+0.03; still behind D1-bv (+0.32/+0.04/+0.05). Frame error ≈ all of CF2's gap to D1-long; ceiling
+for a learned frame fix ≈ 0.1 mm. Also found: 552 unused train-split LEAP hands (360 of topologies unseen by CF2/D1-long; all seen
+by D1-bv). Details in docs/cf3_distillation_proposal.md.
+
+### 63j. External hands, 360-hand pool and rule-E 90° flips (2026-11-26, evaluation only)
+
+7 external hands (SPIDER: Ability, Inspire, XHand, Schunk, MetaHand; Menagerie: Sharpa, Aero) built and scored (jobs 33115, 33117):
+CF2 beats no movement on all and D1-long on most (Inspire/XHand by 3–13 mm); fails on MetaHand (~no movement) because rule E swaps
+n and a (frame probe job 33187: a 90° turn about d fixes it). 360-hand pool (job 32982): CF2 − D1-long +0.07/+0.18/+0.19 (replicates);
+9/360 hands have ~90° rule-E flips costing +2.5–3.0 mm; excluding them the gap is +0.01/+0.11/+0.13. docs/external_hands.md.

@@ -149,7 +149,9 @@ def urdf_desc(urdf: str | Path, template: str | Path, name: str, family: str, co
 
 
 def leap_desc(hand_dir: str | Path) -> RobotDesc:
-    """A kite_data LEAP variant. Locked joints are fixed joints at their lock angle (0 rad)."""
+    """A kite_data hand dir: a LEAP variant, or a primitive body (kite_data.prim_hand, hand.json "family": "prim").
+    Locked joints are fixed joints at their lock angle (0 rad). family defaults to "leap" (LEAP hand.json has none).
+    A joint with a "mimic" entry (coupled primitive bodies) follows its source joint and is not a coordinate."""
     hand_dir = Path(hand_dir)
     d = json.loads((hand_dir / "hand.json").read_text())
     tpl = np.load(hand_dir / "template.npz")
@@ -161,11 +163,13 @@ def leap_desc(hand_dir: str | Path) -> RobotDesc:
             Rl = axis_angle_matrix(torch.tensor(j["axis"], dtype=torch.float64), torch.tensor(lock, dtype=torch.float64)).numpy()
             joints.append(Joint(j["name"], "fixed", j["parent_link"], j["child_link"], T @ make_T(Rl, np.zeros(3))))
             continue
+        mm = j.get("mimic")  # coupled joint (kite_data.prim_hand.sample_coupling): not an independent coordinate
         joints.append(Joint(j["name"], "revolute", j["parent_link"], j["child_link"], T, np.asarray(j["axis"], float),
-                            j["lower"], j["upper"]))
-        coords[j["dof"]] = j["name"]
+                            j["lower"], j["upper"], (mm["joint"], float(mm["multiplier"]), float(mm["offset"])) if mm else None))
+        if not mm:
+            coords[j["dof"]] = j["name"]
     assert None not in coords
-    return RobotDesc(name=d["id"], family="leap", base_link="palm_lower", joints=joints, coords=coords,
+    return RobotDesc(name=d["id"], family=d.get("family", "leap"), base_link="palm_lower", joints=joints, coords=coords,
                      tpl_link_names=[str(s) for s in tpl["link_names"]], tpl_link=tpl["link"].astype(np.int64),
                      tpl_pos=tpl["pos"].astype(np.float64), tpl_normal=tpl["normal"].astype(np.float64),
                      surf_idx=tpl["fps"].astype(np.int64),
@@ -340,6 +344,171 @@ def robot_arrays(desc: RobotDesc, surface_sampling: str = "link_local_legacy") -
     return RobotArrays(np.array(len(phys)), np.array(len(desc.coords)), parent_slot, A, axis, jtype, lower, upper,
                        valid, msrc, mmul, moff, coord_joint, joint_coord, tpl_anchor, pos, nrm, surf_idx, nbr,
                        spd, anc, node_valid)
+
+
+def relabel_base(desc: RobotDesc, Q: np.ndarray) -> RobotDesc:
+    """The same robot with its base frame re-expressed by the proper rotation Q (new base axes = old base axes @ Q):
+    base-link template points / normals -> Q^T p, and every joint attached to the base link: origin T -> Q^T T. A base
+    pose R becomes R Q (translation unchanged); world link poses are then identical (docs/w2_wrist_frame_proposal.md)."""
+    from dataclasses import replace
+    QT4 = np.eye(4); QT4[:3, :3] = np.asarray(Q, float).T
+    joints = [replace(j, T=QT4 @ j.T) if j.parent == desc.base_link else j for j in desc.joints]
+    base_i = [i for i, n in enumerate(desc.tpl_link_names) if n == desc.base_link]
+    on_base = np.isin(np.asarray(desc.tpl_link), base_i)
+    pos, nrm = np.array(desc.tpl_pos, dtype=np.float64), np.array(desc.tpl_normal, dtype=np.float64)
+    pos[on_base], nrm[on_base] = pos[on_base] @ Q, nrm[on_base] @ Q  # row form of Q^T p
+    return replace(desc, joints=joints, tpl_pos=pos, tpl_normal=nrm)
+
+
+def canonical_frame(desc: RobotDesc, n_samples: int = 512, seed: int = 0):
+    """CF canonical palm frame (docs/cf_canonical_palm_frame_proposal.md, rule E), from the robot description + template only.
+    Palm points P: template points on links rigidly attached to the base (fixed joints only). Distal links: links with
+    points and no descendant link with points. Fingers: movable joints attached to the palm whose subtree holds distal
+    links. q0 = zero coordinates clamped to the limits; workspace = n_samples uniform draws within the limits (fixed seed;
+    mimics follow their sources). All in the native base frame:
+      f    = mean over fingers of unit(mean distal points of the finger at q0 - the finger's root joint origin);
+      curl = mean_S(mean distal points) - mean distal points at q0;
+      V    = principal axes of P;  d = the axis of V best aligned with f (sign of f);  n = the remaining axis best aligned
+             with curl (sign of curl);  a = d x n;  Q = [n a d] (columns in the native base frame).
+    relabel_base(desc, Q) then gives x = palmar, y = across, z = distal. Returns (Q (3, 3) float64, info dict)."""
+    bank = RobotBank([desc], device="cpu", dtype=torch.float64, surface_sampling="hand_frame")
+    names = list(desc.tpl_link_names)
+    tl = np.asarray(desc.tpl_link)
+    has_pts = {names[i] for i in np.unique(tl)}
+    children = {}
+    for j in desc.joints:
+        children.setdefault(j.parent, []).append(j)
+    palm, stack = {desc.base_link}, [desc.base_link]
+    while stack:
+        for j in children.get(stack.pop(), []):
+            if j.type == "fixed" and j.child not in palm:
+                palm.add(j.child); stack.append(j.child)
+
+    def subtree(link):
+        out = {link}
+        for c in children.get(link, []):
+            out |= subtree(c.child)
+        return out
+
+    def desc_has_pts(link):
+        return any(c.child in has_pts or desc_has_pts(c.child) for c in children.get(link, []))
+    distal = {l for l in has_pts if not desc_has_pts(l)}
+    by_child = {j.child: j for j in desc.joints}
+
+    def depth(j):  # slot order as robot_arrays
+        d, link = 0, j.parent
+        while link != desc.base_link:
+            p = by_child[link]
+            d, link = d + (p.type != "fixed"), p.parent
+        return d
+    slot = {j.name: i + 1 for i, j in enumerate(sorted([j for j in desc.joints if j.type != "fixed"], key=depth))}
+    lname = np.array(names, dtype=object)[tl]
+    iP = np.flatnonzero(np.isin(lname, list(palm))); iD = np.flatnonzero(np.isin(lname, list(distal)))
+    roots = [j for p in sorted(palm) for j in children.get(p, []) if j.type != "fixed"]
+    fingers = [(j, [l for l in subtree(j.child) if l in distal]) for j in roots]
+    fingers = [(j, dl) for j, dl in fingers if dl]
+    assert len(iP) and len(iD) and fingers, f"{desc.name}: palm {len(iP)} / distal {len(iD)} points / {len(fingers)} fingers"
+    r = torch.zeros(1, dtype=torch.long)
+    cl, cu = bank.coords_of(r, bank.lower[r])[0], bank.coords_of(r, bank.upper[r])[0]
+    cv = bank.coord_valid[0]
+    g = torch.Generator().manual_seed(seed)
+    u = torch.rand(n_samples, cl.shape[0], generator=g, dtype=torch.float64)
+    qc = torch.cat([torch.where(cv, torch.zeros_like(cl).clamp(cl, cu), 0.0)[None],
+                    torch.where(cv, cl + u * (cu - cl), 0.0)])
+    rr = torch.zeros(len(qc), dtype=torch.long)
+    Rs, ts = bank.fk(rr, bank.expand(rr, qc), torch.eye(3, dtype=torch.float64).expand(len(qc), 3, 3),
+                     torch.zeros(len(qc), 3, dtype=torch.float64))
+    Rs, ts = Rs.numpy(), ts.numpy()
+    anc = bank.tpl_anchor[0].numpy(); loc = bank.tpl_pos[0].numpy()
+
+    def gmean(ii):  # mean of a point group over all configurations = sum_k (n_k / N)(R_k mean_local_k + t_k)  (exact)
+        sl = np.unique(anc[ii])
+        w = np.array([(anc[ii] == k).sum() for k in sl], dtype=np.float64) / len(ii)
+        ml = np.stack([loc[ii][anc[ii] == k].mean(0) for k in sl])
+        return (w[None, :, None] * (np.einsum("skij,kj->ski", Rs[:, sl], ml) + ts[:, sl])).sum(1)
+
+    def unit(v):
+        return v / np.linalg.norm(v)
+    D = gmean(iD)
+    curl = D[1:].mean(0) - D[0]
+    units = np.stack([unit(gmean(np.flatnonzero(np.isin(lname, dl)))[0] - ts[0, slot[j.name]]) for j, dl in fingers])
+    f = unit(units.mean(0))
+    pw = np.einsum("pij,pj->pi", Rs[0][anc[iP]], loc[iP]) + ts[0][anc[iP]]
+    ev, V = np.linalg.eigh(np.cov((pw - pw.mean(0)).T))
+    kd = int(np.argmax(np.abs(V.T @ f)))
+    d = V[:, kd] * np.sign(V[:, kd] @ f)
+    rest = [k for k in range(3) if k != kd]
+    kn = rest[int(np.argmax(np.abs(V[:, rest].T @ curl)))]
+    n = V[:, kn] * np.sign(V[:, kn] @ curl)
+    a = np.cross(d, n)
+    Q = np.stack([n, a, d], 1)
+    info = {"n_palm_pts": int(len(iP)), "n_distal_pts": int(len(iD)), "n_fingers": len(fingers), "palm_links": sorted(palm),
+            "palm_eig": [float(x) for x in ev[::-1]], "f_dot_d": float(f @ d), "curl_dot_n": float(curl @ n),
+            "curl_perp_norm_m": float(np.linalg.norm(curl - (curl @ d) * d))}
+    return Q, info
+
+
+def shift_origin(desc: RobotDesc, o) -> RobotDesc:
+    """The same robot with its base ORIGIN moved to o (native base frame), axes unchanged: base-link template points
+    p -> p - o, origins of joints attached to the base T -> T - o. A base pose (R, t) becomes (R, t + R o); world link poses
+    are unchanged (docs/multipass_origin_checks_proposal.md, item 2; docs/canonical_origin_proposal.md)."""
+    from dataclasses import replace
+    o = np.asarray(o, float)
+
+    def mv(T):
+        T = np.array(T, float); T[:3, 3] = T[:3, 3] - o; return T
+    joints = [replace(j, T=mv(j.T)) if j.parent == desc.base_link else j for j in desc.joints]
+    base_i = [i for i, n in enumerate(desc.tpl_link_names) if n == desc.base_link]
+    on_base = np.isin(np.asarray(desc.tpl_link), base_i)
+    pos = np.array(desc.tpl_pos, dtype=np.float64)
+    pos[on_base] = pos[on_base] - o
+    return replace(desc, joints=joints, tpl_pos=pos)
+
+
+def palm_points(desc: RobotDesc) -> np.ndarray:
+    """CF's palm points P (template points on links rigidly attached to the base) posed at q0, native base frame."""
+    bank = RobotBank([desc], device="cpu", dtype=torch.float64, surface_sampling="hand_frame")
+    names = list(desc.tpl_link_names); tl = np.asarray(desc.tpl_link)
+    children = {}
+    for j in desc.joints:
+        children.setdefault(j.parent, []).append(j)
+    palm, stack = {desc.base_link}, [desc.base_link]
+    while stack:
+        for j in children.get(stack.pop(), []):
+            if j.type == "fixed" and j.child not in palm:
+                palm.add(j.child); stack.append(j.child)
+    iP = np.flatnonzero(np.isin(np.array(names, dtype=object)[tl], list(palm)))
+    r = torch.zeros(1, dtype=torch.long)
+    cl, cu = bank.coords_of(r, bank.lower[r])[0], bank.coords_of(r, bank.upper[r])[0]
+    qc = torch.where(bank.coord_valid[0], torch.zeros_like(cl).clamp(cl, cu), 0.0)[None]
+    Rs, ts = bank.fk(r, bank.expand(r, qc), torch.eye(3, dtype=torch.float64)[None], torch.zeros(1, 3, dtype=torch.float64))
+    Rs, ts = Rs[0].numpy(), ts[0].numpy()
+    anc = bank.tpl_anchor[0].numpy(); loc = bank.tpl_pos[0].numpy()
+    return np.einsum("pij,pj->pi", Rs[anc[iP]], loc[iP]) + ts[anc[iP]]
+
+
+def canonical_origin(desc: RobotDesc, Q: np.ndarray) -> np.ndarray:
+    """CF-O rule O1 (docs/canonical_origin_proposal.md): centre of the palm points' bounding box along the canonical axes Q,
+    in the native base frame. Description + template only (deployment-time input)."""
+    c = palm_points(desc) @ Q
+    return Q @ ((c.min(0) + c.max(0)) / 2)
+
+
+def canonical_bank(bank: "RobotBank", device=None, origin: bool = False):
+    """CF: every robot of `bank` re-expressed in its canonical palm frame (same indices). Returns (bank_c, Q (R, 3, 3), info).
+    origin=True (CF-O): the base origin is also moved to canonical_origin (shift first, then rotate); info entries get "o"."""
+    out = [canonical_frame(d) for d in bank.descs]
+    Qs = np.stack([q for q, _ in out])
+    dev = device if device is not None else bank.lower.device
+    infos = [i for _, i in out]
+    if origin:
+        Os = np.stack([canonical_origin(d, Q) for d, Q in zip(bank.descs, Qs)])
+        descs = [relabel_base(shift_origin(d, o), Q) for d, o, Q in zip(bank.descs, Os, Qs)]
+        infos = [{**i, "o": o.tolist()} for i, o in zip(infos, Os)]
+    else:
+        descs = [relabel_base(d, Q) for d, Q in zip(bank.descs, Qs)]
+    bc = RobotBank(descs, device=dev, surface_sampling=bank.surface_sampling)
+    return bc, torch.as_tensor(Qs, dtype=torch.float32, device=dev), infos
 
 
 class RobotBank:

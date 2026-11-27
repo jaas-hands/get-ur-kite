@@ -1,0 +1,367 @@
+{
+ "checks": {
+  "relabel_spread": 9.999999999976694e-05,
+  "origin_shift_spread": 9.999999999976694e-05
+ },
+ "primary1": [
+  {
+   "pool": "Allegro",
+   "metric": "corr_mm",
+   "seed": 0,
+   "diff": 0.1479,
+   "ci": [
+    -0.0043,
+    0.3091
+   ],
+   "verdict": 0
+  },
+  {
+   "pool": "Allegro",
+   "metric": "corr_mm",
+   "seed": 1,
+   "diff": -0.0652,
+   "ci": [
+    -0.2137,
+    0.0763
+   ],
+   "verdict": 0
+  },
+  {
+   "pool": "Allegro",
+   "metric": "corr_mm",
+   "seed": 2,
+   "diff": 0.0785,
+   "ci": [
+    -0.0628,
+    0.2137
+   ],
+   "verdict": 0
+  },
+  {
+   "pool": "Allegro",
+   "metric": "compat_success",
+   "seed": 0,
+   "diff": -0.042,
+   "ci": [
+    -0.072,
+    -0.012
+   ],
+   "verdict": -1
+  },
+  {
+   "pool": "Allegro",
+   "metric": "compat_success",
+   "seed": 1,
+   "diff": 0.02,
+   "ci": [
+    -0.006,
+    0.048
+   ],
+   "verdict": 0
+  },
+  {
+   "pool": "Allegro",
+   "metric": "compat_success",
+   "seed": 2,
+   "diff": 0.002,
+   "ci": [
+    -0.024,
+    0.028
+   ],
+   "verdict": 0
+  },
+  {
+   "pool": "Barrett",
+   "metric": "corr_mm",
+   "seed": 0,
+   "diff": 0.0605,
+   "ci": [
+    -0.1037,
+    0.2211
+   ],
+   "verdict": 0
+  },
+  {
+   "pool": "Barrett",
+   "metric": "corr_mm",
+   "seed": 1,
+   "diff": 0.0245,
+   "ci": [
+    -0.1296,
+    0.1847
+   ],
+   "verdict": 0
+  },
+  {
+   "pool": "Barrett",
+   "metric": "corr_mm",
+   "seed": 2,
+   "diff": 0.1452,
+   "ci": [
+    -0.0063,
+    0.2987
+   ],
+   "verdict": 0
+  },
+  {
+   "pool": "Barrett",
+   "metric": "compat_success",
+   "seed": 0,
+   "diff": -0.028,
+   "ci": [
+    -0.056,
+    0.0
+   ],
+   "verdict": 0
+  },
+  {
+   "pool": "Barrett",
+   "metric": "compat_success",
+   "seed": 1,
+   "diff": 0.012,
+   "ci": [
+    -0.012,
+    0.038
+   ],
+   "verdict": 0
+  },
+  {
+   "pool": "Barrett",
+   "metric": "compat_success",
+   "seed": 2,
+   "diff": -0.016,
+   "ci": [
+    -0.04,
+    0.008
+   ],
+   "verdict": 0
+  },
+  {
+   "pool": "LEAP",
+   "metric": "corr_mm",
+   "seed": 0,
+   "diff": 0.1234,
+   "ci": [
+    -0.0913,
+    0.3456
+   ],
+   "verdict": 0
+  },
+  {
+   "pool": "LEAP",
+   "metric": "corr_mm",
+   "seed": 1,
+   "diff": 0.1069,
+   "ci": [
+    -0.0959,
+    0.3136
+   ],
+   "verdict": 0
+  },
+  {
+   "pool": "LEAP",
+   "metric": "corr_mm",
+   "seed": 2,
+   "diff": 0.2117,
+   "ci": [
+    0.0169,
+    0.4084
+   ],
+   "verdict": -1
+  },
+  {
+   "pool": "LEAP",
+   "metric": "compat_success",
+   "seed": 0,
+   "diff": -0.0238,
+   "ci": [
+    -0.0635,
+    0.0159
+   ],
+   "verdict": 0
+  },
+  {
+   "pool": "LEAP",
+   "metric": "compat_success",
+   "seed": 1,
+   "diff": -0.0159,
+   "ci": [
+    -0.0556,
+    0.0218
+   ],
+   "verdict": 0
+  },
+  {
+   "pool": "LEAP",
+   "metric": "compat_success",
+   "seed": 2,
+   "diff": -0.0198,
+   "ci": [
+    -0.0536,
+    0.0159
+   ],
+   "verdict": 0
+  },
+  {
+   "pool": "held-out LEAP (105)",
+   "metric": "corr_mm",
+   "seed": 0,
+   "diff": 0.066,
+   "ci": [
+    0.0229,
+    0.1081
+   ],
+   "verdict": -1
+  },
+  {
+   "pool": "held-out LEAP (105)",
+   "metric": "corr_mm",
+   "seed": 1,
+   "diff": 0.006,
+   "ci": [
+    -0.0368,
+    0.0486
+   ],
+   "verdict": 0
+  },
+  {
+   "pool": "held-out LEAP (105)",
+   "metric": "corr_mm",
+   "seed": 2,
+   "diff": 0.1505,
+   "ci": [
+    0.1104,
+    0.1891
+   ],
+   "verdict": -1
+  },
+  {
+   "pool": "held-out LEAP (105)",
+   "metric": "compat_success",
+   "seed": 0,
+   "diff": -0.0082,
+   "ci": [
+    -0.0162,
+    -0.0001
+   ],
+   "verdict": -1
+  },
+  {
+   "pool": "held-out LEAP (105)",
+   "metric": "compat_success",
+   "seed": 1,
+   "diff": 0.0019,
+   "ci": [
+    -0.0062,
+    0.0098
+   ],
+   "verdict": 0
+  },
+  {
+   "pool": "held-out LEAP (105)",
+   "metric": "compat_success",
+   "seed": 2,
+   "diff": -0.0065,
+   "ci": [
+    -0.0146,
+    0.0016
+   ],
+   "verdict": 0
+  }
+ ],
+ "primary2": {
+  "wuji": {
+   "wrist_diff": [
+    1.0739,
+    0.5145,
+    0.5593
+   ],
+   "wrist_lower": 0,
+   "wrist_sig_lower": 0,
+   "corr_diff": [
+    0.7719,
+    0.349,
+    0.6457
+   ],
+   "corr_sig_higher": 3,
+   "ok": false
+  },
+  "shadow": {
+   "wrist_diff": [
+    1.4533,
+    1.1896,
+    1.0516
+   ],
+   "wrist_lower": 0,
+   "wrist_sig_lower": 0,
+   "corr_diff": [
+    1.0291,
+    1.7593,
+    0.5535
+   ],
+   "corr_sig_higher": 3,
+   "ok": false
+  }
+ },
+ "primary3": {
+  "Allegro": {
+   "lower": 2,
+   "sig_higher": 0,
+   "diff": [
+    -0.2301,
+    -0.1373,
+    0.0601
+   ]
+  },
+  "Barrett": {
+   "lower": 2,
+   "sig_higher": 0,
+   "diff": [
+    -0.1581,
+    -0.0872,
+    0.1176
+   ]
+  },
+  "LEAP": {
+   "lower": 1,
+   "sig_higher": 0,
+   "diff": [
+    -0.0557,
+    0.0631,
+    0.1485
+   ]
+  },
+  "held-out LEAP (105)": {
+   "lower": 0,
+   "sig_higher": 3,
+   "diff": [
+    0.122,
+    0.1413,
+    0.2955
+   ]
+  },
+  "Wuji": {
+   "lower": 2,
+   "sig_higher": 0,
+   "diff": [
+    -0.5464,
+    0.0979,
+    -0.1139
+   ]
+  },
+  "Shadow": {
+   "lower": 2,
+   "sig_higher": 1,
+   "diff": [
+    -2.364,
+    0.8102,
+    -1.1451
+   ]
+  }
+ },
+ "implementation_ok": true,
+ "primary1_ok": false,
+ "primary2_ok": false,
+ "primary3_ok": false,
+ "launch": false
+}

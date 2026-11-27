@@ -22,8 +22,11 @@ export PYTHONPATH=$GETKITE_REPO/src${PYTHONPATH:+:$PYTHONPATH}
 getkite_require_cuda() {
   nvidia-smi --query-gpu=name,driver_version,memory.total --format=csv,noheader || true
   if ! "$GETKITE_PY" -c "import torch,sys; sys.exit(0 if torch.cuda.is_available() else 1)" 2>/dev/null; then
-    local host; host=$(hostname -s)
-    export GETKITE_EXCLUDE=${GETKITE_EXCLUDE:+$GETKITE_EXCLUDE,}$host
+    local host orig; host=$(hostname -s)
+    # keep the job's own --exclude list (it was being dropped on resubmission, 2026-11-20)
+    orig=$(scontrol show job "${SLURM_JOB_ID:-0}" 2>/dev/null | grep -o 'ExcNodeList=[^ ]*' | cut -d= -f2)
+    [ "$orig" = "(null)" ] && orig=""
+    export GETKITE_EXCLUDE=${GETKITE_EXCLUDE:-$orig}; export GETKITE_EXCLUDE=${GETKITE_EXCLUDE:+$GETKITE_EXCLUDE,}$host
     echo "CUDA unusable on $host; resubmitting with --exclude=$GETKITE_EXCLUDE"
     sbatch --export=ALL --exclude="$GETKITE_EXCLUDE" -J "$SLURM_JOB_NAME" "$@"
     exit 0

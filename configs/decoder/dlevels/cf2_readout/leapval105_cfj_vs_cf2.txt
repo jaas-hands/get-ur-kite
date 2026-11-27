@@ -1,0 +1,32 @@
+held-out LEAP: 105 hands, 13125 records; cfj - cf2 (negative = cfj better)
+no movement corr_mm 14.839
+
+seed 0: cfj corr 8.864  cf2 corr 9.032
+  corr diff -0.169  hand-bootstrap 95% CI [-0.222, -0.115]  hands cfj lower 79/105
+  wrist_mm -0.069  wrist_deg -0.090  compat_success +0.013
+  original 4 hands -0.002   other 101 hands -0.175
+  2 fingers:   7 hands  corr diff -0.105  cfj lower 4/7
+  3 fingers:  35 hands  corr diff -0.111  cfj lower 23/35
+  4 fingers:  63 hands  corr diff -0.208  cfj lower 52/63
+  corr diff vs frame angle: r=-0.37  (angle median 3.6, max 84.4; >15deg: 3 hands, diff -0.786)
+
+seed 1: cfj corr 8.882  cf2 corr 8.925
+  corr diff -0.043  hand-bootstrap 95% CI [-0.089, +0.003]  hands cfj lower 57/105
+  wrist_mm +0.001  wrist_deg -0.074  compat_success +0.003
+  original 4 hands +0.165   other 101 hands -0.051
+  2 fingers:   7 hands  corr diff -0.174  cfj lower 5/7
+  3 fingers:  35 hands  corr diff -0.042  cfj lower 20/35
+  4 fingers:  63 hands  corr diff -0.029  cfj lower 32/63
+  corr diff vs frame angle: r=-0.27  (angle median 3.6, max 84.4; >15deg: 3 hands, diff -0.551)
+
+seed 2: cfj corr 8.849  cf2 corr 8.829
+  corr diff +0.020  hand-bootstrap 95% CI [-0.029, +0.068]  hands cfj lower 49/105
+  wrist_mm +0.042  wrist_deg +0.019  compat_success +0.006
+  original 4 hands +0.180   other 101 hands +0.014
+  2 fingers:   7 hands  corr diff +0.121  cfj lower 2/7
+  3 fingers:  35 hands  corr diff +0.032  cfj lower 16/35
+  4 fingers:  63 hands  corr diff +0.002  cfj lower 31/63
+  corr diff vs frame angle: r=-0.11  (angle median 3.6, max 84.4; >15deg: 3 hands, diff -0.362)
+
+hands where cfj is higher in all 3 seeds: 10/105; lower in all 3: 28
+largest mean gaps: [(np.str_('I0-M2-R2-T3_g2'), 0.24, 3.0, 3), (np.str_('I2-M4-R4-T2_g6'), 0.22, 3.3, 4), (np.str_('I2-M4-R2-T3_g0'), 0.21, 2.7, 4), (np.str_('I0-M4-R3-T2_g0'), 0.21, 1.3, 3), (np.str_('I4-M2-R4-T4_g4'), 0.2, 3.2, 4), (np.str_('I0-M3-R3-T4_g2'), 0.2, 5.7, 3), (np.str_('I0-M2-R3-T4_g4'), 0.19, 6.7, 3), (np.str_('I4-M2-R4-T2_g4'), 0.18, 4.6, 4)]

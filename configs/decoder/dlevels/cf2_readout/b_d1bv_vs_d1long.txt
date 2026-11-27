@@ -1,0 +1,67 @@
+
+=== Allegro (source) (n=500) ===
+no movement   corr_mm=11.552  corr_success=0.164  compat_success=0.338  wrist_mm=7.946  wrist_deg=7.714
+d1long        corr_mm=[6.263 6.033 5.919]  corr_success=[0.694 0.694 0.714]  compat_success=[0.866 0.872 0.900]  wrist_mm=[5.176 4.970 4.903]  wrist_deg=[4.325 4.227 4.115]  trans_R2_id=[0.553 0.583 0.594]
+d1bv          corr_mm=[5.862 6.016 5.932]  corr_success=[0.726 0.700 0.696]  compat_success=[0.914 0.890 0.894]  wrist_mm=[4.838 4.876 4.827]  wrist_deg=[4.161 4.202 4.271]  trans_R2_id=[0.606 0.598 0.599]
+  d1bv-d1long        corr_mm -0.135 [-0.401 -0.017 +0.013] better1/worse0  corr_success +0.007 [+0.032 +0.006 -0.018] better0/worse0  compat_success +0.020 [+0.048 +0.018 -0.006] better1/worse0  wrist_mm -0.169 [-0.337 -0.093 -0.075] better1/worse0  wrist_deg -0.011 [-0.164 -0.025 +0.156] better1/worse1
+  d1bv-no_movement   corr_mm -5.615 [-5.690 -5.535 -5.620] better3/worse0  corr_success +0.543 [+0.562 +0.536 +0.532] better3/worse0  compat_success +0.561 [+0.576 +0.552 +0.556] better3/worse0  wrist_mm -3.099 [-3.108 -3.070 -3.119] better3/worse0  wrist_deg -3.502 [-3.553 -3.511 -3.443] better3/worse0
+  d1long-no_movement   corr_mm -5.480 [-5.289 -5.519 -5.633] better3/worse0  corr_success +0.537 [+0.530 +0.530 +0.550] better3/worse0  compat_success +0.541 [+0.528 +0.534 +0.562] better3/worse0  wrist_mm -2.930 [-2.770 -2.977 -3.043] better3/worse0  wrist_deg -3.491 [-3.389 -3.487 -3.599] better3/worse0
+
+=== Barrett (source) (n=500) ===
+no movement   corr_mm=14.454  corr_success=0.116  compat_success=0.248  wrist_mm=8.024  wrist_deg=7.769
+d1long        corr_mm=[6.141 5.973 5.831]  corr_success=[0.676 0.676 0.700]  compat_success=[0.886 0.884 0.906]  wrist_mm=[5.060 4.964 4.884]  wrist_deg=[4.723 4.530 4.529]  trans_R2_id=[0.568 0.577 0.592]
+d1bv          corr_mm=[5.805 5.958 5.969]  corr_success=[0.738 0.702 0.678]  compat_success=[0.914 0.896 0.882]  wrist_mm=[4.921 5.010 4.961]  wrist_deg=[4.470 4.572 4.607]  trans_R2_id=[0.583 0.567 0.583]
+  d1bv-d1long        corr_mm -0.071 [-0.335 -0.015 +0.138] better1/worse0  corr_success +0.022 [+0.062 +0.026 -0.022] better1/worse0  compat_success +0.005 [+0.028 +0.012 -0.024] better1/worse0  wrist_mm -0.005 [-0.139 +0.046 +0.077] better0/worse0  wrist_deg -0.044 [-0.253 +0.043 +0.078] better1/worse0
+  d1bv-no_movement   corr_mm -8.543 [-8.649 -8.496 -8.485] better3/worse0  corr_success +0.590 [+0.622 +0.586 +0.562] better3/worse0  compat_success +0.649 [+0.666 +0.648 +0.634] better3/worse0  wrist_mm -3.060 [-3.104 -3.014 -3.063] better3/worse0  wrist_deg -3.220 [-3.299 -3.197 -3.162] better3/worse0
+  d1long-no_movement   corr_mm -8.473 [-8.313 -8.481 -8.623] better3/worse0  corr_success +0.568 [+0.560 +0.560 +0.584] better3/worse0  compat_success +0.644 [+0.638 +0.636 +0.658] better3/worse0  wrist_mm -3.055 [-2.965 -3.060 -3.140] better3/worse0  wrist_deg -3.175 [-3.046 -3.240 -3.240] better3/worse0
+
+=== LEAP (source) (n=504) ===
+no movement   corr_mm=13.933  corr_success=0.089  compat_success=0.226  wrist_mm=7.749  wrist_deg=7.670
+d1long        corr_mm=[8.386 8.169 8.119]  corr_success=[0.399 0.405 0.403]  compat_success=[0.647 0.667 0.637]  wrist_mm=[5.979 5.844 5.792]  wrist_deg=[4.934 4.795 4.825]  trans_R2_id=[0.385 0.407 0.418]
+d1bv          corr_mm=[8.007 8.236 8.111]  corr_success=[0.434 0.434 0.417]  compat_success=[0.671 0.675 0.667]  wrist_mm=[5.840 5.938 5.864]  wrist_deg=[4.753 4.918 4.791]  trans_R2_id=[0.413 0.401 0.407]
+  d1bv-d1long        corr_mm -0.106 [-0.379 +0.067 -0.008] better1/worse0  corr_success +0.026 [+0.036 +0.030 +0.014] better0/worse0  compat_success +0.021 [+0.024 +0.008 +0.030] better0/worse0  wrist_mm +0.009 [-0.139 +0.094 +0.072] better1/worse0  wrist_deg -0.031 [-0.181 +0.123 -0.034] better1/worse0
+  d1bv-no_movement   corr_mm -5.815 [-5.926 -5.697 -5.822] better3/worse0  corr_success +0.339 [+0.345 +0.345 +0.327] better3/worse0  compat_success +0.444 [+0.444 +0.448 +0.441] better3/worse0  wrist_mm -1.868 [-1.909 -1.811 -1.885] better3/worse0  wrist_deg -2.849 [-2.917 -2.751 -2.879] better3/worse0
+  d1long-no_movement   corr_mm -5.708 [-5.547 -5.764 -5.814] better3/worse0  corr_success +0.313 [+0.309 +0.316 +0.314] better3/worse0  compat_success +0.424 [+0.421 +0.441 +0.411] better3/worse0  wrist_mm -1.877 [-1.770 -1.905 -1.956] better3/worse0  wrist_deg -2.818 [-2.736 -2.874 -2.844] better3/worse0
+
+=== held-out LEAP (n=500) ===
+no movement   corr_mm=14.980  corr_success=0.072  compat_success=0.172  wrist_mm=7.957  wrist_deg=7.920
+d1long        corr_mm=[8.803 8.562 8.592]  corr_success=[0.358 0.384 0.362]  compat_success=[0.594 0.624 0.620]  wrist_mm=[6.336 6.331 6.172]  wrist_deg=[5.132 5.055 5.021]  trans_R2_id=[0.351 0.353 0.377]
+d1bv          corr_mm=[8.494 8.676 8.584]  corr_success=[0.382 0.364 0.392]  compat_success=[0.626 0.624 0.626]  wrist_mm=[6.181 6.252 6.252]  wrist_deg=[5.040 5.099 5.019]  trans_R2_id=[0.374 0.365 0.364]
+  d1bv-d1long        corr_mm -0.068 [-0.309 +0.114 -0.008] better1/worse0  corr_success +0.011 [+0.024 -0.020 +0.030] better0/worse0  compat_success +0.013 [+0.032 -0.000 +0.006] better0/worse0  wrist_mm -0.052 [-0.155 -0.079 +0.080] better0/worse0  wrist_deg -0.017 [-0.092 +0.043 -0.003] better0/worse0
+  d1bv-no_movement   corr_mm -6.396 [-6.486 -6.304 -6.396] better3/worse0  corr_success +0.307 [+0.310 +0.292 +0.320] better3/worse0  compat_success +0.453 [+0.454 +0.452 +0.454] better3/worse0  wrist_mm -1.729 [-1.776 -1.706 -1.705] better3/worse0  wrist_deg -2.867 [-2.880 -2.821 -2.901] better3/worse0
+  d1long-no_movement   corr_mm -6.328 [-6.177 -6.418 -6.389] better3/worse0  corr_success +0.296 [+0.286 +0.312 +0.290] better3/worse0  compat_success +0.441 [+0.422 +0.452 +0.448] better3/worse0  wrist_mm -1.677 [-1.621 -1.626 -1.785] better3/worse0  wrist_deg -2.850 [-2.788 -2.864 -2.898] better3/worse0
+
+=== Wuji (unseen by our decoder, seen by KITE's encoder psi) (n=500) ===
+no movement   corr_mm=14.191  corr_success=0.118  compat_success=0.200  wrist_mm=7.957  wrist_deg=8.077
+d1long        corr_mm=[9.547 9.033 9.756]  corr_success=[0.346 0.406 0.354]  compat_success=[0.540 0.644 0.558]  wrist_mm=[7.398 7.270 7.386]  wrist_deg=[6.527 6.375 6.763]  trans_R2_id=[0.121 0.143 0.113]
+d1bv          corr_mm=[8.412 8.573 8.902]  corr_success=[0.466 0.462 0.418]  compat_success=[0.674 0.684 0.632]  wrist_mm=[7.021 7.080 7.236]  wrist_deg=[6.242 6.183 6.231]  trans_R2_id=[0.202 0.194 0.137]
+  d1bv-d1long        corr_mm -0.816 [-1.135 -0.460 -0.854] better3/worse0  corr_success +0.080 [+0.120 +0.056 +0.064] better3/worse0  compat_success +0.083 [+0.134 +0.040 +0.074] better2/worse0  wrist_mm -0.239 [-0.376 -0.190 -0.151] better2/worse0  wrist_deg -0.336 [-0.285 -0.192 -0.532] better3/worse0
+  d1bv-no_movement   corr_mm -5.563 [-5.780 -5.619 -5.290] better3/worse0  corr_success +0.331 [+0.348 +0.344 +0.300] better3/worse0  compat_success +0.463 [+0.474 +0.484 +0.432] better3/worse0  wrist_mm -0.845 [-0.936 -0.878 -0.721] better3/worse0  wrist_deg -1.859 [-1.835 -1.894 -1.846] better3/worse0
+  d1long-no_movement   corr_mm -4.746 [-4.645 -5.158 -4.435] better3/worse0  corr_success +0.251 [+0.228 +0.288 +0.236] better3/worse0  compat_success +0.381 [+0.340 +0.444 +0.358] better3/worse0  wrist_mm -0.606 [-0.559 -0.688 -0.571] better3/worse0  wrist_deg -1.522 [-1.550 -1.703 -1.315] better3/worse0
+
+=== Shadow (unseen by decoder and psi; evaluation only) (n=500) ===
+no movement   corr_mm=13.973  corr_success=0.138  compat_success=0.228  wrist_mm=7.957  wrist_deg=7.836
+d1long        corr_mm=[12.358 10.154 11.166]  corr_success=[0.182 0.294 0.222]  compat_success=[0.306 0.454 0.370]  wrist_mm=[9.116 8.275 8.238]  wrist_deg=[7.067 6.305 6.589]  trans_R2_id=[-0.340 -0.109 -0.082]
+d1bv          corr_mm=[9.241 10.184 10.034]  corr_success=[0.344 0.270 0.316]  compat_success=[0.502 0.426 0.462]  wrist_mm=[7.847 8.321 8.132]  wrist_deg=[5.968 6.351 6.043]  trans_R2_id=[0.011 -0.112 -0.067]
+  d1bv-d1long        corr_mm -1.406 [-3.118 +0.031 -1.131] better2/worse0  corr_success +0.077 [+0.162 -0.024 +0.094] better2/worse0  compat_success +0.087 [+0.196 -0.028 +0.092] better2/worse0  wrist_mm -0.443 [-1.269 +0.046 -0.106] better1/worse0  wrist_deg -0.533 [-1.100 +0.046 -0.546] better2/worse0
+  d1bv-no_movement   corr_mm -4.154 [-4.733 -3.789 -3.939] better3/worse0  corr_success +0.172 [+0.206 +0.132 +0.178] better3/worse0  compat_success +0.235 [+0.274 +0.198 +0.234] better3/worse0  wrist_mm +0.143 [-0.110 +0.364 +0.174] better0/worse1  wrist_deg -1.715 [-1.868 -1.484 -1.793] better3/worse0
+  d1long-no_movement   corr_mm -2.748 [-1.615 -3.820 -2.808] better3/worse0  corr_success +0.095 [+0.044 +0.156 +0.084] better3/worse0  compat_success +0.149 [+0.078 +0.226 +0.142] better3/worse0  wrist_mm +0.586 [+1.159 +0.318 +0.281] better0/worse2  wrist_deg -1.182 [-0.768 -1.530 -1.247] better3/worse0
+
+=== generated-body families (training-log validation at the selected checkpoint; point estimates) ===
+  generated bodies (source val, log)     d1bv=[5.095 5.104 5.374] d1long=[5.390 5.078 4.992] diff=[-0.295 +0.026 +0.382]
+  held-out generated bodies (log)        d1bv=[5.024 5.152 5.391] d1long=[5.948 5.500 5.185] diff=[-0.924 -0.348 +0.206]
+
+=== Predeclared readout: d1bv vs d1long ===
+Primary 1 (no significant loss on source + held-out LEAP corr_mm / compat_success, any seed): HOLDS []
+Primary 2 (Shadow wrist_mm significantly better and trans_R2_id higher, 3/3): FAILS {('wrist_mm', 0): 1, ('wrist_mm', 1): 0, ('wrist_mm', 2): 0, ('trans_R2_id', 0): 1, ('trans_R2_id', 1): -1, ('trans_R2_id', 2): 1}
+Primary 3 (contact error lower than the reference in 3/3 seeds and never significantly higher, every family):
+  Allegro (source)                                        lower 2/3, significantly lower 1/3, significantly higher 0/3 -> NOT MET
+  Barrett (source)                                        lower 2/3, significantly lower 1/3, significantly higher 0/3 -> NOT MET
+  LEAP (source)                                           lower 2/3, significantly lower 1/3, significantly higher 0/3 -> NOT MET
+  held-out LEAP                                           lower 2/3, significantly lower 1/3, significantly higher 0/3 -> NOT MET
+  Wuji (unseen by our decoder, seen by KITE's encoder psi) lower 3/3, significantly lower 3/3, significantly higher 0/3 -> ok
+  Shadow (unseen by decoder and psi; evaluation only)     lower 2/3, significantly lower 2/3, significantly higher 0/3 -> NOT MET
+  generated bodies (source val, log)                      lower 1/3, significantly lower 0/3, significantly higher 0/3 -> NOT MET
+  held-out generated bodies (log)                         lower 2/3, significantly lower 0/3, significantly higher 0/3 -> NOT MET
+Primary 3: FAILS
+All three: NO

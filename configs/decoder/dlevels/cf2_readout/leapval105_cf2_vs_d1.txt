@@ -1,0 +1,32 @@
+held-out LEAP: 105 hands, 13125 records; cf2 - d1 (negative = cf2 better)
+no movement corr_mm 14.839
+
+seed 0: cf2 corr 9.032  d1 corr 9.036
+  corr diff -0.003  hand-bootstrap 95% CI [-0.066, +0.067]  hands cf2 lower 60/105
+  wrist_mm -0.002  wrist_deg +0.119  compat_success +0.015
+  original 4 hands -0.148   other 101 hands +0.002
+  2 fingers:   7 hands  corr diff +0.193  cf2 lower 4/7
+  3 fingers:  35 hands  corr diff -0.041  cf2 lower 20/35
+  4 fingers:  63 hands  corr diff -0.004  cf2 lower 36/63
+  corr diff vs frame angle: r=+0.70  (angle median 3.6, max 84.4; >15deg: 3 hands, diff +1.329)
+
+seed 1: cf2 corr 8.925  d1 corr 9.201
+  corr diff -0.276  hand-bootstrap 95% CI [-0.343, -0.205]  hands cf2 lower 92/105
+  wrist_mm -0.151  wrist_deg -0.028  compat_success +0.046
+  original 4 hands -0.521   other 101 hands -0.267
+  2 fingers:   7 hands  corr diff -0.006  cf2 lower 6/7
+  3 fingers:  35 hands  corr diff -0.336  cf2 lower 34/35
+  4 fingers:  63 hands  corr diff -0.273  cf2 lower 52/63
+  corr diff vs frame angle: r=+0.70  (angle median 3.6, max 84.4; >15deg: 3 hands, diff +1.082)
+
+seed 2: cf2 corr 8.829  d1 corr 9.029
+  corr diff -0.200  hand-bootstrap 95% CI [-0.254, -0.142]  hands cf2 lower 89/105
+  wrist_mm -0.065  wrist_deg +0.052  compat_success +0.033
+  original 4 hands -0.356   other 101 hands -0.194
+  2 fingers:   7 hands  corr diff +0.033  cf2 lower 5/7
+  3 fingers:  35 hands  corr diff -0.250  cf2 lower 33/35
+  4 fingers:  63 hands  corr diff -0.198  cf2 lower 51/63
+  corr diff vs frame angle: r=+0.58  (angle median 3.6, max 84.4; >15deg: 3 hands, diff +0.757)
+
+hands where cf2 is higher in all 3 seeds: 6/105; lower in all 3: 51
+largest mean gaps: [(np.str_('I0-M2-R0-T4_g6'), 1.57, 84.4, 2), (np.str_('I2-M4-R3-T2_g4'), 0.93, 19.8, 4), (np.str_('I2-M3-R3-T2_g0'), 0.82, 13.3, 4), (np.str_('I2-M4-R3-T2_g5'), 0.67, 15.8, 4), (np.str_('I4-M2-R4-T4_g3'), 0.2, 13.9, 4), (np.str_('I2-M3-R3-T2_g3'), 0.19, 7.7, 4), (np.str_('I4-M4-R3-T4_g0'), 0.16, 11.6, 4), (np.str_('I4-M2-R4-T4_g0'), 0.15, 12.2, 4)]

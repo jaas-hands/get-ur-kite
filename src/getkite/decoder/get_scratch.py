@@ -60,7 +60,7 @@ class ScratchConfig:
     # "raw_contacts" = diagnostic reference that bypasses psi: one token per raw world contact
     # [xyz * pos_scale, normal, Fourier(xyz)], invalid contacts masked; z is then the flattened
     # (K_MAX, 7) [xyz, normal, valid] cloud and z_mu/z_sd are unused.
-    intent_source: str = "psi"
+    intent_source: str = "psi"  # also "external": intent tokens are built OUTSIDE (direct_worldaux) and passed to forward()
     n_contacts: int = 6
     contact_fourier: int = -1  # Fourier octaves on raw contact xyz only (-1 = same as pos_fourier)
     # geometry frame: "world" (KITE's) or "wrist" = the start wrist frame (R0, t0). In "wrist" every geometric
@@ -184,12 +184,12 @@ class GETScratch(nn.Module):
         self.joint_head = zero_last(mlp(d, d, 1))
         # intent encoder built last, so every backbone parameter gets the same initial values whichever
         # intent source is used (the psi and raw_contacts variants differ only in this module)
-        assert c.intent_source in ("psi", "raw_contacts", "psi_scene"), c.intent_source
+        assert c.intent_source in ("psi", "raw_contacts", "psi_scene", "external"), c.intent_source
         assert c.frame in ("world", "wrist"), c.frame
         assert not c.world_pose_in or c.frame == "wrist", "world_pose_in only adds information in the wrist frame"
         assert c.frame == "world" or c.intent_source == "raw_contacts" or c.world_pose_in, \
             "psi's z is world-frame: a wrist-frame psi decoder needs world_pose_in=True"
-        if c.intent_source in ("psi", "psi_scene"):
+        if c.intent_source in ("psi", "psi_scene", "external"):
             assert c.contact_fourier <= 0, "contact Fourier features apply to raw contact xyz only, never to z"
         if c.intent_source == "psi":
             self.intent_proj = mlp(c.z_dim, 2 * d, c.n_intent_tokens * d)
@@ -201,6 +201,8 @@ class GETScratch(nn.Module):
             self.kite = nn.ModuleDict({k: rel.modules[k] for k in ("hand_proj", "cls_unpacker", "bottleneck_scene_encoder")})
             self.kite.eval().requires_grad_(False)
             self.scene_in = mlp(kd + 1 + 6 + nf, d, d)
+        elif c.intent_source == "external":  # no intent encoder here: the caller supplies (B, M, d_model) intent tokens
+            assert not c.z_in_tokens and not c.bridge and not c.aux_set
         else:
             assert not c.z_in_tokens
             self.contact_in = mlp(6 + 3 * 2 * self._cf(), d, d)
@@ -295,10 +297,12 @@ class GETScratch(nn.Module):
                 "pair": (types[:, None] * 4 + types[None, :]).expand(B, T, T), "key_mask": key_mask}
 
     # ------------------------------------------------------------------ forward
-    def forward(self, bank: RobotBank, r, qc0, R0, t0, z):
+    def forward(self, bank: RobotBank, r, qc0, R0, t0, z, intent_tokens=None):
         """r (B,) robot index, qc0 (B, J_MAX) start coordinates (padded), R0/t0 start base pose (world),
-        z (B, z_dim) frozen psi output. Returns normalised residuals and the decoded goal."""
+        z (B, z_dim) frozen psi output. Returns normalised residuals and the decoded goal.
+        intent_source="external": z is unused and intent_tokens (B, M, d_model) are the intent tokens."""
         c, B = self.c, len(r)
+        assert (intent_tokens is not None) == (c.intent_source == "external")
         raw = c.intent_source == "raw_contacts"
         zs = z if c.intent_source != "psi" else (z - self.z_mu) / self.z_sd
         zc = [zs] if c.z_in_tokens else []
@@ -342,6 +346,8 @@ class GETScratch(nn.Module):
             cpos = cz[..., :3] * c.pos_scale
             it = self.contact_in(torch.cat([cpos, cz[..., 3:6], fourier(cpos, self._cf(), c.fourier_base)], -1))
             n_int = c.n_contacts
+        elif c.intent_source == "external":
+            it, iv, n_int = intent_tokens, None, intent_tokens.shape[1]
         elif c.intent_source == "psi_scene":
             hf, zt, hp, hn = self.kite_scene(bank, r, Rs, ts, R0w, t0w, z)
             hpos = hp * c.pos_scale

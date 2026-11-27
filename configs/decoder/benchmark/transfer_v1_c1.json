@@ -1,0 +1,45 @@
+{
+ "_note": "Family-share control (2026-11-20): G1, C1 (one generated body P0000 x 20000 records, same 4 x 25% family shares as D1) and D1 (50 bodies x 400) at seeds 0/1/2, paired by seed, each selected on its own source val. Pools 1-3 as transfer_v1; pool 4 Shadow (reserved; frozen systems, nothing selected on it).",
+ "base_config": "configs/decoder/scratch/c3_psi50k_10x_wrist.json",
+ "surface_sampling": "hand_frame",
+ "systems": {
+  "d0_g1_s0": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/g1_leapdiv50k_hf/best.pt"
+  },
+  "c1_s0": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/c1_prim1_hf/best.pt"
+  },
+  "d1_s0": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/d1_prim50_hf/best.pt"
+  },
+  "d0_g1_s1": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/g1_leapdiv50k_hf_s1/best.pt"
+  },
+  "c1_s1": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/c1_prim1_hf_s1/best.pt"
+  },
+  "d1_s1": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/d1_prim50_hf_s1/best.pt"
+  },
+  "d0_g1_s2": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/g1_leapdiv50k_hf_s2/best.pt"
+  },
+  "c1_s2": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/c1_prim1_hf_s2/best.pt"
+  },
+  "d1_s2": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/d1_prim50_hf_s2/best.pt"
+  }
+ },
+ "out_dir": "${GETKITE_RUNS}/transfer_benchmark_v1_c1",
+ "shadow_pool": true
+}

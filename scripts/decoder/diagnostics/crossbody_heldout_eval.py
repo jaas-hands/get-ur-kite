@@ -101,7 +101,7 @@ def so3_exp(w):
     return torch.eye(3, device=w.device) + th.sin() * Kx + (1 - th.cos()) * (Kx @ Kx)
 
 
-def oracle(bank, r, sg, c_pos, c_nrm, c_val, steps=300, restarts=4, seed=0):
+def oracle(bank, r, sg, c_pos, c_nrm, c_val, steps=300, restarts=4, seed=0, return_pose=False):
     """Non-learned feasibility reference (protocol): Adam on base + joints from the start (+ perturbed copies)."""
     B = len(r)
     g = torch.Generator(device=c_pos.device).manual_seed(seed)
@@ -141,6 +141,8 @@ def oracle(bank, r, sg, c_pos, c_nrm, c_val, steps=300, restarts=4, seed=0):
         pick = lambda x: x.view(restarts, B, *x.shape[1:])[best, torch.arange(B, device=x.device)]  # noqa: E731
         out = {k: pick(v_) for k, v_ in s.items()}
         out.update(motion(pick(R), pick(t), sg))
+        if return_pose:  # opt-in (2026-11-19, wuji_references.py); default output unchanged
+            out["_pose"] = {"qc": pick(qc), "R": pick(R), "t": pick(t)}
     return out
 
 

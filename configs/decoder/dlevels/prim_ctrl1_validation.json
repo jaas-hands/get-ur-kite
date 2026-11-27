@@ -1,0 +1,29 @@
+{
+ "all_pass": true,
+ "n_hands": 1,
+ "n_fail": 0,
+ "adapter_fk_max_abs_m": 4.3537414506911176e-08,
+ "mjcf_native_fk_max_abs": 4.014335461266505e-10,
+ "cover_radius_mm": {
+  "median": 29.034322181617497,
+  "max": 29.034322181617497
+ },
+ "contact_reproduction_max_m": 1.1944189282075968e-07,
+ "hands": {
+  "P0000": {
+   "adapter_fk_max_abs_m": 4.3537414506911176e-08,
+   "mjcf_native_fk_max_abs": 4.014335461266505e-10,
+   "fingers_uncovered": [],
+   "cover_radius_mm": 29.034322181617497,
+   "mimic_joints": 0,
+   "n_dof": 8,
+   "family": "prim",
+   "records/train_ctrl1": {
+    "n": 20000,
+    "goal_out_of_limits": 0,
+    "contact_reproduction_max_m": 1.1944189282075968e-07
+   },
+   "pass": true
+  }
+ }
+}

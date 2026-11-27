@@ -31,7 +31,78 @@ from .spatial_bridge import SetBridgeConfig, contact_set_label
 from .train_scratch import (FrozenPsi, RawContacts, build_bank, evaluate, git_state, jitter_normals, load_config,
                             load_pool, residual_loss, sha16, start_noise)
 
-J1_DEFAULTS = dict(contact_weight=1.0, contacts_lr=1e-3, contacts_grad_clip=1.0, contacts_weight_decay=1e-4)
+J1_DEFAULTS = dict(contact_weight=1.0, contacts_lr=1e-3, contacts_grad_clip=1.0, contacts_weight_decay=1e-4,
+                   base_frame_aug=None, canonical_frame=False, canonical_jitter=None, canonical_origin=False,
+                   distill_teachers=None, distill_alpha=0.5)
+
+
+def load_teacher(path, dev):
+    """A frozen J1 checkpoint as a distillation teacher (as transfer_benchmark.load_system: fp32, eval; CF checkpoints wrapped in
+    CanonicalFrame so the teacher predicts in the native frame)."""
+    ck = torch.load(path, map_location=dev, weights_only=False)
+    assert ck["kind"] == "joint_contact_get" and ck["config"].get("surface_sampling") == "hand_frame"
+    m = JointContactGET(ScratchConfig.from_dict(ck["model_config"]), SetBridgeConfig(**ck["set_config"])).to(dev)
+    m.load_state_dict(ck["model"]); m.decoder.amp = False
+    m.eval().requires_grad_(False)
+    if ck["config"].get("canonical_frame"):
+        from .canonical import CanonicalFrame
+        m = CanonicalFrame(m, origin=bool(ck["config"].get("canonical_origin"))).eval()
+    return m
+
+
+def chordal_mean(Rs):
+    U, _, Vt = torch.linalg.svd(sum(Rs))
+    d = torch.sign(torch.linalg.det(U @ Vt))
+    D = torch.diag_embed(torch.stack([torch.ones_like(d), torch.ones_like(d), d], -1))
+    return U @ D @ Vt
+
+
+@torch.no_grad()
+def teacher_pose(teachers, bank, r, sg, z):
+    """CF-3d (docs/cf3_distillation_proposal.md): ensemble teacher pose in the NATIVE frame for native start sg: mean joint
+    coordinates, mean translation, chordal-mean rotation (as scripts/decoder/benchmark/seed_ensemble_eval.py)."""
+    outs = [T(bank, r, sg.qc1, sg.R1, sg.t1, z) for T in teachers]
+    return (sum(o["qc"] for o in outs) / len(outs), chordal_mean([o["R"] for o in outs]), sum(o["t"] for o in outs) / len(outs))
+
+
+def distill_targets(teachers, bank, bank_tr, r, r_tr, sg_nat, sg_tr, Qb, z, mc):
+    """Normalised residual targets (root, joints) toward the teacher pose, in the training frame: the teacher's goal rotation gets
+    the same relabelling as the ground-truth goal (R -> R Q_b; translation unchanged, native origin)."""
+    qT, RT, tT = teacher_pose(teachers, bank, r, sg_nat, z)
+    if Qb is not None:
+        RT = RT @ Qb
+    return target_residuals(bank_tr, r_tr, sg_tr.qc1, sg_tr.R1, sg_tr.t1, qT, RT, tT, mc)
+
+
+def frame_aug_bank(bank, k, seed, dev):
+    """W2-b base-frame augmentation (docs/w2_wrist_frame_proposal.md). A bank holding every robot under k fixed base-frame
+    rotations: block 0 = the identity (the original robots, same indices), blocks 1..k-1 = uniform SO(3) draws (seeded).
+    Training remaps an example of robot r to r + b * n_robots and its start / goal wrist rotations R -> R Q_b."""
+    from scipy.spatial.transform import Rotation
+    from .robots import RobotBank, relabel_base
+    Qs = [np.eye(3)] + list(Rotation.random(k - 1, random_state=seed).as_matrix())
+    descs = [relabel_base(d, Q) if b else d for b, Q in enumerate(Qs) for d in bank.descs]
+    big = RobotBank(descs, device=dev, surface_sampling=bank.surface_sampling)
+    assert torch.equal(big.surf_idx[: len(bank.descs)], bank.surf_idx)
+    return big, torch.as_tensor(np.stack(Qs), dtype=torch.float32, device=dev)
+
+
+def canonical_jitter_bank(bank_c, k, max_deg, seed, dev):
+    """CF-J (docs/cf_frame_jitter_proposal.md). The canonical bank under k fixed small frame rotations J_b: block 0 = the
+    identity (the canonical robots, same indices), blocks 1..k-1 = a rotation about a uniformly random axis by an angle
+    uniform in [0, max_deg] (seeded). A robot in block b is in frame Q_r J_b. Training only: training remaps an example of
+    robot r to r + b * n_robots and its start / goal wrist rotations R -> R Q_r J_b; evaluation and selection are unjittered."""
+    from scipy.spatial.transform import Rotation
+    from .robots import RobotBank, relabel_base
+    rng = np.random.default_rng(seed)
+    Js = [np.eye(3)]
+    for _ in range(k - 1):
+        ax = rng.normal(size=3); ax /= np.linalg.norm(ax)
+        Js.append(Rotation.from_rotvec(ax * np.radians(rng.uniform(0.0, max_deg))).as_matrix())
+    descs = [relabel_base(d, J) if b else d for b, J in enumerate(Js) for d in bank_c.descs]
+    big = RobotBank(descs, device=dev, surface_sampling=bank_c.surface_sampling)
+    assert torch.equal(big.surf_idx[: len(bank_c.descs)], bank_c.surf_idx)
+    return big, torch.as_tensor(np.stack(Js), dtype=torch.float32, device=dev)
 
 
 def world_labels(rb):
@@ -217,6 +288,44 @@ def main():
     stop = {"flag": False}
     signal.signal(signal.SIGTERM, lambda *_: stop.update(flag=True))
     sampler = BalancedSampler(train.to("cpu"), bank.family, seed=cfg["seed"])
+    aug = cfg.get("base_frame_aug")
+    if aug:  # training batches use the augmented bank; checks, evaluation and selection use the original (identity) bank
+        bank_tr, Qaug = frame_aug_bank(bank, int(aug["k"]), int(aug["seed"]), dev)
+        fam_tr = fam_index.repeat(int(aug["k"]))
+        n_rob = len(bank.descs)
+        print(f"base_frame_aug: {int(aug['k'])} base frames x {n_rob} robots", flush=True)
+    else:
+        bank_tr, fam_tr = bank, fam_index
+    canon = bool(cfg.get("canonical_frame"))
+    evm = model  # the model as evaluated / selected
+    if canon:  # CF: every robot in its canonical palm frame for training, evaluation and selection
+        assert not aug, "canonical_frame and base_frame_aug are separate arms"
+        from .canonical import CanonicalFrame
+        from .robots import canonical_bank
+        corig = bool(cfg.get("canonical_origin"))  # CF-O (docs/canonical_origin_proposal.md)
+        bank_tr, Qc, cinfo = canonical_bank(bank, origin=corig)
+        Oc = torch.as_tensor([i["o"] for i in cinfo], dtype=Qc.dtype, device=Qc.device) if corig else None
+        evm = CanonicalFrame(model, origin=corig)
+        evm._cache[(id(bank), tuple(bank.names), str(bank.lower.device))] = (bank_tr, Qc, Oc)
+        (out / "canonical_frames.json").write_text(json.dumps({n: {"Q": q.tolist(), **i} for n, q, i in zip(bank.names, Qc.cpu().numpy(), cinfo)}, indent=1))
+        print(f"canonical_frame: {len(bank.names)} robots", flush=True)
+    jit = cfg.get("canonical_jitter")
+    if jit:  # CF-J: training batches see the canonical frame tilted by a small J_b; evaluation / selection use evm (unjittered)
+        assert canon and not cfg.get("canonical_origin"), "canonical_jitter needs canonical_frame (and is a separate arm from canonical_origin)"
+        n_rob = len(bank.descs)
+        bank_tr, Jaug = canonical_jitter_bank(bank_tr, int(jit["k"]), float(jit["max_deg"]), int(jit["seed"]), dev)
+        fam_tr = fam_index.repeat(int(jit["k"]))
+        ang = np.degrees(np.arccos(np.clip((np.einsum("bii->b", Jaug.cpu().numpy()) - 1) / 2, -1, 1)))
+        (out / "canonical_jitter.json").write_text(json.dumps({"J": Jaug.cpu().numpy().tolist(), "angle_deg": ang.tolist(), **jit}, indent=1))
+        print(f"canonical_jitter: {int(jit['k'])} frames (angles {ang.min():.1f}-{ang.max():.1f} deg) x {n_rob} robots", flush=True)
+    teachers = None
+    if cfg.get("distill_teachers"):  # CF-3d: ensemble distillation (docs/cf3_distillation_proposal.md)
+        assert not aug and not jit and not cfg.get("canonical_origin"), "distillation is a separate arm"
+        from . import paths as _paths
+        teachers = [load_teacher(_paths.expand(t), dev) for t in cfg["distill_teachers"]]
+        alpha = float(cfg["distill_alpha"])
+        (out / "distill.json").write_text(json.dumps({"teachers": cfg["distill_teachers"], "alpha": alpha}, indent=1))
+        print(f"distill: {len(teachers)} teachers, alpha {alpha}", flush=True)
     log = open(out / "log.jsonl", "a")
     sgen = torch.Generator().manual_seed(cfg["seed"] + 1000 + step)
 
@@ -233,9 +342,34 @@ def main():
         rb = train.index(idx)
         sg = draw_start(bank, rb, sgen, **noise)
         z = psi(rb.c_pos, jitter_normals(rb.c_normal, cfg["normal_noise_rad"], sgen), rb.c_valid)
-        out_m = model(bank, rb.r, sg.qc1, sg.R1, sg.t1, z)
-        tr_root, tr_j = target_residuals(bank, rb.r, sg.qc1, sg.R1, sg.t1, sg.qcg, sg.Rg, sg.tg, mc)
-        lm, lr_, lj_ = residual_loss(out_m, tr_root, tr_j, bank.coord_valid[rb.r], fam_index[rb.r], len(families))
+        r_tr = rb.r
+        sg_nat, Qb = sg, None
+        if aug:  # same physical example, base frame re-expressed by Q_b (world poses unchanged; contacts and z unchanged)
+            b = torch.randint(0, len(Qaug), (len(rb.r),), generator=sgen).to(dev)
+            Qb = Qaug[b]
+            r_tr = rb.r + b * n_rob
+            sg = type(sg)(**{**{k: getattr(sg, k) for k in sg.__dataclass_fields__}, "R1": sg.R1 @ Qb, "Rg": sg.Rg @ Qb})
+        elif canon and jit:  # same physical example in its robot's canonical frame tilted by J_b (training only)
+            b = torch.randint(0, len(Jaug), (len(rb.r),), generator=sgen).to(dev)
+            Qb = Qc[rb.r] @ Jaug[b]
+            r_tr = rb.r + b * n_rob
+            sg = type(sg)(**{**{k: getattr(sg, k) for k in sg.__dataclass_fields__}, "R1": sg.R1 @ Qb, "Rg": sg.Rg @ Qb})
+        elif canon:  # same physical example in the canonical palm frame of its robot (CF-O: and its canonical origin)
+            Qb = Qc[rb.r]
+            upd = {"R1": sg.R1 @ Qb, "Rg": sg.Rg @ Qb}
+            if Oc is not None:
+                Ob = Oc[rb.r][..., None]
+                upd |= {"t1": sg.t1 + (sg.R1 @ Ob).squeeze(-1), "tg": sg.tg + (sg.Rg @ Ob).squeeze(-1)}
+            sg = type(sg)(**{**{k: getattr(sg, k) for k in sg.__dataclass_fields__}, **upd})
+        out_m = model(bank_tr, r_tr, sg.qc1, sg.R1, sg.t1, z)
+        tr_root, tr_j = target_residuals(bank_tr, r_tr, sg.qc1, sg.R1, sg.t1, sg.qcg, sg.Rg, sg.tg, mc)
+        lm, lr_, lj_ = residual_loss(out_m, tr_root, tr_j, bank_tr.coord_valid[r_tr], fam_tr[r_tr], len(families))
+        lm_gt = lm_t = None
+        if teachers is not None:
+            td_root, td_j = distill_targets(teachers, bank, bank_tr, rb.r, r_tr, sg_nat, sg, Qb if canon else None, z, mc)
+            lm_t, _, _ = residual_loss(out_m, td_root, td_j, bank_tr.coord_valid[r_tr], fam_tr[r_tr], len(families))
+            lm_gt = lm
+            lm = (1 - alpha) * lm_gt + alpha * lm_t
         CL, _ = model.contacts.set_loss(*out_m["contact_set"], *world_labels(rb))
         loss = lm + cfg["contact_weight"] * CL["total"]
         log_now = (step + 1) % cfg["log_every"] == 0
@@ -254,7 +388,7 @@ def main():
         if log_now:
             v = out_m["contact_valid"]
             row = {"step": step, "lr": sched.get_last_lr()[0], "lr_contacts": sched.get_last_lr()[1], "train/loss": loss.item(),
-                   "train/motion": lm.item(), "train/root": lr_.mean().item(), "train/joint": lj_.mean().item(),
+                   "train/motion": lm.item(), **({"train/motion_gt": lm_gt.item(), "train/motion_teacher": lm_t.item()} if lm_t is not None else {}), "train/root": lr_.mean().item(), "train/joint": lj_.mean().item(),
                    "train/contact": CL["total"].item(), "train/contact_pos": CL["pos"].item(), "train/contact_normal": CL["normal"].item(),
                    "train/contact_exist": CL["exist"].item(), "train/contact_weighted": cfg["contact_weight"] * CL["total"].item(),
                    "grad/decoder": float(gn_d), "grad/contacts": float(gn_c), "grad/contacts_from_motion": g_motion_contacts,
@@ -267,10 +401,10 @@ def main():
             print(json.dumps({k: (round(x, 4) if isinstance(x, float) else x) for k, x in row.items()}), flush=True)
             t_last, n_last = time.time(), 0
         if step % cfg["eval_every"] == 0 or step == Tt:
-            res = evaluate(model, psi, bank, val, val_sg, cfg, families)
+            res = evaluate(evm, psi, bank, val, val_sg, cfg, families)
             key = (res["all/model/success"], -res["all/model/contact_mm"])
             for k, v_ in extra.items():
-                res |= {f"{k}:{m}": x for m, x in evaluate(model, psi, bank, v_, extra_sg[k], cfg, families).items()}
+                res |= {f"{k}:{m}": x for m, x in evaluate(evm, psi, bank, v_, extra_sg[k], cfg, families).items()}
             res["contacts/val"] = contact_eval(model, psi, val)
             res |= {f"contacts/{k}": contact_eval(model, psi, v_) for k, v_ in extra.items()}
             log.write(json.dumps({"step": step, "eval": res}) + "\n"); log.flush()

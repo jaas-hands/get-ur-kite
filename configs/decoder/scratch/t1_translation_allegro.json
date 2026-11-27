@@ -1,0 +1,64 @@
+{
+ "kite_root": "${KITE_ROOT}",
+ "kite_ckpt": "${KITE_ROOT}/checkpoints/decoder/release.pt",
+ "robots": [
+  {
+   "kind": "kite",
+   "robot": "allegro_right",
+   "family": "allegro",
+   "urdf": "${KITE_ROOT}/assets/ohra_urdf_robot/allegro/allegro_hand_right_extended.urdf",
+   "template": "${KITE_ROOT}/assets/ohra_urdf_robot/allegro/surface_template_graph_n4096_ddcc74fe8fec.pt",
+   "coords_npz": "${GETKITE_DATA}/multifamily_pilot/allegro_right_train.npz",
+   "ignore_mimic": true
+  }
+ ],
+ "model": {
+  "d_model": 128,
+  "n_layers": 4,
+  "n_heads": 4,
+  "mlp_ratio": 4,
+  "n_intent_tokens": 4,
+  "pos_fourier": 8,
+  "rot_fourier": 8,
+  "intent_source": "external",
+  "frame": "wrist",
+  "world_pose_in": true
+ },
+ "set_config_from": "${GETKITE_RUNS}/set_bridge_zworld_c3_20k_b/best.pt",
+ "surface_sampling": "hand_frame",
+ "out_dir": "${GETKITE_RUNS}/t1_translation_allegro",
+ "seed": 0,
+ "val_start_seed": 12345,
+ "normal_noise_rad": 0.1,
+ "batch_size": 256,
+ "lr": 0.0003,
+ "weight_decay": 0.0001,
+ "grad_clip": 1.0,
+ "trunk_lr": 0.001,
+ "trunk_grad_clip": 1.0,
+ "trunk_weight_decay": 0.0001,
+ "warmup_steps": 500,
+ "total_steps": 10000,
+ "eval_every": 1000,
+ "log_every": 100,
+ "ckpt_every": 1000,
+ "t1": {
+  "base": {
+   "kind": "kite",
+   "robot": "allegro_right",
+   "npz": "${GETKITE_DATA}/multifamily_pilot/allegro_right_train.npz"
+  },
+  "base_row": 0,
+  "box_m": 0.1,
+  "n_train": 20000,
+  "n_val": 2000,
+  "n_train_eval": 2000,
+  "train_seed": 11,
+  "val_seed": 22,
+  "start_xyz_std": 0.005,
+  "mlp_hidden": 512,
+  "mlp_layers": 3,
+  "mlp_lr": 0.001
+ },
+ "_note": "T1 translation-only diagnostic (2026-11-19). NOT LAUNCHED until approved. One Allegro (KITE nominal), one base goal record (fixed fingers/orientation/contact shape), targets = rigid world translations U[-0.10,0.10]^3 m (train 20k seed 11, val 2k fresh seed 22), starts = goal + N(0,5mm) translation only. Direct GET (v1 architecture, fresh, motion loss only, aux head unused) vs z+start-pose MLP (same root target/loss). 10k x 256 each. Separate from W1."
+}

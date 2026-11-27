@@ -1,0 +1,78 @@
+
+=== val/allegro (n=500) no-mvt corr 11.55 wrist 7.95
+  d1      seeds corr [6.3068, 6.4855, 6.1917] mean 6.328 -> ens 6.030 (-0.298; vs each seed ---) | wrist seeds [5.2001, 5.3026, 5.0398] -> ens 4.994 | compat seeds [0.864, 0.848, 0.874] -> 0.882 | trans R2 0.5828
+  d1long  seeds corr [6.2628, 6.0332, 5.919] mean 6.072 -> ens 5.716 (-0.355; vs each seed ---) | wrist seeds [5.1757, 4.9695, 4.9029] -> ens 4.776 | compat seeds [0.866, 0.872, 0.9] -> 0.898 | trans R2 0.6129
+  cf2     seeds corr [5.8849, 5.9611, 5.9006] mean 5.916 -> ens 5.564 (-0.351; vs each seed ---) | wrist seeds [4.9055, 4.9433, 4.846] -> ens 4.675 | compat seeds [0.926, 0.886, 0.9] -> 0.924 | trans R2 0.6301
+  d1bv    seeds corr [5.8617, 6.0165, 5.9318] mean 5.937 -> ens 5.600 (-0.337; vs each seed ---) | wrist seeds [4.8383, 4.876, 4.8275] -> ens 4.637 | compat seeds [0.914, 0.89, 0.894] -> 0.922 | trans R2 0.6335
+  cfbv    seeds corr [6.0399, 5.9837, 5.8691] mean 5.964 -> ens 5.669 (-0.295; vs each seed ---) | wrist seeds [5.0007, 4.9612, 4.8066] -> ens 4.739 | compat seeds [0.884, 0.89, 0.9] -> 0.908 | trans R2 0.6219
+  cfj     seeds corr [5.993, 6.026, 5.9998] mean 6.006 -> ens 5.678 (-0.328; vs each seed ---) | wrist seeds [4.9933, 4.9773, 4.9843] -> ens 4.771 | compat seeds [0.898, 0.89, 0.902] -> 0.922 | trans R2 0.6164
+    ens cf2-d1bv: corr -0.036 [-0.130,+0.056]  wrist +0.038 [-0.047,+0.121]
+    ens d1bv-cfbv: corr -0.069 [-0.158,+0.020]  wrist -0.102 [-0.185,-0.021]
+    ens cf2-cfj: corr -0.114 [-0.203,-0.024]  wrist -0.096 [-0.173,-0.018]
+    ens d1bv-d1long: corr -0.117 [-0.202,-0.029]  wrist -0.139 [-0.217,-0.061]
+    ens cf2-d1long: corr -0.152 [-0.244,-0.059]  wrist -0.101 [-0.185,-0.018]
+
+=== val/barrett (n=500) no-mvt corr 14.45 wrist 8.02
+  d1      seeds corr [6.1405, 6.3563, 6.3073] mean 6.268 -> ens 5.885 (-0.383; vs each seed ---) | wrist seeds [5.1233, 5.2602, 5.0875] -> ens 4.973 | compat seeds [0.874, 0.874, 0.872] -> 0.904 | trans R2 0.5809
+  d1long  seeds corr [6.1405, 5.9727, 5.831] mean 5.981 -> ens 5.544 (-0.438; vs each seed ---) | wrist seeds [5.0597, 4.9639, 4.8842] -> ens 4.752 | compat seeds [0.886, 0.884, 0.906] -> 0.926 | trans R2 0.6132
+  cf2     seeds corr [5.9219, 5.861, 5.8035] mean 5.862 -> ens 5.435 (-0.427; vs each seed ---) | wrist seeds [4.9832, 4.8221, 4.8777] -> ens 4.662 | compat seeds [0.91, 0.894, 0.916] -> 0.940 | trans R2 0.6216
+  d1bv    seeds corr [5.8052, 5.9576, 5.9691] mean 5.911 -> ens 5.455 (-0.456; vs each seed ---) | wrist seeds [4.9206, 5.0103, 4.9611] -> ens 4.716 | compat seeds [0.914, 0.896, 0.882] -> 0.924 | trans R2 0.6139
+  cfbv    seeds corr [6.039, 5.9193, 5.9457] mean 5.968 -> ens 5.540 (-0.428; vs each seed ---) | wrist seeds [4.9531, 4.8576, 4.8595] -> ens 4.665 | compat seeds [0.908, 0.914, 0.88] -> 0.918 | trans R2 0.6223
+  cfj     seeds corr [5.9935, 6.012, 5.7772] mean 5.928 -> ens 5.519 (-0.409; vs each seed ---) | wrist seeds [4.9442, 4.8957, 4.9715] -> ens 4.720 | compat seeds [0.908, 0.894, 0.926] -> 0.936 | trans R2 0.6183
+    ens cf2-d1bv: corr -0.020 [-0.122,+0.080]  wrist -0.054 [-0.136,+0.029]
+    ens d1bv-cfbv: corr -0.086 [-0.205,+0.023]  wrist +0.051 [-0.032,+0.127]
+    ens cf2-cfj: corr -0.084 [-0.186,+0.010]  wrist -0.058 [-0.131,+0.017]
+    ens d1bv-d1long: corr -0.089 [-0.191,+0.026]  wrist -0.037 [-0.122,+0.050]
+    ens cf2-d1long: corr -0.109 [-0.215,+0.002]  wrist -0.091 [-0.173,-0.011]
+
+=== val/leap (n=504) no-mvt corr 13.93 wrist 7.75
+  d1      seeds corr [8.397, 8.6019, 8.4605] mean 8.486 -> ens 8.161 (-0.326; vs each seed ---) | wrist seeds [6.0056, 6.0392, 5.9567] -> ens 5.866 | compat seeds [0.621, 0.5972, 0.6171] -> 0.647 | trans R2 0.407
+  d1long  seeds corr [8.3858, 8.1686, 8.119] mean 8.224 -> ens 7.754 (-0.470; vs each seed ---) | wrist seeds [5.9789, 5.844, 5.7922] -> ens 5.685 | compat seeds [0.6468, 0.6667, 0.6369] -> 0.700 | trans R2 0.4386
+  cf2     seeds corr [8.2068, 8.1248, 8.0558] mean 8.129 -> ens 7.704 (-0.426; vs each seed ---) | wrist seeds [5.8938, 5.899, 5.8049] -> ens 5.671 | compat seeds [0.6706, 0.6647, 0.6885] -> 0.720 | trans R2 0.442
+  d1bv    seeds corr [8.0068, 8.2361, 8.1111] mean 8.118 -> ens 7.668 (-0.450; vs each seed ---) | wrist seeds [5.8396, 5.9377, 5.8641] -> ens 5.702 | compat seeds [0.6706, 0.6746, 0.6667] -> 0.734 | trans R2 0.44
+  cfbv    seeds corr [8.2936, 8.2246, 8.2037] mean 8.241 -> ens 7.833 (-0.408; vs each seed ---) | wrist seeds [5.9542, 5.9066, 5.9449] -> ens 5.769 | compat seeds [0.6448, 0.6726, 0.6746] -> 0.694 | trans R2 0.4235
+  cfj     seeds corr [8.0899, 8.2816, 8.0746] mean 8.149 -> ens 7.757 (-0.392; vs each seed ---) | wrist seeds [5.9311, 5.934, 5.8646] -> ens 5.736 | compat seeds [0.6587, 0.6587, 0.6508] -> 0.698 | trans R2 0.4281
+    ens cf2-d1bv: corr +0.036 [-0.111,+0.181]  wrist -0.031 [-0.123,+0.063]
+    ens d1bv-cfbv: corr -0.165 [-0.294,-0.041]  wrist -0.067 [-0.151,+0.017]
+    ens cf2-cfj: corr -0.053 [-0.162,+0.051]  wrist -0.065 [-0.138,+0.008]
+    ens d1bv-d1long: corr -0.086 [-0.230,+0.055]  wrist +0.017 [-0.069,+0.101]
+    ens cf2-d1long: corr -0.051 [-0.184,+0.075]  wrist -0.014 [-0.098,+0.066]
+
+=== leap_heldout/leap (n=13125) no-mvt corr 14.84 wrist 7.94
+  d1      seeds corr [9.0358, 9.2011, 9.0286] mean 9.089 -> ens 8.767 (-0.322; vs each seed ---) | wrist seeds [6.4115, 6.4839, 6.3608] -> ens 6.283 | compat seeds [0.5631, 0.5385, 0.5583] -> 0.582 | trans R2 0.3547
+  d1long  seeds corr [8.9764, 8.7895, 8.6835] mean 8.816 -> ens 8.344 (-0.472; vs each seed ---) | wrist seeds [6.3538, 6.2996, 6.2149] -> ens 6.098 | compat seeds [0.5727, 0.596, 0.5988] -> 0.636 | trans R2 0.3893
+  cf2     seeds corr [9.0323, 8.9248, 8.8286] mean 8.929 -> ens 8.494 (-0.435; vs each seed ---) | wrist seeds [6.4098, 6.333, 6.2954] -> ens 6.156 | compat seeds [0.5785, 0.5845, 0.5909] -> 0.625 | trans R2 0.378
+  d1bv    seeds corr [8.5865, 8.7554, 8.6731] mean 8.672 -> ens 8.236 (-0.435; vs each seed ---) | wrist seeds [6.2022, 6.2805, 6.2276] -> ens 6.054 | compat seeds [0.6184, 0.5966, 0.6016] -> 0.647 | trans R2 0.3952
+  cfbv    seeds corr [8.922, 8.7532, 8.8129] mean 8.829 -> ens 8.428 (-0.402; vs each seed ---) | wrist seeds [6.3352, 6.2863, 6.2825] -> ens 6.136 | compat seeds [0.5845, 0.5998, 0.5954] -> 0.630 | trans R2 0.3811
+  cfj     seeds corr [8.8636, 8.8817, 8.8488] mean 8.865 -> ens 8.464 (-0.401; vs each seed ---) | wrist seeds [6.3409, 6.3339, 6.3369] -> ens 6.163 | compat seeds [0.5917, 0.5874, 0.5971] -> 0.629 | trans R2 0.3772
+    ens cf2-d1bv: corr +0.257 [+0.227,+0.288]  wrist +0.102 [+0.083,+0.123]
+    ens d1bv-cfbv: corr -0.191 [-0.218,-0.166]  wrist -0.082 [-0.100,-0.065]
+    ens cf2-cfj: corr +0.030 [+0.006,+0.054]  wrist -0.006 [-0.022,+0.010]
+    ens d1bv-d1long: corr -0.107 [-0.135,-0.081]  wrist -0.044 [-0.061,-0.027]
+    ens cf2-d1long: corr +0.150 [+0.120,+0.180]  wrist +0.058 [+0.039,+0.077]
+
+=== wuji/wuji (n=500) no-mvt corr 14.19 wrist 7.96
+  d1      seeds corr [9.3604, 9.0972, 9.8091] mean 9.422 -> ens 9.028 (-0.394; vs each seed -0-) | wrist seeds [7.1433, 7.1119, 7.0656] -> ens 6.903 | compat seeds [0.562, 0.622, 0.51] -> 0.600 | trans R2 0.2237
+  d1long  seeds corr [9.5467, 9.033, 9.7562] mean 9.445 -> ens 8.732 (-0.713; vs each seed ---) | wrist seeds [7.3979, 7.2696, 7.3865] -> ens 7.000 | compat seeds [0.54, 0.644, 0.558] -> 0.658 | trans R2 0.206
+  cf2     seeds corr [8.2283, 8.7819, 8.9965] mean 8.669 -> ens 8.123 (-0.545; vs each seed 0--) | wrist seeds [6.791, 7.1451, 7.0683] -> ens 6.762 | compat seeds [0.694, 0.642, 0.626] -> 0.736 | trans R2 0.2592
+  d1bv    seeds corr [8.4116, 8.5729, 8.9019] mean 8.629 -> ens 8.024 (-0.604; vs each seed ---) | wrist seeds [7.0215, 7.0795, 7.2357] -> ens 6.804 | compat seeds [0.674, 0.684, 0.632] -> 0.714 | trans R2 0.2471
+  cfbv    seeds corr [9.037, 9.3293, 8.4754] mean 8.947 -> ens 8.400 (-0.548; vs each seed --0) | wrist seeds [7.1893, 7.288, 7.0963] -> ens 6.940 | compat seeds [0.612, 0.562, 0.666] -> 0.674 | trans R2 0.2129
+  cfj     seeds corr [8.3287, 9.6349, 7.9953] mean 8.653 -> ens 8.019 (-0.634; vs each seed --0) | wrist seeds [7.0041, 7.3466, 6.9156] -> ens 6.801 | compat seeds [0.652, 0.542, 0.718] -> 0.726 | trans R2 0.2545
+    ens cf2-d1bv: corr +0.099 [-0.095,+0.300]  wrist -0.042 [-0.171,+0.087]
+    ens d1bv-cfbv: corr -0.375 [-0.560,-0.182]  wrist -0.136 [-0.269,-0.003]
+    ens cf2-cfj: corr +0.105 [-0.065,+0.273]  wrist -0.040 [-0.142,+0.071]
+    ens d1bv-d1long: corr -0.708 [-0.879,-0.539]  wrist -0.196 [-0.311,-0.085]
+    ens cf2-d1long: corr -0.609 [-0.815,-0.399]  wrist -0.238 [-0.372,-0.105]
+
+=== shadow/shadow (n=500) no-mvt corr 13.97 wrist 7.96
+  d1      seeds corr [10.458, 10.0325, 10.8567] mean 10.449 -> ens 9.745 (-0.704; vs each seed ---) | wrist seeds [8.0307, 8.0793, 8.5814] -> ens 7.904 | compat seeds [0.442, 0.438, 0.37] -> 0.488 | trans R2 0.0004
+  d1long  seeds corr [12.3582, 10.1537, 11.1657] mean 11.226 -> ens 9.959 (-1.267; vs each seed -0-) | wrist seeds [9.1156, 8.2746, 8.2376] -> ens 7.875 | compat seeds [0.306, 0.454, 0.37] -> 0.458 | trans R2 0.0079
+  cf2     seeds corr [8.9651, 9.2047, 9.4671] mean 9.212 -> ens 8.552 (-0.661; vs each seed ---) | wrist seeds [7.5005, 7.7367, 7.5719] -> ens 7.326 | compat seeds [0.59, 0.572, 0.514] -> 0.638 | trans R2 0.1327
+  d1bv    seeds corr [9.2408, 10.1843, 10.0345] mean 9.820 -> ens 8.967 (-0.853; vs each seed ---) | wrist seeds [7.8469, 8.3208, 8.1316] -> ens 7.656 | compat seeds [0.502, 0.426, 0.462] -> 0.538 | trans R2 0.0574
+  cfbv    seeds corr [9.5316, 9.9079, 9.5421] mean 9.661 -> ens 8.873 (-0.787; vs each seed ---) | wrist seeds [7.6929, 7.7864, 7.648] -> ens 7.433 | compat seeds [0.512, 0.494, 0.502] -> 0.588 | trans R2 0.104
+  cfj     seeds corr [9.4208, 10.6495, 8.4928] mean 9.521 -> ens 8.797 (-0.724; vs each seed --+) | wrist seeds [7.6773, 7.8707, 7.4114] -> ens 7.364 | compat seeds [0.55, 0.424, 0.624] -> 0.598 | trans R2 0.1296
+    ens cf2-d1bv: corr -0.415 [-0.702,-0.133]  wrist -0.330 [-0.526,-0.129]
+    ens d1bv-cfbv: corr +0.093 [-0.174,+0.353]  wrist +0.223 [+0.033,+0.408]
+    ens cf2-cfj: corr -0.245 [-0.466,-0.028]  wrist -0.037 [-0.167,+0.093]
+    ens d1bv-d1long: corr -0.992 [-1.249,-0.730]  wrist -0.219 [-0.380,-0.059]
+    ens cf2-d1long: corr -1.407 [-1.756,-1.056]  wrist -0.549 [-0.759,-0.329]

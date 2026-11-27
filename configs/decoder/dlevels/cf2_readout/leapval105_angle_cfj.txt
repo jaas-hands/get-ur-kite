@@ -1,0 +1,20 @@
+
+cfj - d1long
+ s0 spearman +0.09  r(<=15deg) +0.06 | [0,3) n=45 -0.114  [3,6) n=36 -0.195  [6,10) n=16 -0.084  [10,15) n=5 -0.029  [15,90) n=3 +0.593 | own-err vs angle r +0.15, ref-err vs angle r +0.12
+ s1 spearman +0.33  r(<=15deg) +0.26 | [0,3) n=45 +0.022  [3,6) n=36 +0.081  [6,10) n=16 +0.178  [10,15) n=5 +0.164  [15,90) n=3 +0.707 | own-err vs angle r +0.25, ref-err vs angle r +0.13
+ s2 spearman +0.37  r(<=15deg) +0.31 | [0,3) n=45 +0.062  [3,6) n=36 +0.195  [6,10) n=16 +0.246  [10,15) n=5 +0.262  [15,90) n=3 +0.770 | own-err vs angle r +0.23, ref-err vs angle r +0.04
+
+cf2 - d1long
+ s0 spearman +0.25  r(<=15deg) +0.33 | [0,3) n=45 -0.013  [3,6) n=36 -0.042  [6,10) n=16 +0.052  [10,15) n=5 +0.595  [15,90) n=3 +1.379 | own-err vs angle r +0.37, ref-err vs angle r +0.12
+ s1 spearman +0.46  r(<=15deg) +0.48 | [0,3) n=45 +0.006  [3,6) n=36 +0.115  [6,10) n=16 +0.209  [10,15) n=5 +0.535  [15,90) n=3 +1.258 | own-err vs angle r +0.42, ref-err vs angle r +0.13
+ s2 spearman +0.40  r(<=15deg) +0.48 | [0,3) n=45 +0.046  [3,6) n=36 +0.081  [6,10) n=16 +0.246  [10,15) n=5 +0.582  [15,90) n=3 +1.132 | own-err vs angle r +0.33, ref-err vs angle r +0.04
+
+cfj - cf2
+ s0 spearman -0.32  r(<=15deg) -0.36 | [0,3) n=45 -0.101  [3,6) n=36 -0.153  [6,10) n=16 -0.136  [10,15) n=5 -0.625  [15,90) n=3 -0.786 | own-err vs angle r +0.15, ref-err vs angle r +0.37
+ s1 spearman -0.28  r(<=15deg) -0.31 | [0,3) n=45 +0.016  [3,6) n=36 -0.034  [6,10) n=16 -0.032  [10,15) n=5 -0.371  [15,90) n=3 -0.551 | own-err vs angle r +0.25, ref-err vs angle r +0.42
+ s2 spearman -0.11  r(<=15deg) -0.21 | [0,3) n=45 +0.016  [3,6) n=36 +0.113  [6,10) n=16 -0.001  [10,15) n=5 -0.320  [15,90) n=3 -0.362 | own-err vs angle r +0.23, ref-err vs angle r +0.33
+
+cfj - d1bv
+ s0 spearman +0.24  r(<=15deg) +0.17 | [0,3) n=45 +0.226  [3,6) n=36 +0.244  [6,10) n=16 +0.363  [10,15) n=5 +0.339  [15,90) n=3 +0.880 | own-err vs angle r +0.15, ref-err vs angle r +0.07
+ s1 spearman +0.23  r(<=15deg) +0.24 | [0,3) n=45 +0.080  [3,6) n=36 +0.091  [6,10) n=16 +0.114  [10,15) n=5 +0.345  [15,90) n=3 +0.938 | own-err vs angle r +0.25, ref-err vs angle r +0.14
+ s2 spearman +0.35  r(<=15deg) +0.24 | [0,3) n=45 +0.080  [3,6) n=36 +0.210  [6,10) n=16 +0.220  [10,15) n=5 +0.222  [15,90) n=3 +0.885 | own-err vs angle r +0.23, ref-err vs angle r +0.09

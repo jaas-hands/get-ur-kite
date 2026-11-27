@@ -1,0 +1,93 @@
+{
+ "_note": "Morphology-diversity follow-ups (2026-11-20, \u00a759): G1, C1, D1 and D1b (second body draw), C5 (one 5-finger body), N5 (50 bodies, no 5-finger layouts), R4 (D1 bodies x 1600 records) at seeds 0/1/2, paired by seed, each selected on its own source val. Pools 1-3 as transfer_v1; pool 4 Shadow (reserved; frozen systems, nothing selected on it).",
+ "base_config": "configs/decoder/scratch/c3_psi50k_10x_wrist.json",
+ "surface_sampling": "hand_frame",
+ "systems": {
+  "d0_g1_s0": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/g1_leapdiv50k_hf/best.pt"
+  },
+  "c1_s0": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/c1_prim1_hf/best.pt"
+  },
+  "d1_s0": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/d1_prim50_hf/best.pt"
+  },
+  "d1b_s0": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/d1b_prim50_hf/best.pt"
+  },
+  "c5_s0": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/c5_prim1x5f_hf/best.pt"
+  },
+  "n5_s0": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/n5_prim50no5f_hf/best.pt"
+  },
+  "r4_s0": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/r4_prim50x1600_hf/best.pt"
+  },
+  "d0_g1_s1": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/g1_leapdiv50k_hf_s1/best.pt"
+  },
+  "c1_s1": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/c1_prim1_hf_s1/best.pt"
+  },
+  "d1_s1": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/d1_prim50_hf_s1/best.pt"
+  },
+  "d1b_s1": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/d1b_prim50_hf_s1/best.pt"
+  },
+  "c5_s1": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/c5_prim1x5f_hf_s1/best.pt"
+  },
+  "n5_s1": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/n5_prim50no5f_hf_s1/best.pt"
+  },
+  "r4_s1": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/r4_prim50x1600_hf_s1/best.pt"
+  },
+  "d0_g1_s2": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/g1_leapdiv50k_hf_s2/best.pt"
+  },
+  "c1_s2": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/c1_prim1_hf_s2/best.pt"
+  },
+  "d1_s2": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/d1_prim50_hf_s2/best.pt"
+  },
+  "d1b_s2": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/d1b_prim50_hf_s2/best.pt"
+  },
+  "c5_s2": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/c5_prim1x5f_hf_s2/best.pt"
+  },
+  "n5_s2": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/n5_prim50no5f_hf_s2/best.pt"
+  },
+  "r4_s2": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/r4_prim50x1600_hf_s2/best.pt"
+  }
+ },
+ "out_dir": "${GETKITE_RUNS}/transfer_benchmark_v1_followups",
+ "shadow_pool": true
+}

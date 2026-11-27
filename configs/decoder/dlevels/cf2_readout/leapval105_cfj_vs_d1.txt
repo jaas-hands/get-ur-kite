@@ -1,0 +1,32 @@
+held-out LEAP: 105 hands, 13125 records; cfj - d1 (negative = cfj better)
+no movement corr_mm 14.839
+
+seed 0: cfj corr 8.864  d1 corr 9.036
+  corr diff -0.172  hand-bootstrap 95% CI [-0.217, -0.124]  hands cfj lower 84/105
+  wrist_mm -0.071  wrist_deg +0.029  compat_success +0.029
+  original 4 hands -0.150   other 101 hands -0.173
+  2 fingers:   7 hands  corr diff +0.088  cfj lower 4/7
+  3 fingers:  35 hands  corr diff -0.152  cfj lower 25/35
+  4 fingers:  63 hands  corr diff -0.212  cfj lower 55/63
+  corr diff vs frame angle: r=+0.60  (angle median 3.6, max 84.4; >15deg: 3 hands, diff +0.543)
+
+seed 1: cfj corr 8.882  d1 corr 9.201
+  corr diff -0.319  hand-bootstrap 95% CI [-0.368, -0.264]  hands cfj lower 96/105
+  wrist_mm -0.150  wrist_deg -0.102  compat_success +0.049
+  original 4 hands -0.356   other 101 hands -0.318
+  2 fingers:   7 hands  corr diff -0.180  cfj lower 5/7
+  3 fingers:  35 hands  corr diff -0.378  cfj lower 34/35
+  4 fingers:  63 hands  corr diff -0.302  cfj lower 57/63
+  corr diff vs frame angle: r=+0.69  (angle median 3.6, max 84.4; >15deg: 3 hands, diff +0.530)
+
+seed 2: cfj corr 8.849  d1 corr 9.029
+  corr diff -0.180  hand-bootstrap 95% CI [-0.227, -0.130]  hands cfj lower 87/105
+  wrist_mm -0.024  wrist_deg +0.071  compat_success +0.039
+  original 4 hands -0.176   other 101 hands -0.180
+  2 fingers:   7 hands  corr diff +0.155  cfj lower 3/7
+  3 fingers:  35 hands  corr diff -0.218  cfj lower 31/35
+  4 fingers:  63 hands  corr diff -0.196  cfj lower 53/63
+  corr diff vs frame angle: r=+0.58  (angle median 3.6, max 84.4; >15deg: 3 hands, diff +0.395)
+
+hands where cfj is higher in all 3 seeds: 3/105; lower in all 3: 69
+largest mean gaps: [(np.str_('I0-M2-R0-T4_g6'), 1.27, 84.4, 2), (np.str_('I2-M3-R3-T2_g0'), 0.27, 13.3, 4), (np.str_('I2-M4-R3-T2_g5'), 0.1, 15.8, 4), (np.str_('I2-M4-R3-T2_g4'), 0.1, 19.8, 4), (np.str_('I2-M4-R4-T2_g2'), 0.07, 8.5, 4), (np.str_('I0-M2-R0-T4_g3'), -0.01, 2.8, 2), (np.str_('I0-M4-R4-T4_g5'), -0.02, 9.2, 3), (np.str_('I0-M2-R2-T3_g2'), -0.03, 3.0, 3)]

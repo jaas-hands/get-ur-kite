@@ -1,0 +1,45 @@
+{
+ "_note": "Frozen transfer benchmark v1 (2026-11-18), identical protocol and pools. v1_dlevels_seeds (2026-11-20): D0 = G1, D1, D3 at training seeds 0/1/2 (paired seeds; only 'seed' differs), each selected on its own source val only. Wuji: unseen by our decoders, seen by KITE's psi. Shadow not evaluated.",
+ "base_config": "configs/decoder/scratch/c3_psi50k_10x_wrist.json",
+ "surface_sampling": "hand_frame",
+ "systems": {
+  "d0_g1_s0": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/g1_leapdiv50k_hf/best.pt"
+  },
+  "d1_s0": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/d1_prim50_hf/best.pt"
+  },
+  "d3_s0": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/d3_prim800_hf/best.pt"
+  },
+  "d0_g1_s1": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/g1_leapdiv50k_hf_s1/best.pt"
+  },
+  "d1_s1": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/d1_prim50_hf_s1/best.pt"
+  },
+  "d3_s1": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/d3_prim800_hf_s1/best.pt"
+  },
+  "d0_g1_s2": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/g1_leapdiv50k_hf_s2/best.pt"
+  },
+  "d1_s2": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/d1_prim50_hf_s2/best.pt"
+  },
+  "d3_s2": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/d3_prim800_hf_s2/best.pt"
+  }
+ },
+ "pool4_status": "NOT RUN: no external hand ready. KITE ships only collision-primitive fits (assets/collision_primitives/*.json: per-link capsule/box parameters, no kinematic tree, joint axes/limits, meshes or surface templates) for Shadow (dro__shadowhand), Inspire, Ability, Schunk, XHand, MetaHand, EZGripper, Robotiq-3F; no URDF/MJCF or meshes for any of them on this machine, and robot_descriptions/mujoco_menagerie are not installed. psi was trained on wujihand_right, allegro_right, barrett, robotiq_gripper_stick, mano_right (KITE conf/kite.yaml), so Shadow/Inspire/Ability/Schunk/XHand/MetaHand would be absent from both decoder training and psi's exposure list. Needed for one: URDF/MJCF + meshes (e.g. Inspire or Shadow right hand), a 4096-point surface template in KITE's format, a GET robot adapter (coupled/mimic joint mapping, independent coordinates), FK validation against the native model at several configurations, KITE-style synthetic contact generation for 500 evaluation-only goals (2-6 contacts), and a target example bank for cross-body starts.",
+ "out_dir": "${GETKITE_RUNS}/transfer_benchmark_v1_dlevels_seeds"
+}
