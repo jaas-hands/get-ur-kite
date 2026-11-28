@@ -45,6 +45,8 @@ status "env ready: $(python -c 'import torch; print(torch.__version__)')"
 # --- data, KITE assets, teachers, run dirs ------------------------------------------------------------------------------
 export GETKITE_DATASET=$W/data/dataset GETKITE_DATA=$W/data/getkite_data GETKITE_EXTERNAL=$W/data/external
 export KITE_ROOT=$W/kite GETKITE_RUNS=$W/runs PYTHONPATH=$W/gk/src:$W/gkd
+# Checkpoints (CF-3e, teachers) store absolute paths from the original cluster in their config: point them here.
+mkdir -p /home/asv48/code/uni-kite && ln -sfn "$KITE_ROOT" /home/asv48/code/uni-kite/KITE && ln -sfn "$GETKITE_RUNS" /home/asv48/code/uni-kite/getkite_runs
 aws s3 sync --quiet "$S3/data/dataset" "$GETKITE_DATASET" || fail "data/dataset"
 aws s3 sync --quiet "$S3/data/getkite_data" "$GETKITE_DATA" || fail "data/getkite_data"
 aws s3 sync --quiet "$S3/kite" "$KITE_ROOT" || fail "kite assets"
