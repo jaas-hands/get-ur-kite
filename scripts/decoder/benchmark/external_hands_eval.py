@@ -39,8 +39,8 @@ RUNS = {"d1long": "d1_long_hf", "cf2": "cf2_long_hf", "d1bv": "d1_bv_long_hf", "
         **{f"cf3f{a}": f"cf3f_{a}_hf" for a in ("leap", "long", "teach", "big", "rec")},  # CF-3f arms (docs/cf3f_proposal.md)
         **{f"cf3flong{k}k": f"cf3f_long_snap{k}k_hf" for k in (175, 225, 275)},
         "cf3fbigext": "cf3f_bigext_hf", "cf3fbigextlast": "cf3f_bigextlast_hf",
-        "cf3fmatch": "cf3f_match_hf",
-        "cf3fbig300k": "cf3f_big300k_hf", "cf3fcontact": "cf3f_contact_hf"}  # extra CF-3f arms run on Aryan's compute (docs/cf3f_extra_arms.md)  # CF-3f matched teachers  # big continued to 200k: selected / final (copy of last.pt)  # long-arm mid-training snapshots (copies of last.pt)
+        "cf3fmatch": "cf3f_match_hf",  # CF-3f matched teachers  # big continued to 200k: selected / final (copy of last.pt)  # long-arm mid-training snapshots (copies of last.pt)
+        "cf3fbig300k": "cf3f_big300k_hf", "cf3fcontact": "cf3f_contact_hf"}  # extra CF-3f arms run on Aryan's compute (docs/cf3f_extra_arms.md)
 METRICS = ("corr_mm", "compat_success", "wrist_mm", "wrist_deg")
 
 
