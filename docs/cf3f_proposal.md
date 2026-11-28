@@ -328,3 +328,15 @@ confirmation on the named new-family validation hands (capacity-type change; in-
   P0390, +1]; MetaHand (4,4,4,4) 2 [P0593, P0770]; Aero (3,3,3,3,4) 4 [P0135, P0167, P0195, P0398]. 14 / 800 (1.75 %); none in the
   50 test / 50 held-out bodies. Primitive geometry differs from the real hands, so this is layout-level, not shape-level, overlap;
   but 5 of the 7 external families are not strictly layout-unseen for any model trained on the 800 bodies (D1-bv, CF-3e, CF-3f).
+
+## Queued (Aryan + us, 2026-11-27 ~15:20 EST): CF-3e as a matched teacher on the 800 bodies — only if "match" passes
+All other ruled-out directions stay ruled out (Aryan agreed). If match passes: evaluation-only teacher-target check on the 800
+bodies (rows 0–25, which D1-bv and CF-3e both trained on) scoring D1-bv-only, CF-3e-only and D1-bv + CF-3e (matched). Train only if
+a candidate beats D1-bv-only by >= 0.1 mm corr_mm (paired 95 % CI below 0) and is not worse on wrist (fixed before running).
+~10 min eval. If match fails: stays ruled out. Aryan's concern: CF-3e inherited 0.22 mm noisier body targets and shares CF2's frame.
+Snapshot 175k (job 124067; all seeds at ckpt step 175000; learning rate still ~37 % of peak on the 300k cosine):
+long@175k − CF-3e (final, 100k) corr_mm over the 9 unseen-family hands: mean +0.25 / +0.11 / +1.39 (s0/s1/s2); better on 2 / 4 /
+0 of 9 hands; wrist mean +0.09 / +0.13 / +0.45. Worst MetaHand (+0.69 / +1.35 / +2.85). Meanwhile in-training metrics at 175k are
+level with or better than CF-3e's final: source val 6.00 / 6.03 / 5.98 vs 6.09 / 6.12 / 6.07; held-out LEAP and held-out bodies ≈
+level (s2 bodies 5.20 vs 5.02). Reading (opinion): so far the big-arm pattern (in-family level/better, unseen families worse), but a
+mid-schedule snapshot understates the finished model; 225k / 275k / final decide.
