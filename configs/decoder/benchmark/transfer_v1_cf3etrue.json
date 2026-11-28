@@ -1,0 +1,33 @@
+{
+ "_note": "True-contact bound for frozen CF-3e (2026-11-28, evaluation only): each CF-3e seed scored with its own predicted contact set (cf3e_s*) and with its contact predictor bypassed, its GET decoder fed the TRUE requested contact set (cf3etrue_s*, transfer_benchmark.TrueContactJ1). Same records, starts and scoring as transfer_v1_cf3e. cf3etrue is a diagnostic upper bound (it reads the request), not a deployable system.",
+ "base_config": "configs/decoder/scratch/c3_psi50k_10x_wrist.json",
+ "surface_sampling": "hand_frame",
+ "out_dir": "${GETKITE_RUNS}/transfer_benchmark_v1_cf3etrue",
+ "shadow_pool": true,
+ "systems": {
+  "cf3e_s0": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/cf3e_long_hf/best.pt"
+  },
+  "cf3etrue_s0": {
+   "kind": "j1_true",
+   "ckpt": "${GETKITE_RUNS}/cf3e_long_hf/best.pt"
+  },
+  "cf3e_s1": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/cf3e_long_hf_s1/best.pt"
+  },
+  "cf3etrue_s1": {
+   "kind": "j1_true",
+   "ckpt": "${GETKITE_RUNS}/cf3e_long_hf_s1/best.pt"
+  },
+  "cf3e_s2": {
+   "kind": "j1",
+   "ckpt": "${GETKITE_RUNS}/cf3e_long_hf_s2/best.pt"
+  },
+  "cf3etrue_s2": {
+   "kind": "j1_true",
+   "ckpt": "${GETKITE_RUNS}/cf3e_long_hf_s2/best.pt"
+  }
+ }
+}

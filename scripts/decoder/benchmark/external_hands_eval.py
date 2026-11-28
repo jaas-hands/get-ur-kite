@@ -63,7 +63,10 @@ def main():
     hands = [h for h in HANDS if (EXT / f"{h}_adapter" / f"{h}_eval.npz").exists()]
     bank = build_bank({**cfg, "robots": cfg["robots"] + [WUJI, SHADOW] + [spec(h) for h in hands]}, dev)
     psi = FrozenPsi(cfg["kite_ckpt"], cfg["kite_root"]).to(dev).eval()
-    sysm = {(arm, s): load_system(f"{arm}_s{s}", {"kind": "j1", "ckpt": paths.expand(f"${{GETKITE_RUNS}}/{RUNS[arm]}{'' if s == 0 else f'_s{s}'}/best.pt")},
+    # an arm name ending in "_true" (e.g. cf3e_true) = the true-contact bound of that arm (transfer_benchmark.TrueContactJ1)
+    base = lambda arm: arm[:-5] if arm.endswith("_true") else arm  # noqa: E731
+    sysm = {(arm, s): load_system(f"{arm}_s{s}", {"kind": "j1_true" if arm.endswith("_true") else "j1",
+                                                  "ckpt": paths.expand(f"${{GETKITE_RUNS}}/{RUNS[base(arm)]}{'' if s == 0 else f'_s{s}'}/best.pt")},
                                   dev, B["surface_sampling"])[0] for arm in a.arms for s in range(3)}
     scfg = {"success_pos_mm": POS_MM, "success_normal_deg": ANG_DEG}
     pools = {h: [{"kind": "kite", "robot": f"{h}_right", "npz": str(EXT / f"{h}_adapter" / f"{h}_eval.npz")}] for h in hands}
@@ -83,7 +86,7 @@ def main():
             with torch.no_grad():
                 for b in range(0, len(rec), 256):
                     i = slice(b, b + 256)
-                    o.append(S.predict(bank, rec.r[i], sg_index(sg, i), z[i]))
+                    o.append(S.predict(bank, rec.r[i], sg_index(sg, i), z[i], contacts=(rec.c_pos[i], rec.c_normal[i], rec.c_valid[i])))
                 o = {k: torch.cat([x[k] for x in o]) for k in ("qc", "R", "t")}
                 outs[(arm, s)] = o
                 per[(arm, s)] = {k: v.float().cpu().numpy() for k, v in score(bank, rec, rec.r, sg, o["qc"], o["R"], o["t"], scfg).items()}
@@ -97,6 +100,9 @@ def main():
         for arm in a.arms:
             F[arm] = {"seeds": {m: [round(float(per[(arm, s)][m].mean()), 4) for s in range(3)] for m in METRICS},
                       "ens": {m: round(float(ens[arm][m].mean()), 4) for m in METRICS}}
+            if arm.endswith("_true") and base(arm) in a.arms:  # true-contact bound minus the same model with its own contacts
+                F[arm]["minus_predicted"] = {m: [paired_boot(per[(arm, s)][m], per[(base(arm), s)][m]) for s in range(3)]
+                                             for m in ("corr_mm", "compat_success", "wrist_mm")}
             if arm != "cf2" and "cf2" in a.arms:
                 F[arm]["minus_cf2"] = {m: [paired_boot(per[(arm, s)][m], per[("cf2", s)][m]) for s in range(3)] for m in ("corr_mm", "wrist_mm")}
         for m_ in mixes:

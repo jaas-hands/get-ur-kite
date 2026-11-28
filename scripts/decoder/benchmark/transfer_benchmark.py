@@ -63,14 +63,57 @@ def npy(x):
 
 
 # ------------------------------------------------------------------------------------------------ systems
+def true_contact_z(pos, nrm, valid):
+    """The TRUE requested contact set in the layout J1's internal contact stage hands to its GET decoder (pack_contacts:
+    K_MAX slots x (pos*v, normal*v, v), valid slots first, invalid slots zero). Valid slots are moved to the front with a
+    stable sort, so the request's own contact order is kept. Uses the request itself (a label), so a system fed this is
+    a diagnostic upper bound, not a deployable system."""
+    from getkite.decoder.multifamily import K_MAX
+    assert pos.shape[1] == K_MAX and bool(valid.any(1).all()), "every record needs >= 1 valid contact, K_MAX slots"
+    o = torch.argsort((~valid.bool()).to(torch.int8), dim=1, stable=True)
+    p, n, v = pos.gather(1, o[..., None].expand_as(pos)), nrm.gather(1, o[..., None].expand_as(nrm)), valid.bool().gather(1, o)
+    vf = v[..., None].to(torch.float32)
+    return torch.cat([p.float() * vf, n.float() * vf, vf], -1).flatten(1)
+
+
+class TrueContactJ1(torch.nn.Module):
+    """True-contact bound (2026-11-28): a frozen J1 model with its contact-set predictor bypassed. forward() takes the
+    packed TRUE contact set (true_contact_z) as z and runs only the GET decoder; everything else (weights, canonical frame
+    via the outer CanonicalFrame wrapper, start pose, scoring) is exactly as for the normal J1 system. predict_contacts()
+    still returns the model's own predicted set, so the contact-stage diagnostics are unchanged."""
+
+    def __init__(self, inner):
+        super().__init__()
+        self.inner = inner
+        self.c = inner.c
+
+    @property
+    def contacts(self):
+        return self.inner.contacts
+
+    @property
+    def decoder(self):
+        return self.inner.decoder
+
+    def predict_contacts(self, z):
+        return self.inner.predict_contacts(z)
+
+    def forward(self, bank, r, qc0, R0, t0, zc):
+        return self.inner.decoder(bank, r, qc0, R0, t0, zc)
+
+
 class System:
-    """predict(bank, r, sg, z) -> {qc, R, t}; contacts(z) -> world-frame (pos, normal, logit) or None."""
+    """predict(bank, r, sg, z, contacts) -> {qc, R, t}; contacts(z) -> world-frame (pos, normal, logit) or None.
+    contacts = the request's (c_pos, c_normal, c_valid); only the j1_true kind (true-contact bound) uses it."""
 
     def __init__(self, name, model, kind, bridge=None):
         self.name, self.model, self.kind, self.bridge = name, model, kind, bridge
         self.raw = RawContacts()
 
-    def predict(self, bank, r, g, z):
+    def predict(self, bank, r, g, z, contacts=None):
+        if self.kind == "j1_true":
+            assert contacts is not None, f"{self.name}: the true-contact bound needs the request's contacts"
+            return self.model(bank, r, g.qc1, g.R1, g.t1, true_contact_z(*contacts))
         if self.kind == "two_stage":
             return self.model(bank, r, g.qc1, g.R1, g.t1, self.raw(*bridge_contacts(self.bridge, z)))
         if self.kind == "direct_worldaux":
@@ -105,7 +148,7 @@ def load_system(name, spec, dev, surface_sampling):
         return System(name, dec, "two_stage", br), {"decoder_step": ck.get("step"), "bridge_step": bs.get("step")}
     ck = torch.load(spec["ckpt"], map_location=dev, weights_only=False)
     assert ck["config"].get("surface_sampling") == surface_sampling, f"{name}: surface sampling mismatch"
-    if spec["kind"] == "j1":
+    if spec["kind"] in ("j1", "j1_true"):
         from getkite.decoder.joint_contact_get import JointContactGET
         assert ck["kind"] == "joint_contact_get"
         m = JointContactGET(ScratchConfig.from_dict(ck["model_config"]), SetBridgeConfig(**ck["set_config"])).to(dev)
@@ -117,6 +160,8 @@ def load_system(name, spec, dev, surface_sampling):
         raise ValueError(spec["kind"])
     m.load_state_dict(ck["model"]); m.decoder.amp = False
     m.eval().requires_grad_(False)
+    if spec["kind"] == "j1_true":  # true-contact bound: same weights, contact predictor bypassed (inside the canonical frame)
+        m = TrueContactJ1(m).eval()
     if ck["config"].get("canonical_frame"):  # CF (docs/cf_canonical_palm_frame_proposal.md): canonical palm frame per robot
         from getkite.decoder.canonical import CanonicalFrame
         m = CanonicalFrame(m, origin=bool(ck["config"].get("canonical_origin"))).eval()
@@ -276,7 +321,7 @@ def main():
                 g = sg_index(sg, i)
                 z = psi(rec.c_pos[i], rec.c_normal[i], rec.c_valid[i])
                 for n, S in systems.items():
-                    outs[n].append(S.predict(bank, rec.r[i], g, z))
+                    outs[n].append(S.predict(bank, rec.r[i], g, z, contacts=(rec.c_pos[i], rec.c_normal[i], rec.c_valid[i])))
         outs = {n: {k: torch.cat([o[k] for o in v]) for k in ("qc", "R", "t")} for n, v in outs.items()}
         with torch.no_grad():
             per = {"no_movement": score(bank, rec, rec.r, sg, sg.qc1, sg.R1, sg.t1, scfg),
@@ -364,7 +409,7 @@ def main():
                 with torch.no_grad():
                     z = psi(cp, cn, cv)
                     for nme, S in systems.items():
-                        o = S.predict(bank, r, sg, z)
+                        o = S.predict(bank, r, sg, z, contacts=(cp, cn, cv))
                         res[nme] = surface_score(bank, r, o["qc"], o["R"], o["t"], cp, cn, cv) | \
                             {"move_mm": (o["t"] - sg.t1).norm(dim=-1) * 1000, "move_deg": torch.rad2deg(geodesic_angle(o["R"], sg.R1))}
                     res["no_movement"] = surface_score(bank, r, sg.qc1, sg.R1, sg.t1, cp, cn, cv)
