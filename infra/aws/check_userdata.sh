@@ -32,12 +32,17 @@ uv pip install -q -e gkd --no-deps && uv pip install -q -e gk --no-deps || fail 
 status "env ready: torch $(python -c 'import torch; print(torch.__version__, "cuda" if torch.cuda.is_available() else "cpu")')"
 
 export GETKITE_DATASET=$W/data/dataset GETKITE_DATA=$W/data/getkite_data GETKITE_EXTERNAL=$W/data/external
-export KITE_ROOT=$W/kite GETKITE_RUNS=$W/runs PYTHONPATH=$W/gk/src:$W/gkd
+export KITE_ROOT=$W/kite GETKITE_RUNS=$W/runs PYTHONPATH=$W/gk/src:$W/gkd GETKITE_S3="$S3"
+# checkpoint configs store the cluster's absolute paths (kite_root, set_config_from); point them at this machine
+mkdir -p /home/asv48/code/uni-kite && ln -sfn "$KITE_ROOT" /home/asv48/code/uni-kite/KITE && ln -sfn "$GETKITE_RUNS" /home/asv48/code/uni-kite/getkite_runs
 aws s3 sync --quiet "$S3/data/dataset" "$GETKITE_DATASET" || fail "data/dataset"
 aws s3 sync --quiet "$S3/data/getkite_data" "$GETKITE_DATA" || fail "data/getkite_data"
 aws s3 sync --quiet "$S3/data/external" "$GETKITE_EXTERNAL" || fail "data/external"
 aws s3 sync --quiet "$S3/kite" "$KITE_ROOT" || fail "kite assets"
-for d in $RUNS; do aws s3 sync --quiet --exclude 'DONE' "$S3/runs/$d" "$GETKITE_RUNS/$d" || fail "runs/$d"; done
+for d in $RUNS; do                                     # a leading + keeps the run's DONE file (gate Q4 reads it)
+  if [ "${d#+}" != "$d" ]; then aws s3 sync --quiet "$S3/runs/${d#+}" "$GETKITE_RUNS/${d#+}" || fail "runs/${d#+}"
+  else aws s3 sync --quiet --exclude 'DONE' "$S3/runs/$d" "$GETKITE_RUNS/$d" || fail "runs/$d"; fi
+done
 status "data synced; running: $CMD"
 
 cd gk; t0=$SECONDS
