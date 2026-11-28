@@ -57,6 +57,7 @@ step() {  # step <name> <cmd...>: run, log, time; failure is fatal
 
 # --- 1. LEAP hands + splits (dataset repo root) -----------------------------------------------------------------------
 cd "$W/gkd"
+step dataset_assets bash scripts/fetch_assets.sh     # LEAP URDF/meshes (GET-Zero, Menagerie) -> gkd/third_party
 step build_hands "$PYD" -m kite_data.build_hands
 step splits "$PYD" -m kite_data.splits
 
