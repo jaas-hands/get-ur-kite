@@ -19,7 +19,7 @@ if [ -n "${GETKITE_AWS_ACCESS_KEY_ID:-}" ]; then
 fi
 export AWS_DEFAULT_REGION="${GETKITE_AWS_REGION:-${AWS_DEFAULT_REGION:-us-east-1}}"
 REGION="$AWS_DEFAULT_REGION"
-TYPES="${GETKITE_TYPES:-g6.xlarge g6.2xlarge g5.xlarge g4dn.xlarge}"   # tried in order on capacity errors
+TYPES="${GETKITE_TYPES:-g6e.xlarge g6e.2xlarge g6.2xlarge g6.xlarge g5.xlarge g4dn.xlarge}"   # tried in order on capacity errors
 ROLE=getkite-ec2
 TAG=getkite
 
@@ -42,7 +42,7 @@ cmd_check() {
     echo "  ${q#*:}: $v"
   done
   echo "== Spot prices now (\$/hr, cheapest AZ per type)"
-  for t in $TYPES g6.2xlarge; do
+  for t in $TYPES; do
     aws ec2 describe-spot-price-history --instance-types "$t" --product-descriptions Linux/UNIX \
       --start-time "$(date -u +%FT%TZ)" --query 'sort_by(SpotPriceHistory,&SpotPrice)[0].[InstanceType,AvailabilityZone,SpotPrice]' --output text
   done | sort -u
