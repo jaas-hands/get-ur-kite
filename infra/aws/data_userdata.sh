@@ -51,7 +51,7 @@ export GETKITE_RUNS=$W/runs GETKITE_PY=$PYD KITE_DATA_PY=$PYD KITE_PY=$PYK KITE_
 mkdir -p "$GETKITE_DATA" "$GETKITE_EXTERNAL" "$GETKITE_RUNS"
 step() {  # step <name> <cmd...>: run, log, time; failure is fatal
   local n=$1; shift; local t0=$SECONDS; status "start $n"
-  "$@" > "logs/$n.log" 2>&1 || fail "$n (exit $?; see logs/$n.log)"
+  "$@" > "$W/logs/$n.log" 2>&1 || fail "$n (exit $?; see logs/$n.log)"
   status "done $n ($(( (SECONDS - t0) / 60 )) min)"
 }
 
@@ -138,7 +138,7 @@ res["prim_validation"] = {"identical": ref == new, "new_all_pass": new.get("all_
 print(json.dumps({k: v for k, v in res.items() if k.endswith("summary") or k == "prim_validation"}, indent=1))
 EOF
 cp gk/configs/decoder/dlevels/prim_validation.json "$W/logs/prim_validation.new.json"; cp "$W/verify.json" "$W/logs/"
-status "verify: $(tr -d '\n ' < logs/verify.log | cut -c1-400)"
+status "verify: $(tr -d '\n ' < "$W/logs/verify.log" | cut -c1-400)"
 
 # --- 4. upload + manifest (uploaded even on a mismatch, so the files can be inspected; verify.json says what matched) --
 ( cd "$W" && for d in gkd/data getkite_data external kite/assets kite/checkpoints; do find "$d" -type f -not -path '*/.git/*'; done \
