@@ -3,15 +3,19 @@
 same target the student would see; fixed noisy start val_start_seed; scored with the benchmark's score() (corr_mm) against
 ground truth; paired; bootstrap over bodies / hands (4000 draws, seed 0).
 
-GO only if ALL hold:
+GO only if BOTH hold (amended 2026-11-28 with the user's approval, after Aryan's review and before any fold teacher finished:
+the students use fold teachers on generated bodies only, so only the generated-body checks decide):
   1. Freshness pays: on each fold's left-out generated bodies, excluding CF2's 50 (rows 0-25, the records the student trains on),
      fold-k teachers - CF2, per body, pooled over folds: 95 % CI upper bound < 0.
   2. Not much weaker on new bodies: on P0800-P0849 (rows 0-25; no teacher trained on them), mean over folds of
      (fold-k teachers - original D1-bv), per body: point estimate <= +0.10 mm.
-  3. Not much weaker on new LEAP records: on rows 900-942 of the 48 CF-3e LEAP hands (no teacher trained on them), for the hand's
-     fold k: fold-k teachers - original D1-bv, per hand: point estimate <= +0.10 mm.
-Descriptive only (not decided on): left-out LEAP rows 0-48 (the original D1-bv trained on these), and on LEAP rows 48-96
-fold-only vs fold+CF2 targets (bears on the splitfresh arm).
+Descriptive only (not decided on):
+  3. LEAP rows 900-942 of the 48 CF-3e LEAP hands: fold-k teachers - original D1-bv, per hand (both trained on the same LEAP
+     data, so this shows how much leaving out a third of the bodies moves LEAP predictions); on all 48 hands and on the 36 whose
+     rows 900-942 are NOT in the teachers' validation (checkpoint-selection) set. Folds here = the fold plan's LEAP folds, used
+     only to spread the comparison across the three fold teachers.
+  LEAP rows 0-48 (both trained on these), same comparison; LEAP rows 48-96: original D1-bv only vs original D1-bv + CF2
+  (bears on the splitfresh arm).
 
     PYTHONPATH=src python scripts/decoder/benchmark/cf3g_gonogo.py [--runs-suffix ""]
 """
@@ -60,6 +64,9 @@ def main():
     hdir = Path(paths.expand(next(iter(prim.values())))).parent.parent / "heldout"
     held = sorted(hdir.glob("P*.npz"))
     assert len(held) == 50 and len(prim) == 800 and len(leap) == 48
+    d1cfg = json.load(open(f"{R}/d1_bv_long_hf/config.json"))
+    sel_hands = {Path(v["npz"]).stem for v in d1cfg["val"] if v["kind"] == "leap"} & set(leap)
+    assert len(sel_hands) == 12, len(sel_hands)
     for f in FOLDS:  # every fold-teacher checkpoint must exist and be the fold config's run
         for s in SFX:
             ck = torch.load(f"{R}/d1_bv_fold{f}_long_hf{s}/best.pt", map_location="cpu", weights_only=False)
@@ -116,24 +123,26 @@ def main():
     res["c2_fold_minus_orig_heldout_bodies"] = boot(np.array(d2))
     res["c2_per_fold"] = {f: boot(np.array(v)) for f, v in d2f.items()}
     print("c2", res["c2_fold_minus_orig_heldout_bodies"], flush=True)
-    # 3. LEAP rows 900-942, hand's fold teachers vs original; descriptive: rows 0-48 and 48-96
-    d3, d3_left, d_fresh = [], [], []
+    # 3 (descriptive). LEAP rows 900-942, hand's fold teachers vs original; rows 0-48; rows 48-96 for splitfresh
+    d3, d3_nosel, d3_left, d_fresh = [], [], [], []
     for f in FOLDS:
         for h in plan["leap_hands"][f]:
             e = err({"kind": "leap", "npz": leap[h], "rows": [900, 942]}, [f, "orig"])
             d3.append(e[f] - e["orig"])
+            if h not in sel_hands:
+                d3_nosel.append(e[f] - e["orig"])
             e = err({"kind": "leap", "npz": leap[h], "rows": [0, 48]}, [f, "orig"])
             d3_left.append(e[f] - e["orig"])
-            e = err({"kind": "leap", "npz": leap[h], "rows": [48, 96]}, [f, ("mix", [f, "cf2"])])
-            d_fresh.append(e[f] - e["mix"])
-    res["c3_fold_minus_orig_leap_unseen_rows"] = boot(np.array(d3))
+            e = err({"kind": "leap", "npz": leap[h], "rows": [48, 96]}, ["orig", ("mix", ["orig", "cf2"])])
+            d_fresh.append(e["orig"] - e["mix"])
+    res["desc3_fold_minus_orig_leap_rows_900_942_all48"] = boot(np.array(d3))
+    res["desc3_fold_minus_orig_leap_rows_900_942_excl_selection_36"] = boot(np.array(d3_nosel))
     res["desc_fold_minus_orig_leap_leftout_rows_0_48"] = boot(np.array(d3_left))
-    res["desc_foldonly_minus_fold_plus_cf2_leap_rows_48_96"] = boot(np.array(d_fresh))
-    print("c3", res["c3_fold_minus_orig_leap_unseen_rows"], flush=True)
+    res["desc_d1bv_only_minus_d1bv_plus_cf2_leap_rows_48_96"] = boot(np.array(d_fresh))
+    print("desc3", res["desc3_fold_minus_orig_leap_rows_900_942_all48"], res["desc3_fold_minus_orig_leap_rows_900_942_excl_selection_36"], flush=True)
     c1 = res["c1_fold_minus_cf2_leftout_bodies"]["ci95"][1] < 0
     c2 = res["c2_fold_minus_orig_heldout_bodies"]["mean"] <= MARGIN_MM
-    c3 = res["c3_fold_minus_orig_leap_unseen_rows"]["mean"] <= MARGIN_MM
-    res["decision"] = {"c1": bool(c1), "c2": bool(c2), "c3": bool(c3), "GO": bool(c1 and c2 and c3)}
+    res["decision"] = {"c1": bool(c1), "c2": bool(c2), "GO": bool(c1 and c2)}
     (out / "cf3g_gonogo.json").write_text(json.dumps(res, indent=1))
     print(json.dumps(res["decision"]))
     print("wrote", out / "cf3g_gonogo.json")

@@ -13,12 +13,12 @@ cd "${SLURM_SUBMIT_DIR:-.}"; source slurm/env.sh
 echo "host=$(hostname -s) start=$(date -Is) commit=$(git rev-parse --short HEAD) dirty=$(git status --porcelain | wc -l)"
 getkite_require_cuda slurm/cf3g_checks.sbatch
 PYTHONPATH=src "$GETKITE_PY" -u scripts/decoder/dlevels/cf3g_checks.py
-SM="$GETKITE_RUNS/smoke_cf3g"; rm -rf "$SM/teacher" "$SM/student"
+SM="$GETKITE_RUNS/smoke_cf3g_v2"; rm -rf "$SM/teacher" "$SM/student"
 PYTHONPATH=src "$GETKITE_PY" -m getkite.decoder.train_joint --config configs/decoder/scratch/d1_bv_foldA_long_hf.json \
     --set total_steps=300 out_dir="$SM/teacher" eval_every=300 log_every=100
 PYTHONPATH=src "$GETKITE_PY" -m getkite.decoder.train_joint --config "$SM/student_config.json" \
-    --set total_steps=300 eval_every=300 log_every=100
+    --set total_steps=600 eval_every=600 log_every=100
 cat "$SM/student/distill_groups.json"
 grep -h examples_per_s "$SM/teacher/log.jsonl" | tail -1 | grep -o '"examples_per_s": [0-9.]*' || true
-grep -h examples_per_s "$SM/student/log.jsonl" | tail -1 | grep -o '"examples_per_s": [0-9.]*' || true
+grep -h examples_per_s "$SM/student/log.jsonl" | tail -3 | grep -o '"examples_per_s": [0-9.]*' || true
 echo "end=$(date -Is)"

@@ -8,15 +8,20 @@ a D1-bv-style target from teachers that never saw it.
 Fold plan (seeded, fixed before any training): the 800 generated training bodies P0000-P0799 and the 48 LEAP hands CF-3e trains on
 are each split into folds A / B / C (sorted names, rng permutation, rank % 3).
 
-Fold teachers d1_bv_fold{A,B,C}_long_hf{,_s1,_s2} = D1-bv (d1_bv_long_hf*) with ONE change: drop the fold's generated bodies and
-the fold's LEAP-hand entries (rows 0-48; D1-bv uses those 48 hands at rows 0-48 only, among its 414 LEAP entries). Everything else
-(Allegro / Barrett, the other LEAP entries, model, steps, seed, selection) as D1-bv.
+Fold teachers d1_bv_fold{A,B,C}_long_hf{,_s1,_s2} = D1-bv (d1_bv_long_hf*) with ONE change: drop the fold's generated bodies.
+Everything else (Allegro / Barrett, all 414 LEAP entries, model, steps, seed, selection) as D1-bv. (A first version, run for ~20
+min on 2026-11-28 and then cancelled, also dropped the fold's LEAP-hand entries; the LEAP folds in the fold plan are unused.)
 
-Student arms (each = CF-3e cf3e_long_hf* + per-hand teacher choice; distill_teachers lists 15 checkpoints:
-0-2 original D1-bv s0-2, 3-5 CF2 s0-2, 6-8 fold A s0-2, 9-11 fold B, 12-14 fold C):
-  split      : bodies and LEAP hands in fold k -> fold-k teachers (3) + CF2 (3). Every other robot (Allegro, Barrett) -> the
-               original six (exactly CF-3e's targets).
-  splitfresh : as split, but LEAP hands in fold k -> fold-k teachers only (CF2 dropped there; Aryan's arm).
+Student arms (each = CF-3e cf3e_long_hf* + teacher choice; distill_teachers lists 15 checkpoints:
+0-2 original D1-bv s0-2, 3-5 CF2 s0-2, 6-8 fold A s0-2, 9-11 fold B, 12-14 fold C). Revised 2026-11-28 after Aryan's review:
+the original D1-bv trained only on rows 0-48 of the 48 LEAP hands, so it is already record-fresh on rows 48-417, and a per-hand
+fold assignment on LEAP would swap it for a hand-unseen teacher with no memorisation gain. So fold teachers are used on
+generated bodies only:
+  split      : generated bodies in fold k -> fold-k teachers (3) + CF2 (3). Every other record (Allegro, Barrett, all LEAP)
+               -> the original six (exactly CF-3e's targets).
+  splitfresh : as split, plus LEAP rows 48-417 of the 48 hands -> original D1-bv only (record-fresh; the memorised CF2 is
+               dropped there; per-record distill_record_groups). LEAP rows 0-48 -> the original six (Aryan's arm).
+Fold teachers are not used on any LEAP record.
 Everything else as CF-3e (data, alpha 0.5, model, 100k steps, seeds, selection on source validation).
 
     python scripts/decoder/dlevels/make_cf3g.py
@@ -65,15 +70,14 @@ def fold_plan(bv, e):
 
 def make_teacher(bv, plan, f, sfx):
     c = copy.deepcopy(bv)
-    drop_b, drop_h = set(plan["bodies"][f]), set(plan["leap_hands"][f])
-    leap_h = [t for t in bv["train"] if is_leap(t) and stem(t) in drop_h]
-    assert len(leap_h) == len(drop_h) and all(t["rows"] == [0, 48] for t in leap_h), (f, len(leap_h))
-    c["train"] = [t for t in bv["train"] if not (is_prim(t) and stem(t) in drop_b) and not (is_leap(t) and stem(t) in drop_h)]
-    assert len(bv["train"]) - len(c["train"]) == len(drop_b) + len(drop_h)
+    drop_b = set(plan["bodies"][f])
+    c["train"] = [t for t in bv["train"] if not (is_prim(t) and stem(t) in drop_b)]
+    assert len(bv["train"]) - len(c["train"]) == len(drop_b)
+    assert [t for t in c["train"] if not is_prim(t)] == [t for t in bv["train"] if not is_prim(t)]
     c["out_dir"] = f"${{GETKITE_RUNS}}/d1_bv_fold{f}_long_hf{sfx}"
-    c["_note"] = (f"CF-3g fold teacher {f} (2026-11-28): d1_bv_long_hf{sfx} minus fold {f} ({len(drop_b)} generated bodies, "
-                  f"{len(drop_h)} LEAP-hand entries at rows 0-48); fold plan configs/decoder/dlevels/cf3g_folds.json. "
-                  "docs/cf3g_split_teachers.md. Made by scripts/decoder/dlevels/make_cf3g.py.")
+    c["_note"] = (f"CF-3g fold teacher {f} (2026-11-28, v1): d1_bv_long_hf{sfx} minus fold {f}'s {len(drop_b)} generated bodies; "
+                  "fold plan configs/decoder/dlevels/cf3g_folds.json. docs/cf3g_split_teachers.md. "
+                  "Made by scripts/decoder/dlevels/make_cf3g.py.")
     diff = {k for k in set(bv) | set(c) if bv.get(k) != c.get(k)} - {"_note", "out_dir"}
     assert diff == {"train"}, diff
     return c
@@ -90,21 +94,22 @@ def make_student(e, plan, arm, sfx):
     groups = []
     for j, f in enumerate(FOLDS):
         ft = [6 + 3 * j, 7 + 3 * j, 8 + 3 * j]
-        b_npz = [prim[b] for b in plan["bodies"][f]]
-        h_npz = [leap[h] for h in plan["leap_hands"][f]]
-        if arm == "split":
-            groups.append({"name": f"fold{f}", "teachers": ft + [3, 4, 5], "npz": b_npz + h_npz})
-        else:
-            groups.append({"name": f"fold{f}_bodies", "teachers": ft + [3, 4, 5], "npz": b_npz})
-            groups.append({"name": f"fold{f}_leap", "teachers": ft, "npz": h_npz})
+        groups.append({"name": f"fold{f}_bodies", "teachers": ft + [3, 4, 5], "npz": [prim[b] for b in plan["bodies"][f]]})
     c["distill_groups"] = groups
+    lt = [t for t in e["train"] if is_leap(t)]
+    assert len(lt) == 48 and all(t["rows"] == [0, 417] for t in lt)
+    if arm == "splitfresh":
+        c["distill_record_groups"] = [{"name": "leap_rows_48_417_d1bv_only", "teachers": [0, 1, 2], "rows": [48, 417],
+                                       "npz": [t["npz"] for t in lt]}]
     c["out_dir"] = f"${{GETKITE_RUNS}}/cf3g_{arm}_hf{sfx}"
     c["_note"] = (f"CF-3g-{arm} (2026-11-28): frozen CF-3e (cf3e_long_hf{sfx}) + per-hand teacher choice from fold teachers "
-                  "(docs/cf3g_split_teachers.md). Made by scripts/decoder/dlevels/make_cf3g.py.")
+                  "(docs/cf3g_split_teachers.md; revised 2026-11-28: fold teachers on generated bodies only). "
+                  "Made by scripts/decoder/dlevels/make_cf3g.py.")
     diff = {k for k in set(e) | set(c) if e.get(k) != c.get(k)} - {"_note", "out_dir"}
-    assert diff == {"distill_teachers", "distill_default", "distill_groups"}, diff
+    exp = {"distill_teachers", "distill_default", "distill_groups"} | ({"distill_record_groups"} if arm == "splitfresh" else set())
+    assert diff == exp, diff
     covered = [n for g in groups for n in g["npz"]]
-    assert len(covered) == len(set(covered)) == 800 + 48
+    assert len(covered) == len(set(covered)) == 800
     return c
 
 

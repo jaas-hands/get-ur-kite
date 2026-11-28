@@ -5178,6 +5178,14 @@
   },
   {
    "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M2-R2-T0_g0.npz",
+   "rows": [
+    0,
+    48
+   ]
+  },
+  {
+   "kind": "leap",
    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M2-R2-T0_g5.npz",
    "rows": [
     0,
@@ -5235,6 +5243,14 @@
   {
    "kind": "leap",
    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M2-R2-T4_g6.npz",
+   "rows": [
+    0,
+    48
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M2-R3-T0_g2.npz",
    "rows": [
     0,
     48
@@ -5611,6 +5627,14 @@
   {
    "kind": "leap",
    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M3-R3-T2_g5.npz",
+   "rows": [
+    0,
+    48
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I0-M3-R3-T3_g2.npz",
    "rows": [
     0,
     48
@@ -6066,6 +6090,14 @@
   },
   {
    "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M0-R0-T3_g5.npz",
+   "rows": [
+    0,
+    48
+   ]
+  },
+  {
+   "kind": "leap",
    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M0-R0-T3_g0.npz",
    "rows": [
     0,
@@ -6178,6 +6210,14 @@
   },
   {
    "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M2-R0-T0_g2.npz",
+   "rows": [
+    0,
+    48
+   ]
+  },
+  {
+   "kind": "leap",
    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M2-R0-T0_g4.npz",
    "rows": [
     0,
@@ -6187,6 +6227,14 @@
   {
    "kind": "leap",
    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M2-R0-T0_g3.npz",
+   "rows": [
+    0,
+    48
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M2-R0-T2_g5.npz",
    "rows": [
     0,
     48
@@ -6378,6 +6426,14 @@
   },
   {
    "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M2-R3-T2_g5.npz",
+   "rows": [
+    0,
+    48
+   ]
+  },
+  {
+   "kind": "leap",
    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M2-R3-T2_g0.npz",
    "rows": [
     0,
@@ -6435,6 +6491,14 @@
   {
    "kind": "leap",
    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M2-R3-T4_g6.npz",
+   "rows": [
+    0,
+    48
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M2-R4-T0_g5.npz",
    "rows": [
     0,
     48
@@ -6523,6 +6587,14 @@
   {
    "kind": "leap",
    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M2-R4-T4_g1.npz",
+   "rows": [
+    0,
+    48
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M3-R0-T0_g2.npz",
    "rows": [
     0,
     48
@@ -6659,6 +6731,14 @@
   {
    "kind": "leap",
    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M3-R2-T3_g1.npz",
+   "rows": [
+    0,
+    48
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I2-M3-R2-T4_g1.npz",
    "rows": [
     0,
     48
@@ -7162,6 +7242,14 @@
   },
   {
    "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M0-R0-T2_g1.npz",
+   "rows": [
+    0,
+    48
+   ]
+  },
+  {
+   "kind": "leap",
    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M0-R0-T2_g3.npz",
    "rows": [
     0,
@@ -7243,6 +7331,14 @@
   {
    "kind": "leap",
    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M0-R2-T0_g2.npz",
+   "rows": [
+    0,
+    48
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M0-R3-T0_g2.npz",
    "rows": [
     0,
     48
@@ -7674,6 +7770,14 @@
   },
   {
    "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M3-R0-T3_g6.npz",
+   "rows": [
+    0,
+    48
+   ]
+  },
+  {
+   "kind": "leap",
    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M3-R0-T3_g3.npz",
    "rows": [
     0,
@@ -8050,6 +8154,14 @@
   },
   {
    "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M4-R0-T4_g6.npz",
+   "rows": [
+    0,
+    48
+   ]
+  },
+  {
+   "kind": "leap",
    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M4-R0-T4_g5.npz",
    "rows": [
     0,
@@ -8234,6 +8346,14 @@
   },
   {
    "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M4-R4-T0_g4.npz",
+   "rows": [
+    0,
+    48
+   ]
+  },
+  {
+   "kind": "leap",
    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M4-R4-T0_g2.npz",
    "rows": [
     0,
@@ -8267,6 +8387,14 @@
   {
    "kind": "leap",
    "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M4-R4-T2_g6.npz",
+   "rows": [
+    0,
+    48
+   ]
+  },
+  {
+   "kind": "leap",
+   "npz": "${GETKITE_DATASET}/examples/kite_code/train/I4-M4-R4-T3_g6.npz",
    "rows": [
     0,
     48
@@ -13845,7 +13973,7 @@
  "log_every": 100,
  "ckpt_every": 1000,
  "weight_decay": 0.0001,
- "_note": "CF-3g fold teacher A (2026-11-28): d1_bv_long_hf_s2 minus fold A (267 generated bodies, 16 LEAP-hand entries at rows 0-48); fold plan configs/decoder/dlevels/cf3g_folds.json. docs/cf3g_split_teachers.md. Made by scripts/decoder/dlevels/make_cf3g.py.",
+ "_note": "CF-3g fold teacher A (2026-11-28, v1): d1_bv_long_hf_s2 minus fold A's 267 generated bodies; fold plan configs/decoder/dlevels/cf3g_folds.json. docs/cf3g_split_teachers.md. Made by scripts/decoder/dlevels/make_cf3g.py.",
  "surface_sampling": "hand_frame",
  "set_config_from": "${GETKITE_RUNS}/set_bridge_zworld_c3_20k_b/best.pt",
  "contact_weight": 1.0,
