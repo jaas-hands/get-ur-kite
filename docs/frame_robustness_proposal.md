@@ -84,7 +84,11 @@ off by a preemption and is being rerun from the same commit (job 149292), NOT se
 surf_mm over the hand's 32 sample requests is lower by more than **0.25 mm**. Judged on the v2 360-pool readout (CF-3e s0/s1/s2,
 paired bootstrap over scored records, seeds never pooled). Rule M is supported if BOTH hold in every seed:
 1. the 9 flip hands: perhand(m0.25) - rule E corr_mm, 95 % CI upper bound < 0 (better);
-2. the other 351 hands: perhand(m0.25) - rule E corr_mm and wrist_mm not worse by more than +0.05 mm (point estimate; replaces
-   "not significantly worse", per the agreed tolerance fix), and not significantly worse by more than that (CI lower bound < +0.05).
+2. the other 351 hands: perhand(m0.25) - rule E, corr_mm and wrist_mm: **95 % CI upper bound < +0.05 mm** (clearly not worse than
+   a 0.05 mm tolerance; replaces "not significantly worse", per the agreed tolerance fix).
+   *Amended 2026-11-28 ~01:40 EST (user-approved, Aryan's catch), still before any v2 360-pool result existed: the first wording
+   ("point estimate <= +0.05 and CI lower bound < +0.05") had a redundant lower-bound clause; the intended test is the upper bound.
+   The bootstrap is over scored records (~30k here; the 105 pool's intervals were about +-0.01 mm), so this is not noise-limited;
+   it ignores clustering by hand, as all our gates do.*
 Caveat (written now): the margin value was chosen after seeing v1 (including v1's 360-pool numbers, about-d candidates only), so this
 is partly-fresh evidence; the sealed new-family set is the clean test. Adoption stays the user's decision either way.
