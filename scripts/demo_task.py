@@ -37,6 +37,7 @@ from __future__ import annotations
 
 import argparse
 import contextlib
+import json
 import os
 import sys
 from pathlib import Path
@@ -78,6 +79,8 @@ def parse_args():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--task", choices=sorted(TASKS), default="placing")
     p.add_argument("--hand", choices=sorted(HANDS), default="barrett")
+    p.add_argument("--decoder", choices=("kite", "cf3e"), default="kite")
+    p.add_argument("--decoder-checkpoint", type=Path, help="CF-3e best.pt (required for --decoder cf3e)")
     p.add_argument("--object", default=None, help=f"placing only: episodes with this object (a part of its name is enough): {', '.join(OBJECTS)}")
     p.add_argument("--episodes", type=int, default=1, help="how many episodes to show (default 1)")
     p.add_argument("--start", type=int, default=0, help="skip this many of the matching episodes")
@@ -168,8 +171,14 @@ def episode_indices(args, config_name: str) -> list[int]:
 
 def main() -> None:
     args, extra = parse_args()
-    # The viewer needs an on-screen OpenGL context (GLFW); videos render offscreen (EGL).
-    os.environ["MUJOCO_GL"] = "egl" if args.record else "glfw"
+    if args.decoder == "cf3e":
+        if args.hand != "barrett" or args.decoder_checkpoint is None:
+            raise SystemExit("CF-3e currently needs --hand barrett and --decoder-checkpoint PATH")
+        args.decoder_checkpoint = args.decoder_checkpoint.expanduser().resolve(strict=True)
+        if any(x.startswith("online_rollout.parallel.num_workers=") and x.rsplit("=", 1)[1] != "1" for x in extra):
+            raise SystemExit("CF-3e currently requires one rollout worker")
+    # macOS uses GLFW for recordings too; EGL is available on Linux.
+    os.environ["MUJOCO_GL"] = "glfw" if sys.platform == "darwin" or not args.record else "egl"
     os.environ.setdefault("OMP_NUM_THREADS", "1")
 
     from getkite.kite_bridge import ScoringSession, add_kite_to_path, run_kite_script
@@ -184,6 +193,9 @@ def main() -> None:
     if not indices:
         raise SystemExit("no episodes selected")
     out = args.out.resolve()
+    result_file = out / f"kite_results_{args.task}_{args.hand}.npz"
+    # A failed rerun must not inherit a previous successful result file.
+    result_file.unlink(missing_ok=True)
     kite_args = [
         f"--config-name={config_name}",
         f"online_rollout.indices=[{','.join(map(str, indices))}]",
@@ -206,7 +218,7 @@ def main() -> None:
     session = ScoringSession()
     code = 0
     with output_to(log) as say:
-        common = dict(title=task["title"], labels=[str(k) for k in indices], hand=HANDS[args.hand], say=say)
+        common = dict(title=f"{args.decoder.upper()} - {task['title']}", labels=[str(k) for k in indices], hand=HANDS[args.hand], say=say)
         if args.record:
             w, h = (int(x) for x in args.video_size.lower().split("x"))
             display = VideoDisplay(session, out_dir=out, size=(w, h), fps=args.video_fps, speed=args.video_speed, prefix=f"{args.task}_{args.hand}_", **common)
@@ -214,7 +226,11 @@ def main() -> None:
             display = ViewerDisplay(session, speed=args.speed, panels=args.panels, **common)
         try:
             with session, substep_hook(display.on_substep):
-                code = run_kite_script("experiment/rollout_gt_contacts.py", kite_args)
+                if args.decoder == "cf3e":
+                    from getkite.cf3e_rollout import run_cf3e_rollout
+                    code = run_cf3e_rollout(kite_args, args.decoder_checkpoint, out)
+                else:
+                    code = run_kite_script("experiment/rollout_gt_contacts.py", kite_args)
         except Exception as exc:  # report briefly; the details are in the log
             say(f"error: {type(exc).__name__}: {exc}")
             code = 1
@@ -222,6 +238,35 @@ def main() -> None:
             display.close()
 
     results = plain(session.results())
+    for result, source_index in zip(results, indices):
+        result["source_episode"] = source_index
+    out.mkdir(parents=True, exist_ok=True)
+    # KITE can catch individual episode errors; those are failed runs, not task failures.
+    import numpy as np
+    if not code:
+        if not result_file.exists() or len(results) != len(indices):
+            code = 1
+        else:
+            with np.load(result_file, allow_pickle=False) as saved:
+                if any(str(x) for x in saved["error_messages"]):
+                    code = 1
+            if args.decoder == "cf3e":
+                with np.load(result_file, allow_pickle=False) as saved:
+                    payload = {k: saved[k] for k in saved.files}
+                metadata = json.loads((out / "cf3e_adapter.json").read_text())
+                payload.update(action_decoder=np.asarray("cf3e"),
+                               action_decoder_checkpoint=np.asarray(str(args.decoder_checkpoint)),
+                               action_decoder_sha256=np.asarray(metadata["checkpoint_sha256"]),
+                               low_level_checkpoint_role=np.asarray("KITE runtime bootstrap; actions come from action_decoder"))
+                np.savez_compressed(result_file, **payload)
+    scores_path = out / f"scores_{args.task}_{args.hand}.json"
+    scores_path.write_text(json.dumps({
+        "script": "experiment/rollout_gt_contacts.py", "args": kite_args,
+        "decoder": args.decoder, "exit_code": code,
+        "decoder_checkpoint": str(args.decoder_checkpoint) if args.decoder == "cf3e" else None,
+        "requested_indices": indices, "episodes": results,
+    }, indent=2) + "\n")
+    print(f"Scores: {scores_path}")
     if args.verbose:
         print("\n== staged scores ==\n" + summarize(results))
     elif results:
@@ -237,6 +282,8 @@ def main() -> None:
     # in arbitrary order, which can crash the process after a successful run.
     sys.stdout.flush()
     sys.stderr.flush()
+    if sys.platform == "darwin":
+        raise SystemExit(code)
     os._exit(int(code))
 
 

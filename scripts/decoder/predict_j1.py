@@ -49,7 +49,8 @@ sys.path.insert(0, str(HERE / "benchmark")); sys.path.insert(0, str(HERE / "diag
 from crossbody_heldout_eval import ANG_DEG, POS_MM, sg_index, sg_to  # noqa: E402
 from transfer_benchmark import load_system, score  # noqa: E402
 
-METRICS = ("corr_mm", "corr_deg", "corr_success", "compat_mm", "compat_success", "surf_mm", "wrist_mm", "wrist_deg")
+METRICS = ("corr_mm", "corr_deg", "corr_success", "compat_mm", "compat_success", "surf_mm", "wrist_mm", "wrist_deg",
+           "limit_violation_preclamp")
 SCFG = {"success_pos_mm": POS_MM, "success_normal_deg": ANG_DEG}
 
 
@@ -101,6 +102,8 @@ def run(S, psi, bank, rec, sg, dev):
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--ckpt", required=True)
+    ap.add_argument("--kite-root", help="local KITE checkout; overrides the training machine's saved path")
+    ap.add_argument("--kite-ckpt", help="local KITE release.pt; overrides the training machine's saved path")
     ap.add_argument("--data"); ap.add_argument("--regime", default="kite_code"); ap.add_argument("--splits", nargs="*")
     ap.add_argument("--out")
     ap.add_argument("--check-config"); ap.add_argument("--check-pool")
@@ -109,6 +112,8 @@ def main():
     ck = torch.load(a.ckpt, map_location="cpu", weights_only=False)
     ccfg = paths.expand(ck["config"])
     S, info = load_system("model", {"kind": "j1", "ckpt": a.ckpt}, dev, "hand_frame")
+    ccfg["kite_root"] = a.kite_root or ccfg["kite_root"]
+    ccfg["kite_ckpt"] = a.kite_ckpt or ccfg["kite_ckpt"]
     psi = FrozenPsi(ccfg["kite_ckpt"], ccfg["kite_root"]).to(dev).eval()
 
     if a.check_config:  # exact benchmark reproduction

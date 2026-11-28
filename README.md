@@ -18,6 +18,21 @@ KITE's intent encoder and policy kept frozen.
   Results, scope, checkpoints (Google Drive, `scripts/fetch_checkpoints.sh`), prediction and reproduction:
   [docs/cf3e_delivery.md](docs/cf3e_delivery.md). Experiments after CF-3e live on the `getting-kite-universal` branch.
 
+- **Oracle-Intent integration:** CF-3e now runs through the existing Barrett task demo.
+  The first mug episode completed but missed the grasp; KITE succeeded on the same episode.
+  [Run notes and next steps](docs/CF3E_ROLLOUT.md).
+
+- **Contact evaluation:** CF-3e predictions now load into the evaluator; the
+  first check covers 32 records from one LEAP validation hand.
+  [Results and scope](docs/CF3E_VALIDATION.md).
+
+For this evaluation work, use this repo's `cf3e-evaluation` branch together with
+[`get-ur-kite-dataset` → `eval-analysis`](https://github.com/jaas-hands/get-ur-kite-dataset/tree/eval-analysis).
+Start with the two result notes above; they include commands and remaining questions.
+The older `mac-task-evaluation` branch contains the earlier Mac baseline work;
+the CF-3e branch already includes the recording and score-export changes it needs.
+Videos, checkpoints and raw run outputs stay outside Git.
+
 ## Earlier status (Nov 18, 2026)
 
 - **LEAP data:** the LEAP hand family ([get-ur-kite-dataset](third_party/get-ur-kite-dataset))
