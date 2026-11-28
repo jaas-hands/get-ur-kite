@@ -60,7 +60,7 @@ def main():
     pools = {"val": cfg["val"], "leap105": cfg["extra_eval"]["leap_heldout"],
              "wuji": [{"kind": "kite", "robot": "wujihand_right", "npz": f"{HD}/wujihand_right_eval.npz"}],
              "shadow": [{"kind": "kite", "robot": "shadow_hand_right", "npz": str(SHADOW_AD / "shadow_eval.npz")}]}
-    systems = {(a, s): load_system(f"{a}_s{s}", {"kind": "j1", "ckpt": paths.expand(CK[a].format(sfx="" if s == 0 else f"_s{s}"))},
+    systems = {(a, s): load_system(f"{a}_s{s}", {"kind": "j1", "ckpt": paths.expand(CK[a].replace("{sfx}", "" if s == 0 else f"_s{s}"))},
                                    dev, ss)[0] for a in CK for s in range(3)}
     scfg = {"success_pos_mm": POS_MM, "success_normal_deg": ANG_DEG}
     R = {"ks": KS, "base_noise": base, "calls": CALLS, "pools": {}}
