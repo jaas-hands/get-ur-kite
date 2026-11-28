@@ -54,6 +54,11 @@ step() {  # step <name> <cmd...>: run, log, time; failure is fatal
   "$@" > "$W/logs/$n.log" 2>&1 || fail "$n (exit $?; see logs/$n.log)"
   status "done $n ($(( (SECONDS - t0) / 60 )) min)"
 }
+lstep() {  # lstep <name> <cmd...>: as step, but a failure only stops this lane (the rest is still verified and uploaded)
+  local n=$1; shift; local t0=$SECONDS; status "start $n"
+  "$@" > "$W/logs/$n.log" 2>&1 || { status "STEP FAILED: $n (exit $?; see logs/$n.log)"; return 1; }
+  status "done $n ($(( (SECONDS - t0) / 60 )) min)"
+}
 
 # --- 1. LEAP hands + splits (dataset repo root) -----------------------------------------------------------------------
 cd "$W/gkd"
@@ -64,33 +69,34 @@ step splits "$PYD" -m kite_data.splits
 # --- 2. two lanes side by side: A = kite_data / getkite (LEAP, generated bodies, external), B = KITE's own sampler ------
 laneA() {
   cd "$W/gkd"
-  SLURM_CPUS_PER_TASK=12 step kite_code_train bash scripts/slurm/gen_kite_code.sbatch main-train --splits train
-  SLURM_CPUS_PER_TASK=12 step kite_code_evals bash scripts/slurm/gen_kite_code.sbatch main-evals --splits val test_finger_subset test_combined test_joint_count test_geometry
-  step prim_hands "$PYD" -m kite_data.build_prim hands --n 900 --seed 20261119 --out data/prim/hands
+  SLURM_CPUS_PER_TASK=12 lstep kite_code_train bash scripts/slurm/gen_kite_code.sbatch main-train --splits train || return 1
+  SLURM_CPUS_PER_TASK=12 lstep kite_code_evals bash scripts/slurm/gen_kite_code.sbatch main-evals --splits val test_finger_subset test_combined test_joint_count test_geometry || return 1
+  lstep prim_hands "$PYD" -m kite_data.build_prim hands --n 900 --seed 20261119 --out data/prim/hands || return 1
   cd "$W/gk"
-  step repair_prim_fps "$PYD" scripts/decoder/dlevels/repair_prim_fps.py --hands "$GETKITE_DATASET/prim/hands"
+  lstep repair_prim_fps "$PYD" scripts/decoder/dlevels/repair_prim_fps.py --hands "$GETKITE_DATASET/prim/hands" || return 1
   cp configs/decoder/dlevels/prim_validation.json "$W/prim_validation.reference.json"
-  SLURM_CPUS_PER_TASK=12 step dlevels_data bash slurm/dlevels_data.sbatch
-  step fetch_external bash scripts/decoder/external_hands/fetch_assets.sh
-  step external_hands bash slurm/external_hands.sbatch
-  step shadow_urdf "$PYD" scripts/decoder/shadow/make_shadow_urdf.py
-  step shadow_records bash slurm/shadow_records.sbatch
+  SLURM_CPUS_PER_TASK=12 lstep dlevels_data bash slurm/dlevels_data.sbatch || return 1
+  lstep fetch_external bash scripts/decoder/external_hands/fetch_assets.sh || return 1
+  lstep external_hands bash slurm/external_hands.sbatch || return 1
+  lstep shadow_urdf "$PYD" scripts/decoder/shadow/make_shadow_urdf.py || return 1
+  lstep shadow_records bash slurm/shadow_records.sbatch || return 1
 }
 laneB() {
   cd "$W/gkd"
-  step kite_pilot bash scripts/kite_family/gen_kite.sbatch
-  OUT=$GETKITE_DATA/multifamily_10x HANDS_LIST=scripts/kite_family/leap_train_hands_10x.txt step kite_10x bash scripts/kite_family/gen_10x.sbatch
-  step wuji_eval "$PYK" scripts/kite_family/gen_kite_family.py --robot wujihand_right --n 500 --seed 202 --out "$GETKITE_DATA/multifamily_heldout/wujihand_right_eval.npz"
-  step wuji_bank "$PYK" scripts/kite_family/gen_kite_family.py --robot wujihand_right --n 2000 --seed 101 --out "$GETKITE_DATA/multifamily_heldout/wujihand_right_bank.npz"
+  lstep kite_pilot bash scripts/kite_family/gen_kite.sbatch || return 1
+  OUT=$GETKITE_DATA/multifamily_10x HANDS_LIST=scripts/kite_family/leap_train_hands_10x.txt lstep kite_10x bash scripts/kite_family/gen_10x.sbatch || return 1
+  lstep wuji_eval "$PYK" scripts/kite_family/gen_kite_family.py --robot wujihand_right --n 500 --seed 202 --out "$GETKITE_DATA/multifamily_heldout/wujihand_right_eval.npz" || return 1
+  lstep wuji_bank "$PYK" scripts/kite_family/gen_kite_family.py --robot wujihand_right --n 2000 --seed 101 --out "$GETKITE_DATA/multifamily_heldout/wujihand_right_bank.npz" || return 1
 }
 mkdir -p "$GETKITE_DATA/multifamily_heldout"
 laneA & PA=$!; laneB & PB=$!
 wait $PA; RA=$?; wait $PB; RB=$?
-[ $RA = 0 ] && [ $RB = 0 ] || fail "a lane failed (A=$RA B=$RB)"
+[ $RA = 0 ] && [ $RB = 0 ] || status "LANE FAILED (A=$RA B=$RB); verifying and uploading what was built"
 cd "$W"
 
 # --- 3. verify every file against CF-3e's recorded hashes (sha16 = sha256(file bytes)[:16], train_scratch.sha16) --------
-step verify "$PYD" -I - "$W" <<'EOF'
+step_v() { "$@" > "$W/logs/verify.log" 2>&1 || status "verify script error (see logs/verify.log)"; }
+step_v "$PYD" -I - "$W" <<'EOF'
 import hashlib, json, os, re, sys
 from pathlib import Path
 W = Path(sys.argv[1]); gk = W / "gk"
@@ -133,8 +139,11 @@ for k, (key, h) in sorted(bm.items()):
     if any(hashlib.sha256(p.read_bytes()).hexdigest() == h for p in cands): bok += 1
     else: bbad += 1; res["benchmark_by_name"][k] = {"expected": h[:16], "got": [sha16(p) for p in cands]}
 res["benchmark_summary"] = {"entries": len(bm), "match": bok, "mismatch": bbad, "missing": bmiss}
-ref = json.loads((W / "prim_validation.reference.json").read_text()); new = json.loads((gk / "configs/decoder/dlevels/prim_validation.json").read_text())
-res["prim_validation"] = {"identical": ref == new, "new_all_pass": new.get("all_pass"), "new_n_fail": new.get("n_fail"), "ref_all_pass": ref.get("all_pass")}
+try:
+    ref = json.loads((W / "prim_validation.reference.json").read_text()); new = json.loads((gk / "configs/decoder/dlevels/prim_validation.json").read_text())
+    res["prim_validation"] = {"identical": ref == new, "new_all_pass": new.get("all_pass"), "new_n_fail": new.get("n_fail"), "ref_all_pass": ref.get("all_pass")}
+except Exception as e:
+    res["prim_validation"] = {"error": repr(e)}
 (W / "verify.json").write_text(json.dumps(res, indent=1))
 print(json.dumps({k: v for k, v in res.items() if k.endswith("summary") or k == "prim_validation"}, indent=1))
 EOF
@@ -150,6 +159,6 @@ step up_external aws s3 sync --quiet --exclude '*/.git/*' "$GETKITE_EXTERNAL" "$
 step up_kite aws s3 sync --quiet "$W/kite/assets" "$S3/kite/assets"
 step up_kite_ckpt aws s3 sync --quiet "$W/kite/checkpoints" "$S3/kite/checkpoints"
 aws s3 cp --quiet "$W/MANIFEST.tsv" "$S3/data/MANIFEST.tsv"; aws s3 cp --quiet "$W/verify.json" "$S3/data/verify.json"
-status "DONE: $(wc -l < "$W/MANIFEST.tsv") files, $(du -sh "$W/gkd/data" "$GETKITE_DATA" "$GETKITE_EXTERNAL" "$W/kite/assets" | awk '{print $2"="$1}' | tr '\n' ' ')"
+status "DONE (lanes A=$RA B=$RB): $(wc -l < "$W/MANIFEST.tsv") files, $(du -sh "$W/gkd/data" "$GETKITE_DATA" "$GETKITE_EXTERNAL" "$W/kite/assets" | awk '{print $2"="$1}' | tr '\n' ' ')"
 pushlogs; echo done | aws s3 cp - "$S3/jobs/$JOB/DONE"
 shutdown -h now
