@@ -33,7 +33,7 @@ from .train_scratch import (FrozenPsi, RawContacts, build_bank, evaluate, git_st
 
 J1_DEFAULTS = dict(contact_weight=1.0, contacts_lr=1e-3, contacts_grad_clip=1.0, contacts_weight_decay=1e-4,
                    base_frame_aug=None, canonical_frame=False, canonical_jitter=None, canonical_origin=False,
-                   distill_teachers=None, distill_alpha=0.5, distill_matched=False)
+                   distill_teachers=None, distill_alpha=0.5, distill_matched=False, distill_groups=None, distill_default=None)
 
 
 def load_teacher(path, dev):
@@ -90,10 +90,62 @@ def teacher_match(teacher_paths, bank, dev):
     return M.to(dev)
 
 
-def distill_targets(teachers, bank, bank_tr, r, r_tr, sg_nat, sg_tr, Qb, z, mc, match=None):
+def teacher_groups(cfg, bank, dev):
+    """CF-3g split-trained teachers (docs/cf3g_split_teachers.md): (n_teachers x n_robots) bool from the config's explicit table.
+    distill_default = teacher indices for every robot not in a group; distill_groups = [{"teachers": [...], "npz": [...],
+    "robot": [...]}] (LEAP / generated-body entries by the npz's hand_id, kite entries by robot name). A robot is in at most one
+    group; every listed robot must be in the bank."""
+    from . import paths as _paths
+    T = len(cfg["distill_teachers"])
+    M = torch.zeros(T, len(bank.names), dtype=torch.bool)
+    d = cfg["distill_default"]
+    assert d and all(0 <= i < T for i in d), "distill_groups needs distill_default"
+    M[d, :] = True
+    seen = set()
+    for g in cfg["distill_groups"]:
+        assert g["teachers"] and all(0 <= i < T for i in g["teachers"]), g.get("name")
+        names = [str(np.load(_paths.expand(n))["hand_id"]) for n in g.get("npz", [])] + list(g.get("robot", []))
+        for n in names:
+            assert n in bank.index, (g.get("name"), n)
+            assert n not in seen, f"robot {n} in two distill groups"
+            seen.add(n)
+            j = bank.index[n]
+            M[:, j] = False
+            M[g["teachers"], j] = True
+    return M.to(dev)
+
+
+@torch.no_grad()
+def teacher_pose_sparse(teachers, bank, r, sg, z, assign):
+    """As teacher_pose(match=assign), but each teacher runs only on the examples it is assigned to (same result; cost scales with
+    the assigned examples, not n_teachers x batch). Teachers have no cross-example operations (checked in cf3g_checks.py)."""
+    w = assign[:, r].to(sg.t1.dtype)  # T x B
+    w = w / w.sum(0, keepdim=True)
+    B = len(r)
+    qc = R = t = None
+    Rs = []
+    for i, T in enumerate(teachers):
+        idx = torch.nonzero(w[i] > 0).squeeze(-1)
+        Ri = torch.zeros(B, 3, 3, dtype=sg.t1.dtype, device=sg.t1.device)
+        if len(idx):
+            o = T(bank, r[idx], sg.qc1[idx], sg.R1[idx], sg.t1[idx], z[idx])
+            if qc is None:
+                qc = torch.zeros(B, *o["qc"].shape[1:], dtype=o["qc"].dtype, device=o["qc"].device)
+                t = torch.zeros(B, 3, dtype=o["t"].dtype, device=o["t"].device)
+            qc[idx] += w[i, idx, None] * o["qc"]
+            t[idx] += w[i, idx, None] * o["t"]
+            Ri[idx] = o["R"]
+        Rs.append(Ri)
+    return qc, chordal_mean(Rs, w), t
+
+
+def distill_targets(teachers, bank, bank_tr, r, r_tr, sg_nat, sg_tr, Qb, z, mc, match=None, assign=None):
     """Normalised residual targets (root, joints) toward the teacher pose, in the training frame: the teacher's goal rotation gets
     the same relabelling as the ground-truth goal (R -> R Q_b; translation unchanged, native origin)."""
-    qT, RT, tT = teacher_pose(teachers, bank, r, sg_nat, z, match)
+    if assign is not None:
+        qT, RT, tT = teacher_pose_sparse(teachers, bank, r, sg_nat, z, assign)
+    else:
+        qT, RT, tT = teacher_pose(teachers, bank, r, sg_nat, z, match)
     if Qb is not None:
         RT = RT @ Qb
     return target_residuals(bank_tr, r_tr, sg_tr.qc1, sg_tr.R1, sg_tr.t1, qT, RT, tT, mc)
@@ -343,7 +395,7 @@ def main():
         ang = np.degrees(np.arccos(np.clip((np.einsum("bii->b", Jaug.cpu().numpy()) - 1) / 2, -1, 1)))
         (out / "canonical_jitter.json").write_text(json.dumps({"J": Jaug.cpu().numpy().tolist(), "angle_deg": ang.tolist(), **jit}, indent=1))
         print(f"canonical_jitter: {int(jit['k'])} frames (angles {ang.min():.1f}-{ang.max():.1f} deg) x {n_rob} robots", flush=True)
-    teachers, tmatch = None, None
+    teachers, tmatch, tassign = None, None, None
     if cfg.get("distill_teachers"):  # CF-3d: ensemble distillation (docs/cf3_distillation_proposal.md)
         assert not aug and not jit and not cfg.get("canonical_origin"), "distillation is a separate arm"
         from . import paths as _paths
@@ -358,6 +410,15 @@ def main():
                 pat[tuple(tmatch[:, j].tolist())] = pat.get(tuple(tmatch[:, j].tolist()), 0) + 1
             (out / "distill_matched.json").write_text(json.dumps({"patterns": {"".join("1" if b else "0" for b in k): v for k, v in pat.items()}}, indent=1))
             print("distill_matched: teacher patterns over robots", {"".join("1" if b else "0" for b in k): v for k, v in pat.items()}, flush=True)
+        if cfg.get("distill_groups"):  # CF-3g split-trained teachers (docs/cf3g_split_teachers.md)
+            assert not cfg.get("distill_matched"), "distill_groups and distill_matched are separate arms"
+            tassign = teacher_groups(cfg, bank, dev)
+            pat = {}
+            for j in range(tassign.shape[1]):
+                k = "".join("1" if b else "0" for b in tassign[:, j].tolist())
+                pat[k] = pat.get(k, 0) + 1
+            (out / "distill_groups.json").write_text(json.dumps({"patterns": pat, "n_robots": int(tassign.shape[1])}, indent=1))
+            print("distill_groups: teacher patterns over robots", pat, flush=True)
     log = open(out / "log.jsonl", "a")
     sgen = torch.Generator().manual_seed(cfg["seed"] + 1000 + step)
 
@@ -398,7 +459,7 @@ def main():
         lm, lr_, lj_ = residual_loss(out_m, tr_root, tr_j, bank_tr.coord_valid[r_tr], fam_tr[r_tr], len(families))
         lm_gt = lm_t = None
         if teachers is not None:
-            td_root, td_j = distill_targets(teachers, bank, bank_tr, rb.r, r_tr, sg_nat, sg, Qb if canon else None, z, mc, tmatch)
+            td_root, td_j = distill_targets(teachers, bank, bank_tr, rb.r, r_tr, sg_nat, sg, Qb if canon else None, z, mc, tmatch, tassign)
             lm_t, _, _ = residual_loss(out_m, td_root, td_j, bank_tr.coord_valid[r_tr], fam_tr[r_tr], len(families))
             lm_gt = lm
             lm = (1 - alpha) * lm_gt + alpha * lm_t
