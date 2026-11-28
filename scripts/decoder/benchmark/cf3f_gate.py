@@ -6,9 +6,13 @@ bootstrap over records within seed (from the benchmark's _paired entries); seeds
   * Q4 held-out generated bodies (P0800-P0899; training-log eval at each run's selected checkpoint, point estimate per seed):
        arm - CF-3e <= +0.10 mm in every seed;
   * Q5 Shadow guard (soft): for corr_mm and wrist_mm, mean of the 3 per-seed differences <= 0 and significantly higher in <= 1 seed.
-Reported, not gating: vs CF2 / D1-bv; the 360-hand pool (long arm only); Shadow / Wuji success rates.
+Extra gate for the contact arm only (predeclared 2026-11-28, docs/cf3f_extra_arms.md, before any result):
+  * Q6 wrist (contact): wrist_mm and wrist_deg not significantly higher than CF-3e on Allegro / Barrett / LEAP validation and on
+       the 105 held-out LEAP pool, in any seed.
+Reported, not gating: vs CF2 / D1-bv; the 360-hand pool (long arm only); Shadow / Wuji success rates; wrist_mm and wrist_deg
+on every pool; limit_violation_preclamp per pool (arm and CF-3e).
 
-    PYTHONPATH=src python scripts/decoder/benchmark/cf3f_gate.py ARM        # ARM in leap long teach big rec
+    PYTHONPATH=src python scripts/decoder/benchmark/cf3f_gate.py ARM        # ARM in leap long teach big rec big300k contact
     PYTHONPATH=src python scripts/decoder/benchmark/cf3f_gate.py --selftest # reproduces cf3e_gate.json's CF-3e-vs-CF-3d rows
 Writes ${GETKITE_RUNS}/cf3f_{ARM}_gate.json.
 """
@@ -63,8 +67,10 @@ def readout(M, H, H2, sysname, ref, prim=None):
     if H2:
         pools["held-out LEAP (360)"] = H2["leap_heldout"]["leap"]
     refs = [ref] + [x for x in ("cf2", "d1bv") if f"{x}_s0" in M["val"]["allegro"]]
-    out = {f"vs_{r}": {n: {m: row(F, sysname, r, m) for m in ("corr_mm", "compat_success", "wrist_mm")} for n, F in pools.items()}
-           for r in refs}
+    out = {f"vs_{r}": {n: {m: row(F, sysname, r, m) for m in ("corr_mm", "compat_success", "wrist_mm", "wrist_deg")}
+                       for n, F in pools.items()} for r in refs}
+    out["limit_violation_preclamp"] = {n: {x: [F[f"{x}_s{s}"].get("limit_violation_preclamp") for s in SEEDS] for x in (sysname, ref)}
+                                       for n, F in pools.items()}
     C = out[f"vs_{ref}"]
     q1 = all(v >= 0 for p in ("Allegro", "Barrett", "LEAP") for m in ("corr_mm", "compat_success") for v in C[p][m]["verdict"])
     h = C["held-out LEAP (105)"]["corr_mm"]
@@ -73,25 +79,29 @@ def readout(M, H, H2, sysname, ref, prim=None):
     sh = C["Shadow"]
     q5 = all(sum(sh[m]["diff"]) / 3 <= 0 and sum(v < 0 for v in sh[m]["verdict"]) <= 1 for m in ("corr_mm", "wrist_mm"))
     res = {"Q1": q1, "Q2": q2, "Q3": q3, "Q5": q5}
+    if sysname == "cf3fcontact":  # predeclared extra gate for the contact arm (docs/cf3f_extra_arms.md)
+        res["Q6"] = all(v >= 0 for p in ("Allegro", "Barrett", "LEAP", "held-out LEAP (105)") for m in ("wrist_mm", "wrist_deg")
+                        for v in C[p][m]["verdict"])
     if prim is not None:
         a, b = prim
         out["prim_heldout_mm"] = {"arm": [round(x, 3) for x in a], ref: [round(x, 3) for x in b],
                                   "diff": [round(x - y, 3) for x, y in zip(a, b)]}
         res["Q4"] = all(x - y <= 0.10 for x, y in zip(a, b))
-    res["pass"] = all(res[k] for k in ("Q1", "Q2", "Q3", "Q4", "Q5") if k in res) and "Q4" in res
+    res["pass"] = all(res[k] for k in ("Q1", "Q2", "Q3", "Q4", "Q5", "Q6") if k in res) and "Q4" in res
     out |= res
     return out, pools, refs
 
 
 def show(out, pools, refs, sysname):
-    print(json.dumps({k: out[k] for k in ("Q1", "Q2", "Q3", "Q4", "Q5", "pass") if k in out}))
+    print(json.dumps({k: out[k] for k in ("Q1", "Q2", "Q3", "Q4", "Q5", "Q6", "pass") if k in out}))
     if "prim_heldout_mm" in out:
         print("held-out generated bodies (log, selected ckpt):", out["prim_heldout_mm"])
     for r in refs:
         print(f"\n{sysname} - {r} (corr_mm / wrist_mm diffs per seed, verdict +1 better / -1 worse)")
         for n in pools:
             x = out[f"vs_{r}"][n]
-            print(f"  {n:22s} corr {x['corr_mm']['diff']} {x['corr_mm']['verdict']}   wrist {x['wrist_mm']['diff']} {x['wrist_mm']['verdict']}")
+            print(f"  {n:22s} corr {x['corr_mm']['diff']} {x['corr_mm']['verdict']}   wrist {x['wrist_mm']['diff']} {x['wrist_mm']['verdict']}"
+                  f"   wrist_deg {x['wrist_deg']['diff']} {x['wrist_deg']['verdict']}")
 
 
 def main():

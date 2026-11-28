@@ -37,25 +37,37 @@ J1_DEFAULTS = dict(contact_weight=1.0, contacts_lr=1e-3, contacts_grad_clip=1.0,
                    contact_fk_weight=0.0, contact_fk_unit_m=0.005)
 
 
+FK_GRAD_NOTE = ("The contact-FK loss acts on the decoder's predicted pose; its gradient also reaches the contact predictor through "
+                "the decoder input (positions / normals), the same path the motion loss already uses. One change, not two.")
+
+
 def contact_fk_loss(bank, r, out, c_tpl, c_pos, c_valid, family_idx, n_fam, unit_m=0.005):
     """CF-3f-contact: distance between each requested contact and the template point meant to touch it, on the hand posed at
     the predicted goal (FK of out["qc"], out["R"], out["t"] in `bank`). The template correspondences are supervision only, as
-    in the benchmark's corr_mm; joints are NOT clamped to limits (clamping would zero the gradient at a limit). Per example:
-    mean over valid contacts of |p - c| / unit_m (unit_m = 5 mm, the residual scale); then mean per family, then over families
-    (as residual_loss). World geometry is identical in a relabelled / canonical bank, so `bank` may be the training bank.
-    Returns (loss, per-example mean distance in mm, detached)."""
-    Rs, ts = bank.fk(r, bank.expand(r, out["qc"]), out["R"], out["t"])
+    in the benchmark's corr_mm. Joints are clamped to their limits exactly as the benchmark does (train_scratch.pose_metrics),
+    so training matches evaluation; out-of-limit joints are corrected by the residual pose loss. Per example: mean over valid
+    contacts of |p - c| / unit_m (unit_m = 5 mm, the residual scale); then mean per family, then over families (as
+    residual_loss). World geometry is identical in a relabelled / canonical bank, so `bank` may be the training bank.
+    Returns (loss, per-example mean distance in mm, fraction of valid coordinates outside limits before clamping), the last
+    two detached."""
+    qc = out["qc"]
+    cl, cu = bank.coords_of(r, bank.lower[r]), bank.coords_of(r, bank.upper[r])
+    cv = bank.coord_valid[r]
+    viol = ((qc < cl - 1e-6) | (qc > cu + 1e-6)) & cv
+    qcc = torch.where(cv, torch.minimum(torch.maximum(qc, cl), cu), 0.0)
+    Rs, ts = bank.fk(r, bank.expand(r, qcc), out["R"], out["t"])
     p, _ = bank.points(r, Rs, ts, c_tpl)
     d = torch.sqrt(((p - c_pos.to(p)) ** 2).sum(-1) + 1e-12)
     v = c_valid.to(p.dtype)
     per = (d * v).sum(1) / v.sum(1).clamp_min(1)
     fams = [per[family_idx == f].mean() for f in range(n_fam) if (family_idx == f).any()]
-    return torch.stack(fams).mean() / unit_m, per.detach() * 1000
+    viol_frac = viol.sum().float() / cv.sum().clamp_min(1)
+    return torch.stack(fams).mean() / unit_m, per.detach() * 1000, viol_frac.detach()
 
 
-def fk_weight_calibrate(model, lm, lfk):
-    """Predeclared rule for contact_fk_weight = "auto": the ratio of the motion-loss to the contact-FK-loss gradient norms on the
-    decoder parameters, on the first training batch of a fresh run (so the two terms start on equal footing)."""
+def fk_grad_ratio(model, lm, lfk):
+    """Motion-loss / contact-FK-loss gradient-norm ratio on the decoder parameters for one batch (no parameter .grad is
+    touched: torch.autograd.grad with retain_graph)."""
     params = [p for p in model.decoder.parameters() if p.requires_grad]
     gm = torch.autograd.grad(lm, params, retain_graph=True, allow_unused=True)
     gf = torch.autograd.grad(lfk, params, retain_graph=True, allow_unused=True)
@@ -63,6 +75,20 @@ def fk_weight_calibrate(model, lm, lfk):
     nf = float(torch.cat([g.flatten() for g in gf if g is not None]).norm())
     assert nf > 0, "contact-FK loss gives no gradient to the decoder"
     return nm / nf, nm, nf
+
+
+def fk_weight_calibrate(model, batch_losses, n_batches=200):
+    """Predeclared rule for contact_fk_weight = "auto" (CF-3f-contact, revised 2026-11-28 after review): before training on
+    a fresh run, at initialisation and with no optimizer step, compute the motion / contact-FK gradient-norm ratio on the
+    decoder parameters for `n_batches` batches; weight = median of the per-batch ratios. `batch_losses(i)` returns (lm, lfk)
+    for calibration batch i, drawn from its own sampler / generator so the training stream is untouched.
+    Returns (weight, list of per-batch ratios, list of (|g_motion|, |g_fk|))."""
+    ratios, norms = [], []
+    for i in range(n_batches):
+        lm, lfk = batch_losses(i)
+        q, nm, nf = fk_grad_ratio(model, lm, lfk)
+        ratios.append(q); norms.append((nm, nf))
+    return float(np.median(ratios)), ratios, norms
 
 
 def load_teacher(path, dev):
@@ -389,25 +415,80 @@ def main():
             print("distill_matched: teacher patterns over robots", {"".join("1" if b else "0" for b in k): v for k, v in pat.items()}, flush=True)
     fk_cfg = cfg.get("contact_fk_weight") or 0.0
     fk_w = None if fk_cfg == "auto" else float(fk_cfg)
-    if fk_cfg == "auto" and (out / "contact_fk.json").exists():  # resumed: keep the weight fixed at the fresh start
-        fk_w = float(json.loads((out / "contact_fk.json").read_text())["weight"])
-    if fk_cfg:  # CF-3f-contact: check that FK at the GOAL pose reproduces the requested contacts (training bank, training frame)
-        with torch.no_grad():
-            gi = torch.arange(min(512, len(train)), device=dev)
-            grb = train.index(gi)
-            gsg = draw_start(bank, grb, torch.Generator().manual_seed(0), **noise)
-            gr = grb.r
-            if canon:
-                gQ = Qc[grb.r]; gupd = {"Rg": gsg.Rg @ gQ}
-                if Oc is not None:
-                    gupd |= {"tg": gsg.tg + (gsg.Rg @ Oc[grb.r][..., None]).squeeze(-1)}
-                gsg = type(gsg)(**{**{k: getattr(gsg, k) for k in gsg.__dataclass_fields__}, **gupd})
-            gbank = bank_tr if canon else bank
-            _, gmm = contact_fk_loss(gbank, gr, {"qc": gsg.qcg, "R": gsg.Rg, "t": gsg.tg}, grb.c_tpl, grb.c_pos, grb.c_valid,
-                                     fam_index[gr], len(families), float(cfg["contact_fk_unit_m"]))
-        fk_check = {"goal_contact_mm_max": float(gmm.max()), "goal_contact_mm_mean": float(gmm.mean())}
-        print("contact_fk goal check", json.dumps(fk_check), flush=True)
-        assert fk_check["goal_contact_mm_max"] < 0.1, f"FK at the goal pose does not reproduce the contacts: {fk_check}"
+    fk_info = {}
+    fk_json = out / "contact_fk.json"
+    if fk_cfg == "auto" and fk_json.exists():  # resumed: keep the weight fixed at the value calibrated before step 0
+        fk_info = json.loads(fk_json.read_text())
+        fk_w = float(fk_info["weight"])
+    if fk_cfg:  # CF-3f-contact (everything below is skipped when contact_fk_weight is 0, so CF-3e runs are unchanged)
+        assert not aug and not jit, "contact_fk_weight is a separate arm (canonical frame or native frame only)"
+        unit_m = float(cfg["contact_fk_unit_m"])
+        gbank = bank_tr if canon else bank
+
+        def to_train_frame(sg, r):  # the same transform the training loop applies (canonical frame; CF-O origin)
+            if not canon:
+                return sg
+            Qb = Qc[r]; upd = {"R1": sg.R1 @ Qb, "Rg": sg.Rg @ Qb}
+            if Oc is not None:
+                Ob = Oc[r][..., None]
+                upd |= {"t1": sg.t1 + (sg.R1 @ Ob).squeeze(-1), "tg": sg.tg + (sg.Rg @ Ob).squeeze(-1)}
+            return type(sg)(**{**{k: getattr(sg, k) for k in sg.__dataclass_fields__}, **upd})
+
+        if not fk_info:  # fresh run: goal-pose self-check per family, then the weight calibration, both before step 0
+            # (1) FK at the GOAL pose must reproduce the requested contacts, in the bank and frame the loss uses. Up to 2 records of
+            # EVERY training robot (so every family and every generated body, including those repaired by repair_prim_fps).
+            g0 = torch.Generator().manual_seed(0)
+            rr = train.r.cpu()
+            gi = torch.cat([torch.nonzero(rr == i).flatten()[:2] for i in torch.unique(rr)]).to(dev)
+            per_fam = {}
+            with torch.no_grad():
+                for s in range(0, len(gi), 1024):
+                    grb = train.index(gi[s:s + 1024])
+                    gsg = to_train_frame(draw_start(bank, grb, g0, **noise), grb.r)
+                    _, gmm, _ = contact_fk_loss(gbank, grb.r, {"qc": gsg.qcg, "R": gsg.Rg, "t": gsg.tg}, grb.c_tpl, grb.c_pos,
+                                                grb.c_valid, fam_index[grb.r], len(families), unit_m)
+                    for f in torch.unique(fam_index[grb.r]).tolist():
+                        per_fam.setdefault(families[f], []).append(gmm[fam_index[grb.r] == f].cpu())
+            fk_check = {f: {"n": int(torch.cat(v).numel()), "max_mm": float(torch.cat(v).max()), "mean_mm": float(torch.cat(v).mean())}
+                        for f, v in per_fam.items()}
+            print("contact_fk goal check per family", json.dumps(fk_check), flush=True)
+            bad = {f: c for f, c in fk_check.items() if c["max_mm"] >= 0.1}
+            assert not bad and set(fk_check) == set(families), f"FK at the goal pose does not reproduce the contacts: {fk_check}"
+            fk_info = {"goal_check_per_family": fk_check, "unit_m": unit_m, "clamp": "joints clamped to limits as in pose_metrics",
+                       "gradient_path": FK_GRAD_NOTE}
+
+        def fk_calib(seed_off, n):  # (2) median motion / contact-FK gradient-norm ratio over n batches, own RNG streams
+            cs = BalancedSampler(train.to("cpu"), bank.family, seed=cfg["seed"] + seed_off)
+            cg = torch.Generator().manual_seed(cfg["seed"] + seed_off)
+
+            def batch_losses(_):
+                rb = train.index(cs.sample(cfg["batch_size"]).to(dev))
+                sg_nat = draw_start(bank, rb, cg, **noise)
+                z = psi(rb.c_pos, jitter_normals(rb.c_normal, cfg["normal_noise_rad"], cg), rb.c_valid)
+                sg = to_train_frame(sg_nat, rb.r)
+                o = model(gbank, rb.r, sg.qc1, sg.R1, sg.t1, z)
+                tr_root, tr_j = target_residuals(gbank, rb.r, sg.qc1, sg.R1, sg.t1, sg.qcg, sg.Rg, sg.tg, mc)
+                lm_, _, _ = residual_loss(o, tr_root, tr_j, gbank.coord_valid[rb.r], fam_index[rb.r], len(families))
+                if teachers is not None:
+                    td_root, td_j = distill_targets(teachers, bank, gbank, rb.r, rb.r, sg_nat, sg, Qc[rb.r] if canon else None, z, mc, tmatch)
+                    lt_, _, _ = residual_loss(o, td_root, td_j, gbank.coord_valid[rb.r], fam_index[rb.r], len(families))
+                    lm_ = (1 - alpha) * lm_ + alpha * lt_
+                lf_, _, _ = contact_fk_loss(gbank, rb.r, o, rb.c_tpl, rb.c_pos, rb.c_valid, fam_index[rb.r], len(families), unit_m)
+                return lm_, lf_
+
+            with torch.random.fork_rng(devices=[dev] if dev.type == "cuda" else []):  # leave the global RNG streams untouched
+                return fk_weight_calibrate(model, batch_losses, n)
+
+        if fk_cfg == "auto" and fk_w is None:
+            fk_w, ratios, norms = fk_calib(777, 200)
+            fk_info |= {"weight": fk_w, "rule": "median over 200 batches (sampler/generator seed + 777) of the motion / contact-FK "
+                        "gradient-norm ratio on decoder params, at initialisation, no optimizer step; fixed for the whole run",
+                        "ratios": ratios, "grad_norms_motion_fk": norms, "median": fk_w}
+            print(f"contact_fk weight (auto) = {fk_w:.4g} (median of {len(ratios)} ratios, "
+                  f"range {min(ratios):.3g}-{max(ratios):.3g})", flush=True)
+        elif fk_cfg != "auto":
+            fk_info |= {"weight": fk_w, "rule": "fixed in config"}
+        fk_json.write_text(json.dumps(fk_info, indent=1))
     log = open(out / "log.jsonl", "a")
     sgen = torch.Generator().manual_seed(cfg["seed"] + 1000 + step)
 
@@ -454,16 +535,10 @@ def main():
             lm = (1 - alpha) * lm_gt + alpha * lm_t
         CL, _ = model.contacts.set_loss(*out_m["contact_set"], *world_labels(rb))
         loss = lm + cfg["contact_weight"] * CL["total"]
-        lfk = fk_mm = None
+        lfk = fk_mm = fk_viol = None
         if fk_cfg:  # CF-3f-contact: FK contact loss on the predicted goal pose (requested contacts, not teacher targets)
-            lfk, fk_mm = contact_fk_loss(bank_tr, r_tr, out_m, rb.c_tpl, rb.c_pos, rb.c_valid, fam_tr[r_tr], len(families),
-                                         float(cfg["contact_fk_unit_m"]))
-            if fk_w is None:  # "auto": calibrate once, on the first batch of a fresh run, then keep it fixed
-                fk_w, g_m, g_f = fk_weight_calibrate(model, lm, lfk)
-                (out / "contact_fk.json").write_text(json.dumps({"weight": fk_w, "rule": "grad-norm ratio motion / contact-FK on decoder params, first batch",
-                                                                "grad_motion": g_m, "grad_contact_fk": g_f, "step": step,
-                                                                "unit_m": float(cfg["contact_fk_unit_m"]), **fk_check}, indent=1))
-                print(f"contact_fk weight (auto) = {fk_w:.4g} (|g_motion| {g_m:.3g}, |g_fk| {g_f:.3g})", flush=True)
+            lfk, fk_mm, fk_viol = contact_fk_loss(bank_tr, r_tr, out_m, rb.c_tpl, rb.c_pos, rb.c_valid, fam_tr[r_tr], len(families),
+                                                  float(cfg["contact_fk_unit_m"]))
             loss = loss + fk_w * lfk
         log_now = (step + 1) % cfg["log_every"] == 0
         if log_now:  # motion-only gradient reaching the contact predictor (diagnostic, every log step)
@@ -484,8 +559,8 @@ def main():
                    "train/motion": lm.item(), **({"train/motion_gt": lm_gt.item(), "train/motion_teacher": lm_t.item()} if lm_t is not None else {}), "train/root": lr_.mean().item(), "train/joint": lj_.mean().item(),
                    "train/contact": CL["total"].item(), "train/contact_pos": CL["pos"].item(), "train/contact_normal": CL["normal"].item(),
                    "train/contact_exist": CL["exist"].item(), "train/contact_weighted": cfg["contact_weight"] * CL["total"].item(),
-                   **({"train/contact_fk": lfk.item(), "train/contact_fk_mm": fk_mm.mean().item(), "train/contact_fk_weighted": fk_w * lfk.item()}
-                      if lfk is not None else {}),
+                   **({"train/contact_fk": lfk.item(), "train/contact_fk_mm": fk_mm.mean().item(), "train/contact_fk_weighted": fk_w * lfk.item(),
+                       "train/limit_violation": float(fk_viol)} if lfk is not None else {}),
                    "grad/decoder": float(gn_d), "grad/contacts": float(gn_c), "grad/contacts_from_motion": g_motion_contacts,
                    "grad/contacts_from_contact": g_contact_contacts,
                    "count/pred_mean": float(v.sum(1).float().mean()), "count/true_mean": float(rb.c_valid.sum(1).float().mean()),
@@ -509,6 +584,11 @@ def main():
             if best is None or key > tuple(best["key"]):
                 best = {"key": list(key), "step": step}
                 save(out / "best.pt", {"selected_on": "val macro success, then macro contact_mm"})
+        if fk_cfg == "auto" and step == 10000 and "ratio_10k" not in fk_info:  # diagnostic only; the weight stays fixed
+            w10, r10, _ = fk_calib(778, 200)
+            fk_info |= {"ratio_10k": {"median": w10, "ratios": r10, "note": "same rule at step 10k, sampler/generator seed + 778; not used"}}
+            fk_json.write_text(json.dumps(fk_info, indent=1))
+            print(f"contact_fk ratio at 10k (diagnostic) = {w10:.4g}; training weight stays {fk_w:.4g}", flush=True)
         if step % cfg["ckpt_every"] == 0:
             save(out / "last.pt")
     save(out / "last.pt")
