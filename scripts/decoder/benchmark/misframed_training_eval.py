@@ -21,6 +21,13 @@ Statistic (per seed): D = corr_mm(rule E) - corr_mm(native) on the mis-framed bo
 Reported: the same D for well-framed bodies (sanity: ~0), corr / wrist / success means per group and frame, the 15-30 deg band,
 counts. Not measurable here: the effect of the mis-framed examples on the well-framed majority (needs a retrain).
 
+Added 2026-11-28 (user-approved, before any of these models was scored): --arm runs the same check on other frozen models trained
+on the SAME data as CF-3e (asserted: identical train list): big (256x6x8, selected checkpoints), bigext_last (big continued to
+200k, last checkpoint), long (300k-step arm, selected checkpoints), long_last (its 300k checkpoint). Question: does a bigger model
+or longer training absorb the wrong frames that CF-3e ignored? Same statistic and same per-arm reading as above. Secondary reading,
+also fixed now: "partly absorbed" if the arm's mis-framed D is lower than CF-3e's D (same seed) by more than 0.25 mm in >= 2 of
+3 seeds (from misframed_training.json of the CF-3e run).
+
     PYTHONPATH=src python scripts/decoder/benchmark/misframed_training_eval.py
 """
 from __future__ import annotations
@@ -58,7 +65,15 @@ def body_boot(d, bodies, n=4000, seed=0):
                                                               round(float(np.quantile(m, .975)), 4)], "n_bodies": int(len(ub))}
 
 
+ARMS = {"cf3e": lambda sfx: paths.expand(f"{FROZEN}/cf3e_long_hf{sfx}/best.pt"),
+        "big": lambda sfx: paths.expand(f"${{GETKITE_RUNS}}/cf3f_big_hf{sfx}/best.pt"),
+        "bigext_last": lambda sfx: paths.expand(f"${{GETKITE_RUNS}}/cf3f_bigext_hf{sfx}/last.pt"),
+        "long": lambda sfx: paths.expand(f"${{GETKITE_RUNS}}/cf3f_long_hf{sfx}/best.pt"),
+        "long_last": lambda sfx: paths.expand(f"${{GETKITE_RUNS}}/cf3f_long_hf{sfx}/last.pt")}
+
+
 def main():
+    arm = sys.argv[sys.argv.index("--arm") + 1] if "--arm" in sys.argv else "cf3e"
     dev = torch.device("cuda")
     out = Path(paths.expand("${GETKITE_RUNS}/misframed_training_v1")); out.mkdir(parents=True, exist_ok=True)
     B = json.loads((Path(paths.REPO) / "configs/decoder/benchmark/transfer_v1_leapval105.json").read_text())
@@ -93,7 +108,11 @@ def main():
                       for g in ("mis", "well", "mid")}, "seeds": {}}
     print("bodies", R["n_bodies"], flush=True)
     for s in range(3):
-        S, _ = load_system(f"cf3e_s{s}", {"kind": "j1", "ckpt": ckpt("cf3e", s)}, dev, ss)
+        ck = ARMS[arm]("" if s == 0 else f"_s{s}")
+        tr = torch.load(ck, map_location="cpu", weights_only=False)["config"]["train"]
+        assert [t["npz"] for t in tr] == [t["npz"] for t in cfg["train"]], f"{arm} s{s}: training data differs from CF-3e"
+        S, _ = load_system(f"{arm}_s{s}", {"kind": "j1", "ckpt": ck}, dev, ss)
+        R.setdefault("ckpts", {})[f"s{s}"] = ck
         per = {}
         for lab, v in variants.items():
             S.model._cache = {key: v}
@@ -121,7 +140,15 @@ def main():
         print(f"s{s} mis D", d, "well D", res["well"]["D_corr_records"], flush=True)
     nl = sum(R["seeds"][k]["learned"] for k in R["seeds"]); na = sum(R["seeds"][k]["not_absorbed"] for k in R["seeds"])
     R["reading"] = ("mixed convention learned" if nl >= 2 else "wrong frames not absorbed" if na >= 2 else "inconclusive")
-    (out / "misframed_training.json").write_text(json.dumps(R, indent=1, default=str))
+    R["arm"] = arm
+    if arm != "cf3e":
+        ref = json.loads((out / "misframed_training.json").read_text())
+        dd = {k: round(R["seeds"][k]["mis"]["D_corr_records"]["mean_diff"] - ref["seeds"][k]["mis"]["D_corr_records"]["mean_diff"], 4)
+              for k in R["seeds"]}
+        R["D_minus_cf3e"] = dd
+        R["partly_absorbed"] = sum(v < -0.25 for v in dd.values()) >= 2
+        print("D minus CF-3e", dd, "partly absorbed", R["partly_absorbed"], flush=True)
+    (out / ("misframed_training.json" if arm == "cf3e" else f"misframed_training_{arm}.json")).write_text(json.dumps(R, indent=1, default=str))
     print("READING", R["reading"], flush=True)
 
 
