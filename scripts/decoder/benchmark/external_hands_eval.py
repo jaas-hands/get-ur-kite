@@ -40,7 +40,7 @@ RUNS = {"d1long": "d1_long_hf", "cf2": "cf2_long_hf", "d1bv": "d1_bv_long_hf", "
         **{f"cf3flong{k}k": f"cf3f_long_snap{k}k_hf" for k in (175, 225, 275)},
         "cf3fbigext": "cf3f_bigext_hf", "cf3fbigextlast": "cf3f_bigextlast_hf",
         "cf3fmatch": "cf3f_match_hf",
-        "cf3mleap": "cf3m_leap_hf", "cf3mbody": "cf3m_body_hf"}  # CF-3f matched teachers  # big continued to 200k: selected / final (copy of last.pt)  # long-arm mid-training snapshots (copies of last.pt)
+        "cf3mleap": "cf3m_leap_hf", "cf3mbody": "cf3m_body_hf", "cf3swide": "cf3s_wide_hf"}  # CF-3f matched teachers  # big continued to 200k: selected / final (copy of last.pt)  # long-arm mid-training snapshots (copies of last.pt)
 METRICS = ("corr_mm", "compat_success", "wrist_mm", "wrist_deg")
 
 
