@@ -12,7 +12,7 @@ Extra gate for the contact arm only (predeclared 2026-11-28, docs/cf3f_extra_arm
 Reported, not gating: vs CF2 / D1-bv; the 360-hand pool (long arm only); Shadow / Wuji success rates; wrist_mm and wrist_deg
 on every pool; limit_violation_preclamp per pool (arm and CF-3e).
 
-    PYTHONPATH=src python scripts/decoder/benchmark/cf3f_gate.py ARM        # ARM in leap long teach big rec big300k contact
+    PYTHONPATH=src python scripts/decoder/benchmark/cf3f_gate.py ARM        # ARM in leap long teach big rec big300k contact widestart
     PYTHONPATH=src python scripts/decoder/benchmark/cf3f_gate.py --selftest # reproduces cf3e_gate.json's CF-3e-vs-CF-3d rows
 Writes ${GETKITE_RUNS}/cf3f_{ARM}_gate.json.
 """
@@ -79,6 +79,9 @@ def readout(M, H, H2, sysname, ref, prim=None):
     sh = C["Shadow"]
     q5 = all(sum(sh[m]["diff"]) / 3 <= 0 and sum(v < 0 for v in sh[m]["verdict"]) <= 1 for m in ("corr_mm", "wrist_mm"))
     res = {"Q1": q1, "Q2": q2, "Q3": q3, "Q5": q5}
+    if sysname == "cf3fwidestart":  # predeclared (docs/wide_start_proposal.md): at KITE-noise starts the arm must not lose
+        # (Q2 becomes non-inferiority: 105 pool not significantly higher in any seed); its gain is judged by W (gate_widestart)
+        res["Q2"] = all(v >= 0 for v in h["verdict"])
     if sysname == "cf3fcontact":  # predeclared extra gate for the contact arm (docs/cf3f_extra_arms.md)
         res["Q6"] = all(v >= 0 for p in ("Allegro", "Barrett", "LEAP", "held-out LEAP (105)") for m in ("wrist_mm", "wrist_deg")
                         for v in C[p][m]["verdict"])
@@ -130,6 +133,20 @@ def main():
     H2 = json.load(open(p360)) if os.path.exists(p360) else None
     prim = (prim_heldout(f"cf3f_{arm}_hf"), prim_heldout("cf3e_long_hf"))
     out, pools, refs = readout(M, H, H2, sysname, REF, prim)
+    if arm == "widestart":  # W: the predeclared gain, on starts drawn at 3x KITE noise (same records, same scoring)
+        Mw = json.load(open(f"{R}/transfer_benchmark_v1_{sysname}_wide3x/metrics.json"))
+        Hw = json.load(open(f"{R}/transfer_benchmark_v1_{sysname}_leapval105_wide3x/metrics.json"))
+        wo, _, _ = readout(Mw, Hw, None, sysname, REF)
+        Cw = wo[f"vs_{REF}"]
+        hw = Cw["held-out LEAP (105)"]["corr_mm"]
+        W1 = sum(d < 0 for d in hw["diff"]) == 3 and sum(v > 0 for v in hw["verdict"]) >= 2 and all(v >= 0 for v in hw["verdict"])
+        W2 = all(v >= 0 for p in ("Wuji", "Shadow") for v in Cw[p]["corr_mm"]["verdict"])
+        out["wide3x"] = {"vs_cf3e": Cw, "W1_105_better": W1, "W2_new_families_not_worse": W2}
+        out["W"] = W1 and W2
+        out["pass"] = out["pass"] and out["W"]
+        print("wide3x:", json.dumps({"W1": W1, "W2": W2, "W": out["W"]}))
+        for n in Cw:
+            print(f"  wide3x {n:22s} corr {Cw[n]['corr_mm']['diff']} {Cw[n]['corr_mm']['verdict']}")
     json.dump(out, open(f"{R}/cf3f_{arm}_gate.json", "w"), indent=1)
     show(out, pools, refs, sysname)
 

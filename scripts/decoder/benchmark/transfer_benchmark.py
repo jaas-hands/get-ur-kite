@@ -247,6 +247,9 @@ def main():
     cfg["surface_sampling"] = B["surface_sampling"]
     torch.manual_seed(0)
     noise = start_noise(cfg)
+    if B.get("start_noise_mult"):  # wide-start readout (docs/wide_start_proposal.md): every start-noise scale x mult; same records
+        noise = {k: v * float(B["start_noise_mult"]) for k, v in noise.items()}
+        print("start noise scaled x", B["start_noise_mult"], noise, flush=True)
     extra_robots = [WUJI] + ([SHADOW] if B.get("shadow_pool") else [])
     bank = build_bank({**cfg, "robots": cfg["robots"] + extra_robots}, dev)
     fam = np.array([str(x) for x in bank.family], dtype=object)

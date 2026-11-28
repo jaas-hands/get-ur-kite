@@ -34,7 +34,20 @@ from .train_scratch import (FrozenPsi, RawContacts, build_bank, evaluate, git_st
 J1_DEFAULTS = dict(contact_weight=1.0, contacts_lr=1e-3, contacts_grad_clip=1.0, contacts_weight_decay=1e-4,
                    base_frame_aug=None, canonical_frame=False, canonical_jitter=None, canonical_origin=False,
                    distill_teachers=None, distill_alpha=0.5, distill_matched=False,
-                   contact_fk_weight=0.0, contact_fk_unit_m=0.005)
+                   contact_fk_weight=0.0, contact_fk_unit_m=0.005,
+                   start_wide_mult=None, start_wide_frac=0.5, start_wide_teacher="label")
+
+
+def draw_start_mix(bank, rb, gen, noise, mult, frac):
+    """Wide-start arm (docs/wide_start_proposal.md): per TRAINING example, the start is drawn with KITE's noise (prob 1 - frac)
+    or with every noise scale multiplied by mult (prob frac). Both draws use the same generator; the goal fields are identical
+    in both (qcg differs only on inactive joints, which follow the start, so it is selected with the rest). Validation,
+    checkpoint selection and all evaluation keep KITE's noise. -> (StartGoal, wide mask (B,) bool)."""
+    a = draw_start(bank, rb, gen, **noise)
+    b = draw_start(bank, rb, gen, **{k: v * mult for k, v in noise.items()})
+    wide = (torch.rand(len(rb.r), generator=gen) < frac).to(rb.r.device)
+    pick = lambda x, y: torch.where(wide.view(-1, *([1] * (x.dim() - 1))), y, x)  # noqa: E731
+    return type(a)(**{k: pick(getattr(a, k), getattr(b, k)) for k in a.__dataclass_fields__}), wide
 
 
 FK_GRAD_NOTE = ("The contact-FK loss acts on the decoder's predicted pose; its gradient also reaches the contact predictor through "
@@ -413,6 +426,14 @@ def main():
                 pat[tuple(tmatch[:, j].tolist())] = pat.get(tuple(tmatch[:, j].tolist()), 0) + 1
             (out / "distill_matched.json").write_text(json.dumps({"patterns": {"".join("1" if b else "0" for b in k): v for k, v in pat.items()}}, indent=1))
             print("distill_matched: teacher patterns over robots", {"".join("1" if b else "0" for b in k): v for k, v in pat.items()}, flush=True)
+    wide_mult = cfg.get("start_wide_mult")  # wide-start arm (docs/wide_start_proposal.md); None = KITE's noise only, as CF-3e
+    if wide_mult:
+        wide_mult = float(wide_mult)
+        assert wide_mult > 1 and 0 < float(cfg["start_wide_frac"]) < 1 and cfg["start_wide_teacher"] in ("label", "teacher"), \
+            (wide_mult, cfg["start_wide_frac"], cfg["start_wide_teacher"])
+        assert not aug and not cfg.get("canonical_jitter"), "the wide-start arm is one change vs CF-3e"
+        print(f"wide starts: frac {cfg['start_wide_frac']} at {wide_mult}x KITE noise {noise} (training only; validation and "
+              f"selection at KITE noise); teacher term on wide examples: {cfg['start_wide_teacher']}", flush=True)
     fk_cfg = cfg.get("contact_fk_weight") or 0.0
     fk_w = None if fk_cfg == "auto" else float(fk_cfg)
     fk_info = {}
@@ -503,7 +524,10 @@ def main():
     while step < Tt and not stop["flag"]:
         idx = sampler.sample(cfg["batch_size"]).to(dev)
         rb = train.index(idx)
-        sg = draw_start(bank, rb, sgen, **noise)
+        if wide_mult:  # wide-start arm: a mix of KITE-noise and wider starts (training batches only)
+            sg, wide = draw_start_mix(bank, rb, sgen, noise, wide_mult, float(cfg["start_wide_frac"]))
+        else:
+            sg, wide = draw_start(bank, rb, sgen, **noise), None
         z = psi(rb.c_pos, jitter_normals(rb.c_normal, cfg["normal_noise_rad"], sgen), rb.c_valid)
         r_tr = rb.r
         sg_nat, Qb = sg, None
@@ -530,6 +554,11 @@ def main():
         lm_gt = lm_t = None
         if teachers is not None:
             td_root, td_j = distill_targets(teachers, bank, bank_tr, rb.r, r_tr, sg_nat, sg, Qb if canon else None, z, mc, tmatch)
+            if wide is not None and cfg["start_wide_teacher"] == "label":
+                # the teachers only ever trained on KITE-noise starts, so on wide starts their targets are out of distribution:
+                # those examples use the ground-truth target in the teacher term too (label-only); KITE-noise examples unchanged
+                td_root = torch.where(wide.view(-1, *([1] * (td_root.dim() - 1))), tr_root, td_root)
+                td_j = torch.where(wide.view(-1, *([1] * (td_j.dim() - 1))), tr_j, td_j)
             lm_t, _, _ = residual_loss(out_m, td_root, td_j, bank_tr.coord_valid[r_tr], fam_tr[r_tr], len(families))
             lm_gt = lm
             lm = (1 - alpha) * lm_gt + alpha * lm_t
@@ -556,6 +585,7 @@ def main():
         if log_now:
             v = out_m["contact_valid"]
             row = {"step": step, "lr": sched.get_last_lr()[0], "lr_contacts": sched.get_last_lr()[1], "train/loss": loss.item(),
+                   **({"train/wide_frac": float(wide.float().mean())} if wide is not None else {}),
                    "train/motion": lm.item(), **({"train/motion_gt": lm_gt.item(), "train/motion_teacher": lm_t.item()} if lm_t is not None else {}), "train/root": lr_.mean().item(), "train/joint": lj_.mean().item(),
                    "train/contact": CL["total"].item(), "train/contact_pos": CL["pos"].item(), "train/contact_normal": CL["normal"].item(),
                    "train/contact_exist": CL["exist"].item(), "train/contact_weighted": cfg["contact_weight"] * CL["total"].item(),
