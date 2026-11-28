@@ -99,6 +99,8 @@ def main():
                       "ens": {m: round(float(ens[arm][m].mean()), 4) for m in METRICS}}
             if arm != "cf2" and "cf2" in a.arms:
                 F[arm]["minus_cf2"] = {m: [paired_boot(per[(arm, s)][m], per[("cf2", s)][m]) for s in range(3)] for m in ("corr_mm", "wrist_mm")}
+            if arm.startswith("cf3m") and "cf3e" in a.arms:  # CF-3m readout: arm - CF-3e per seed, paired (added 2026-11-28)
+                F[arm]["minus_cf3e"] = {m: [paired_boot(per[(arm, s)][m], per[("cf3e", s)][m]) for s in range(3)] for m in ("corr_mm", "wrist_mm")}
         for m_ in mixes:
             F[m_] = {"ens": {m: round(float(ens[m_][m].mean()), 4) for m in METRICS}}
         F["_ens_pairs"] = {f"{x}-{y}": {m: paired_boot(ens[x][m], ens[y][m]) for m in ("corr_mm", "wrist_mm")}
