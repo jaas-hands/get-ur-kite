@@ -8,6 +8,10 @@ kinematic graph. One model serves every hand; the hand is given by its descripti
 **Delivery model: seed 0** (`${GETKITE_RUNS}/cf3e_long_hf/best.pt`, fetched with `bash scripts/fetch_checkpoints.sh cf3e_long_hf`). Seeds 1 and 2 are included for evaluation and are judged
 separately; seeds are never averaged or pooled.
 
+**Evaluation hand-off for Simon (test splits):** [hand-off doc](https://docs.google.com/document/d/1KAGorzpKI4k7UWJgiv3vQG-Vz1ukRgh0WlBBl5yq_8o/edit?tab=t.0)
+(anyone with the link can view). It covers how to score CF-3e on the test splits with his scripts, what to report, and the
+known caveats.
+
 ## What makes up CF-3e
 
 | Ingredient | What it does |
@@ -72,6 +76,7 @@ benchmark results.
 1. **Data.** Dataset repo `jaas-hands/get-ur-kite-dataset`, branch `main`, commit `6b3ecfa` or later; run from its root.
    Outputs live outside git (`data/`, and `$GETKITE_DATA` for the decoder's extra pools).
    - LEAP hands, splits and records (kite_code regime, 15 validation topologies):
+     `bash scripts/fetch_assets.sh` (pinned LEAP assets into `third_party/`; must run first), then
      `python -m kite_data.build_hands`, `python -m kite_data.splits`, then
      `sbatch scripts/slurm/gen_kite_code.sbatch main-train --splits train` and
      `sbatch scripts/slurm/gen_kite_code.sbatch main-evals --splits val test_finger_subset test_combined test_joint_count test_geometry`.
@@ -82,6 +87,11 @@ benchmark results.
    - Wuji (evaluation only; never trained on):
      `python scripts/kite_family/gen_kite_family.py --robot wujihand_right --n 500 --seed 202 --out $GETKITE_DATA/multifamily_heldout/wujihand_right_eval.npz`
      and the joint-order file `... --n 2000 --seed 101 --out $GETKITE_DATA/multifamily_heldout/wujihand_right_bank.npz`.
+     Verified byte-identical (SHA256, first 16 hex: `c45f1eb507739eb0` eval, `d9bdbab94f3fcdf4` bank; 2026-11-27) with KITE `1361595` plus its runtime
+     archive (`python download_assets.py`; ships the Wuji surface template, `51ac6c21c1d9cf59`) and Python 3.12.7, torch 2.15.0,
+     numpy 2.4.6, scipy 1.15.3, trimesh 4.10.1, pytorch-kinematics 0.7.6 (generation runs on CPU). Other environments can give
+     different records: check the hashes before scoring, and if they differ use the shared originals so every system is
+     scored on the same Wuji records.
    - Generated bodies (900; P0000-P0799 train, P0800-P0849 held out, P0850-P0899 reserved test):
      `python -m kite_data.build_prim hands --n 900 --seed 20261119 --out data/prim/hands` (regenerates byte-identical), then in
      this repo `python scripts/decoder/dlevels/repair_prim_fps.py --hands $GETKITE_DATASET/prim/hands` and
