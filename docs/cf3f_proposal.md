@@ -340,3 +340,13 @@ long@175k − CF-3e (final, 100k) corr_mm over the 9 unseen-family hands: mean +
 level with or better than CF-3e's final: source val 6.00 / 6.03 / 5.98 vs 6.09 / 6.12 / 6.07; held-out LEAP and held-out bodies ≈
 level (s2 bodies 5.20 vs 5.02). Reading (opinion): so far the big-arm pattern (in-family level/better, unseen families worse), but a
 mid-schedule snapshot understates the finished model; 225k / 275k / final decide.
+
+## Arm "match" result (2026-11-28 01:00 EST; `${GETKITE_RUNS}/cf3f_match_gate.json`, `external_hands_cf3fmatch_v1`): FAIL (Q1-Q5)
+
+match - CF-3e, corr_mm per seed s0/s1/s2 (paired bootstrap; * significantly worse): Allegro +0.17*/+0.13*/+0.08; Barrett
++0.35*/+0.24*/+0.14*; LEAP val +0.06/-0.08/+0.03; 105 pool +0.06*/+0.04*/+0.06*; Wuji +1.74*/+1.03*/+0.68* (compat_success
+-0.19/-0.12/-0.09); Shadow +1.97*/+0.99*/+0.71*; held-out generated bodies (Q4) +0.46/+0.29/+0.21. Worse than CF-3e on all 7
+external hands in every seed (e.g. Ability 8.22-8.45 -> 9.20-11.13, Aero 8.70-9.56 -> 9.79-10.72), about at CF2's level.
+Reading: dropping CF2's targets on the 750 bodies CF2 never saw removed CF-3e's off-distribution gain. Consistent with the
+memorisation checks (teacher_memorization_v1, teacher_memorization_source_v1) but confounded with 3 vs 6 teachers per body
+(Aryan); CF-3g split (6 teachers, fresh fold-trained D1-bv targets on bodies) is the clean test. See docs/plan_2026-11-28.md.
