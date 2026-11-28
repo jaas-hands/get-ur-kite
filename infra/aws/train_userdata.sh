@@ -29,8 +29,13 @@ status "boot; runs: $RUNS; commit $COMMIT"
 nvidia-smi --query-gpu=name,memory.total,driver_version --format=csv,noheader | while read -r l; do status "gpu: $l"; done
 
 # --- code and environment -------------------------------------------------------------------------------------------
-aws s3 cp --quiet "$S3/code/$COMMIT.tar.gz" code.tgz || fail "no code tarball for $COMMIT"
-mkdir -p gk && tar -xzf code.tgz -C gk
+# a git bundle (train.sh pack uploads one) gives a real checkout, so provenance.json records model_repo.head
+if aws s3 cp --quiet "$S3/code/$COMMIT.bundle" code.bundle 2>/dev/null; then
+  git clone -q code.bundle gk && git -C gk checkout -q "$COMMIT" || fail "checkout $COMMIT from bundle"
+else
+  aws s3 cp --quiet "$S3/code/$COMMIT.tar.gz" code.tgz || fail "no code tarball for $COMMIT"
+  mkdir -p gk && tar -xzf code.tgz -C gk
+fi
 git clone -q https://github.com/jaas-hands/get-ur-kite-dataset gkd && git -C gkd checkout -q "$DATASET_COMMIT" || fail "dataset repo"
 git clone -q https://github.com/helloqxwang/KITE kite && git -C kite checkout -q "$KITE_COMMIT" || fail "KITE repo"
 curl -LsSf https://astral.sh/uv/install.sh | sh >/dev/null 2>&1; export PATH="$HOME/.local/bin:$PATH"

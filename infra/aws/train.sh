@@ -24,6 +24,9 @@ ami() {
 cmd_pack() {
   local repo=${1:?repo dir} c=${2:?commit}
   git -C "$repo" archive --format=tar.gz "$c" | aws s3 cp - "s3://$B/code/$c.tar.gz"
+  local t; t=$(mktemp -d); git -C "$repo" branch -f getkite-pack "$c" >/dev/null
+  git -C "$repo" bundle create -q "$t/c.bundle" getkite-pack && aws s3 cp --quiet "$t/c.bundle" "s3://$B/code/$c.bundle"
+  git -C "$repo" branch -D -q getkite-pack; rm -rf "$t"
   echo "packed $(git -C "$repo" rev-parse --short "$c") -> s3://$B/code/$c.tar.gz"
 }
 
