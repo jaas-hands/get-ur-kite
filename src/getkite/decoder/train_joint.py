@@ -33,7 +33,36 @@ from .train_scratch import (FrozenPsi, RawContacts, build_bank, evaluate, git_st
 
 J1_DEFAULTS = dict(contact_weight=1.0, contacts_lr=1e-3, contacts_grad_clip=1.0, contacts_weight_decay=1e-4,
                    base_frame_aug=None, canonical_frame=False, canonical_jitter=None, canonical_origin=False,
-                   distill_teachers=None, distill_alpha=0.5, distill_matched=False)
+                   distill_teachers=None, distill_alpha=0.5, distill_matched=False,
+                   contact_fk_weight=0.0, contact_fk_unit_m=0.005)
+
+
+def contact_fk_loss(bank, r, out, c_tpl, c_pos, c_valid, family_idx, n_fam, unit_m=0.005):
+    """CF-3f-contact: distance between each requested contact and the template point meant to touch it, on the hand posed at
+    the predicted goal (FK of out["qc"], out["R"], out["t"] in `bank`). The template correspondences are supervision only, as
+    in the benchmark's corr_mm; joints are NOT clamped to limits (clamping would zero the gradient at a limit). Per example:
+    mean over valid contacts of |p - c| / unit_m (unit_m = 5 mm, the residual scale); then mean per family, then over families
+    (as residual_loss). World geometry is identical in a relabelled / canonical bank, so `bank` may be the training bank.
+    Returns (loss, per-example mean distance in mm, detached)."""
+    Rs, ts = bank.fk(r, bank.expand(r, out["qc"]), out["R"], out["t"])
+    p, _ = bank.points(r, Rs, ts, c_tpl)
+    d = torch.sqrt(((p - c_pos.to(p)) ** 2).sum(-1) + 1e-12)
+    v = c_valid.to(p.dtype)
+    per = (d * v).sum(1) / v.sum(1).clamp_min(1)
+    fams = [per[family_idx == f].mean() for f in range(n_fam) if (family_idx == f).any()]
+    return torch.stack(fams).mean() / unit_m, per.detach() * 1000
+
+
+def fk_weight_calibrate(model, lm, lfk):
+    """Predeclared rule for contact_fk_weight = "auto": the ratio of the motion-loss to the contact-FK-loss gradient norms on the
+    decoder parameters, on the first training batch of a fresh run (so the two terms start on equal footing)."""
+    params = [p for p in model.decoder.parameters() if p.requires_grad]
+    gm = torch.autograd.grad(lm, params, retain_graph=True, allow_unused=True)
+    gf = torch.autograd.grad(lfk, params, retain_graph=True, allow_unused=True)
+    nm = float(torch.cat([g.flatten() for g in gm if g is not None]).norm())
+    nf = float(torch.cat([g.flatten() for g in gf if g is not None]).norm())
+    assert nf > 0, "contact-FK loss gives no gradient to the decoder"
+    return nm / nf, nm, nf
 
 
 def load_teacher(path, dev):
@@ -358,6 +387,27 @@ def main():
                 pat[tuple(tmatch[:, j].tolist())] = pat.get(tuple(tmatch[:, j].tolist()), 0) + 1
             (out / "distill_matched.json").write_text(json.dumps({"patterns": {"".join("1" if b else "0" for b in k): v for k, v in pat.items()}}, indent=1))
             print("distill_matched: teacher patterns over robots", {"".join("1" if b else "0" for b in k): v for k, v in pat.items()}, flush=True)
+    fk_cfg = cfg.get("contact_fk_weight") or 0.0
+    fk_w = None if fk_cfg == "auto" else float(fk_cfg)
+    if fk_cfg == "auto" and (out / "contact_fk.json").exists():  # resumed: keep the weight fixed at the fresh start
+        fk_w = float(json.loads((out / "contact_fk.json").read_text())["weight"])
+    if fk_cfg:  # CF-3f-contact: check that FK at the GOAL pose reproduces the requested contacts (training bank, training frame)
+        with torch.no_grad():
+            gi = torch.arange(min(512, len(train)), device=dev)
+            grb = train.index(gi)
+            gsg = draw_start(bank, grb, torch.Generator().manual_seed(0), **noise)
+            gr = grb.r
+            if canon:
+                gQ = Qc[grb.r]; gupd = {"Rg": gsg.Rg @ gQ}
+                if Oc is not None:
+                    gupd |= {"tg": gsg.tg + (gsg.Rg @ Oc[grb.r][..., None]).squeeze(-1)}
+                gsg = type(gsg)(**{**{k: getattr(gsg, k) for k in gsg.__dataclass_fields__}, **gupd})
+            gbank = bank_tr if canon else bank
+            _, gmm = contact_fk_loss(gbank, gr, {"qc": gsg.qcg, "R": gsg.Rg, "t": gsg.tg}, grb.c_tpl, grb.c_pos, grb.c_valid,
+                                     fam_index[gr], len(families), float(cfg["contact_fk_unit_m"]))
+        fk_check = {"goal_contact_mm_max": float(gmm.max()), "goal_contact_mm_mean": float(gmm.mean())}
+        print("contact_fk goal check", json.dumps(fk_check), flush=True)
+        assert fk_check["goal_contact_mm_max"] < 0.1, f"FK at the goal pose does not reproduce the contacts: {fk_check}"
     log = open(out / "log.jsonl", "a")
     sgen = torch.Generator().manual_seed(cfg["seed"] + 1000 + step)
 
@@ -404,6 +454,17 @@ def main():
             lm = (1 - alpha) * lm_gt + alpha * lm_t
         CL, _ = model.contacts.set_loss(*out_m["contact_set"], *world_labels(rb))
         loss = lm + cfg["contact_weight"] * CL["total"]
+        lfk = fk_mm = None
+        if fk_cfg:  # CF-3f-contact: FK contact loss on the predicted goal pose (requested contacts, not teacher targets)
+            lfk, fk_mm = contact_fk_loss(bank_tr, r_tr, out_m, rb.c_tpl, rb.c_pos, rb.c_valid, fam_tr[r_tr], len(families),
+                                         float(cfg["contact_fk_unit_m"]))
+            if fk_w is None:  # "auto": calibrate once, on the first batch of a fresh run, then keep it fixed
+                fk_w, g_m, g_f = fk_weight_calibrate(model, lm, lfk)
+                (out / "contact_fk.json").write_text(json.dumps({"weight": fk_w, "rule": "grad-norm ratio motion / contact-FK on decoder params, first batch",
+                                                                "grad_motion": g_m, "grad_contact_fk": g_f, "step": step,
+                                                                "unit_m": float(cfg["contact_fk_unit_m"]), **fk_check}, indent=1))
+                print(f"contact_fk weight (auto) = {fk_w:.4g} (|g_motion| {g_m:.3g}, |g_fk| {g_f:.3g})", flush=True)
+            loss = loss + fk_w * lfk
         log_now = (step + 1) % cfg["log_every"] == 0
         if log_now:  # motion-only gradient reaching the contact predictor (diagnostic, every log step)
             gm = torch.autograd.grad(lm, list(model.contacts.parameters()), retain_graph=True, allow_unused=True)
@@ -423,6 +484,8 @@ def main():
                    "train/motion": lm.item(), **({"train/motion_gt": lm_gt.item(), "train/motion_teacher": lm_t.item()} if lm_t is not None else {}), "train/root": lr_.mean().item(), "train/joint": lj_.mean().item(),
                    "train/contact": CL["total"].item(), "train/contact_pos": CL["pos"].item(), "train/contact_normal": CL["normal"].item(),
                    "train/contact_exist": CL["exist"].item(), "train/contact_weighted": cfg["contact_weight"] * CL["total"].item(),
+                   **({"train/contact_fk": lfk.item(), "train/contact_fk_mm": fk_mm.mean().item(), "train/contact_fk_weighted": fk_w * lfk.item()}
+                      if lfk is not None else {}),
                    "grad/decoder": float(gn_d), "grad/contacts": float(gn_c), "grad/contacts_from_motion": g_motion_contacts,
                    "grad/contacts_from_contact": g_contact_contacts,
                    "count/pred_mean": float(v.sum(1).float().mean()), "count/true_mean": float(rb.c_valid.sum(1).float().mean()),
