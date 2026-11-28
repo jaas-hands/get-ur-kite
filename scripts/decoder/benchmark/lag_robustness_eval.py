@@ -19,6 +19,7 @@ Reading (fixed before running):
     on ground truth only (the design default); otherwise that choice stays as designed (not relaxed after seeing this).
 
     PYTHONPATH=src python scripts/decoder/benchmark/lag_robustness_eval.py
+    PYTHONPATH=src python scripts/decoder/benchmark/lag_robustness_eval.py --arm cf3swide   # Step-2 readout: CF-3e + the arm only
 """
 from __future__ import annotations
 
@@ -48,9 +49,15 @@ CK = {"cf3e": "${GETKITE_RUNS}/frozen_cf3e_2026-11-27/cf3e_long_hf{sfx}/best.pt"
       "big": "${GETKITE_RUNS}/cf3f_big_hf{sfx}/best.pt"}
 
 
+ARMS = {"cf3swide": "${GETKITE_RUNS}/cf3s_wide_hf{sfx}/best.pt"}
+
+
 def main():
     dev = torch.device("cuda")
-    out = Path(paths.expand("${GETKITE_RUNS}/lag_robustness_v1")); out.mkdir(parents=True, exist_ok=True)
+    arm = sys.argv[sys.argv.index("--arm") + 1] if "--arm" in sys.argv else None
+    ck = CK if arm is None else {"cf3e": CK["cf3e"], arm: ARMS[arm]}
+    out = Path(paths.expand("${GETKITE_RUNS}/lag_robustness_v1" if arm is None else f"${{GETKITE_RUNS}}/lag_robustness_{arm}"))
+    out.mkdir(parents=True, exist_ok=True)
     B = json.loads((REPO / "configs/decoder/benchmark/transfer_v1_leapval105.json").read_text())
     ss = B["surface_sampling"]
     cfg = load_config(str(REPO / "configs/decoder/scratch/c3_psi50k_10x_wrist_leapval105.json"), []); cfg["surface_sampling"] = ss
@@ -60,8 +67,8 @@ def main():
     pools = {"val": cfg["val"], "leap105": cfg["extra_eval"]["leap_heldout"],
              "wuji": [{"kind": "kite", "robot": "wujihand_right", "npz": f"{HD}/wujihand_right_eval.npz"}],
              "shadow": [{"kind": "kite", "robot": "shadow_hand_right", "npz": str(SHADOW_AD / "shadow_eval.npz")}]}
-    systems = {(a, s): load_system(f"{a}_s{s}", {"kind": "j1", "ckpt": paths.expand(CK[a].replace("{sfx}", "" if s == 0 else f"_s{s}"))},
-                                   dev, ss)[0] for a in CK for s in range(3)}
+    systems = {(a, s): load_system(f"{a}_s{s}", {"kind": "j1", "ckpt": paths.expand(ck[a].replace("{sfx}", "" if s == 0 else f"_s{s}"))},
+                                   dev, ss)[0] for a in ck for s in range(3)}
     scfg = {"success_pos_mm": POS_MM, "success_normal_deg": ANG_DEG}
     R = {"ks": KS, "base_noise": base, "calls": CALLS, "pools": {}}
     per = {}
@@ -76,7 +83,7 @@ def main():
             nk = {"xyz_std": base["xyz_std"] * k, "rot_std_deg": base["rot_std_deg"] * k, "joint_frac": base["joint_frac"] * k}
             sg0 = sg_to(fixed_start(bank, rec, cfg["val_start_seed"], **nk), dev)
             for (a, s), S in systems.items():
-                ncalls = CALLS if a == "cf3e" else 1
+                ncalls = CALLS if a in ("cf3e", arm) else 1
                 acc = {c: {m: [] for m in METRICS} for c in range(1, ncalls + 1)}
                 with torch.no_grad():
                     for i in chunks:
@@ -113,7 +120,7 @@ def main():
         best = min(float(per[("leap105", 3, "cf3e", s, c)]["corr_mm"].mean()) for c in range(1, CALLS + 1))
         rd["iter"][f"s{s}"] = {"k3_best_of_calls": round(best, 4), "k1_single": round(float(k1["corr_mm"].mean()), 4),
                                "recovers": bool(best - float(k1["corr_mm"].mean()) <= 0.5)}
-        for a in ("d1bv", "cf2", "big"):
+        for a in [x for x in ck if x != "cf3e"]:
             rd["teacher_gap"].setdefault(a, {})[f"s{s}"] = round(float(per[("leap105", 3, a, s, 1)]["corr_mm"].mean()
                                                                        - per[("leap105", 1, a, s, 1)]["corr_mm"].mean()), 4)
     rd["lag_gap_confirmed"] = all(v["confirmed"] for v in rd["gap"].values())

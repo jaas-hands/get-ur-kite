@@ -34,7 +34,7 @@ from .train_scratch import (FrozenPsi, RawContacts, build_bank, evaluate, git_st
 J1_DEFAULTS = dict(contact_weight=1.0, contacts_lr=1e-3, contacts_grad_clip=1.0, contacts_weight_decay=1e-4,
                    base_frame_aug=None, canonical_frame=False, canonical_jitter=None, canonical_origin=False,
                    distill_teachers=None, distill_alpha=0.5, distill_matched=False, distill_groups=None, distill_default=None,
-                   distill_record_groups=None)
+                   distill_record_groups=None, start_wide_frac=0.0, start_wide_scale=1.0)
 
 
 def load_teacher(path, dev):
@@ -477,6 +477,12 @@ def main():
         idx = sampler.sample(cfg["batch_size"]).to(dev)
         rb = train.index(idx)
         sg = draw_start(bank, rb, sgen, **noise)
+        wide = None
+        if cfg["start_wide_frac"] > 0:  # lag robustness (docs/lag_robustness_proposal.md): a fraction of starts drawn wider
+            sgw = draw_start(bank, rb, sgen, **{k_: v_ * cfg["start_wide_scale"] for k_, v_ in noise.items()})
+            wide = (torch.rand(len(rb.r), generator=sgen) < cfg["start_wide_frac"]).to(dev)
+            sg = type(sg)(**{f_: torch.where(wide.view(-1, *([1] * (getattr(sg, f_).dim() - 1))), getattr(sgw, f_), getattr(sg, f_))
+                             for f_ in sg.__dataclass_fields__})
         z = psi(rb.c_pos, jitter_normals(rb.c_normal, cfg["normal_noise_rad"], sgen), rb.c_valid)
         r_tr = rb.r
         sg_nat, Qb = sg, None
@@ -504,6 +510,8 @@ def main():
         if teachers is not None:
             td_root, td_j = distill_targets(teachers, bank, bank_tr, rb.r, r_tr, sg_nat, sg, Qb if canon else None, z, mc, tmatch, tassign,
                                             trec[idx] if trec is not None else None)
+            if wide is not None:  # wide starts: teachers were trained near the goal only -> ground-truth targets there
+                td_root = torch.where(wide[:, None], tr_root, td_root); td_j = torch.where(wide[:, None], tr_j, td_j)
             lm_t, _, _ = residual_loss(out_m, td_root, td_j, bank_tr.coord_valid[r_tr], fam_tr[r_tr], len(families))
             lm_gt = lm
             lm = (1 - alpha) * lm_gt + alpha * lm_t
