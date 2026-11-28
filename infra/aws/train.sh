@@ -13,7 +13,7 @@ if [ -n "${GETKITE_AWS_ACCESS_KEY_ID:-}" ]; then
   export AWS_ACCESS_KEY_ID="$GETKITE_AWS_ACCESS_KEY_ID" AWS_SECRET_ACCESS_KEY="$GETKITE_AWS_SECRET_ACCESS_KEY"; unset AWS_SESSION_TOKEN
 fi
 export AWS_DEFAULT_REGION="${GETKITE_AWS_REGION:-${AWS_DEFAULT_REGION:-us-east-1}}"
-TYPES="${GETKITE_TRAIN_TYPES:-g6e.xlarge g6e.2xlarge g6.2xlarge}"
+TYPES="${GETKITE_TRAIN_TYPES:-g6e.xlarge g6e.2xlarge}"   # L40S only: a run must keep one GPU type for its whole life
 ROLE=getkite-ec2; TAG=getkite
 B="getkite-$(aws sts get-caller-identity --query Account --output text)-$AWS_DEFAULT_REGION"
 ami() {
