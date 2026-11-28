@@ -14,8 +14,10 @@ Descriptive only (not decided on):
      data, so this shows how much leaving out a third of the bodies moves LEAP predictions); on all 48 hands and on the 36 whose
      rows 900-942 are NOT in the teachers' validation (checkpoint-selection) set. Folds here = the fold plan's LEAP folds, used
      only to spread the comparison across the three fold teachers.
-  LEAP rows 0-48 (both trained on these), same comparison; LEAP rows 48-96: original D1-bv only vs original D1-bv + CF2
-  (bears on the splitfresh arm).
+  LEAP rows 0-48 (both trained on these), same comparison; LEAP rows 48-96: original D1-bv only vs original D1-bv + CF2.
+  EXPECTED-BIASED (Aryan's review): CF2 trained on rows 48-96, so the +CF2 target is partly memorised there and will look closer
+  to ground truth; this is NOT evidence against the splitfresh arm (whose question is what the student learns from a fresh vs a
+  memorised target, judged by the gate).
 
     PYTHONPATH=src python scripts/decoder/benchmark/cf3g_gonogo.py [--runs-suffix ""]
 """
@@ -138,7 +140,9 @@ def main():
     res["desc3_fold_minus_orig_leap_rows_900_942_all48"] = boot(np.array(d3))
     res["desc3_fold_minus_orig_leap_rows_900_942_excl_selection_36"] = boot(np.array(d3_nosel))
     res["desc_fold_minus_orig_leap_leftout_rows_0_48"] = boot(np.array(d3_left))
-    res["desc_d1bv_only_minus_d1bv_plus_cf2_leap_rows_48_96"] = boot(np.array(d_fresh))
+    res["desc_EXPECTED_BIASED_d1bv_only_minus_d1bv_plus_cf2_leap_rows_48_96"] = boot(np.array(d_fresh))
+    res["desc_EXPECTED_BIASED_note"] = ("CF2 trained on LEAP rows 48-96, so the +CF2 target is partly memorised there and favoured; "
+                                        "not evidence against splitfresh")
     print("desc3", res["desc3_fold_minus_orig_leap_rows_900_942_all48"], res["desc3_fold_minus_orig_leap_rows_900_942_excl_selection_36"], flush=True)
     c1 = res["c1_fold_minus_cf2_leftout_bodies"]["ci95"][1] < 0
     c2 = res["c2_fold_minus_orig_heldout_bodies"]["mean"] <= MARGIN_MM
